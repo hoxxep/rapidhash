@@ -1,0 +1,17 @@
+[package]
+name = "rapidhash"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+
+[[bench]]
+name = "bench"
+harness = false
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.5.1"
+rand = "0.8.5"
+fxhash = "0.2.1"
