@@ -1,6 +1,6 @@
 # rapidhash - native rust implementation
 
-A rust implementation of the [rapidhash-rs](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
+A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
 ## Usage
 
