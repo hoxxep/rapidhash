@@ -18,7 +18,7 @@ pub fn bench(c: &mut Criterion) {
         ("hash/seahash", Box::new(bench_seahash)),
     ];
 
-    let sizes = [8usize, 16, 64, 256, 1024, 4096];
+    let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];
 
     for (name, function) in groups.into_iter() {
         let mut group = c.benchmark_group(name.to_string());
