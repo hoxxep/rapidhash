@@ -10,11 +10,12 @@ name = "bench"
 harness = false
 
 [features]
-default = ["std"]
+default = ["std", "rand"]
 std = []
+rand = ["dep:rand"]
 
 [dependencies]
-serde = { version = "1.0.210", features = ["derive"] }
+rand = { version = "0.8.5", default-features = false, optional = true }
 
 [dev-dependencies]
 criterion = "0.5.1"
@@ -25,3 +26,4 @@ wyhash = "0.5.0"
 xxhash-rust = { version = "0.8.12", features = ["xxh3"] }
 metrohash = "1.0.6"
 seahash = "4.1.0"
+ahash = "0.8.11"

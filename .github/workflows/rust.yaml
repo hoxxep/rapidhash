@@ -10,11 +10,22 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  test-std:
+    name: "Test (std)"
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
     - name: Rust dependency cache
       uses: Swatinem/rust-cache@v2
     - name: Compile and run tests
-      run: cargo test  # --verbose
+      run: cargo test --no-fail-fast
+
+  test-no-std:
+    name: "Test (no_std)"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Compile and run tests
+        run: cargo test --no-fail-fast --lib --no-default-features

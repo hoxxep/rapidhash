@@ -3,9 +3,17 @@
 
 mod hasher;
 mod rapid;
+#[cfg(feature = "rand")]
+mod random;
 
+#[doc(inline)]
 pub use crate::hasher::*;
+
 use crate::rapid::{rapidhash_raw, RAPID_SEED};
+
+#[doc(inline)]
+#[cfg(feature = "rand")]
+pub use crate::random::*;
 
 /// Rapidhash a single byte stream, matching the C++ implementation.
 #[inline]

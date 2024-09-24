@@ -116,3 +116,15 @@ pub fn bench_seahash() -> Box<dyn FnMut(&mut Bencher)> {
         }, criterion::BatchSize::SmallInput);
     })
 }
+
+pub fn bench_ahash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random::<u64>()
+        }, |i: u64| {
+            let mut hasher = ahash::AHasher::default();
+            hasher.write(i.to_le_bytes().as_slice());
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}

@@ -2,7 +2,7 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Memory safe, dependency free, no-std compatible, non-cryptographic hash function. Not suitable where hashing DOS-protection is required.
+Memory safe, dependency free, no-std compatible, non-cryptographic hash function.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -28,8 +28,9 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 
 ## Features
 
-- `default`: `std`
+- `default`: `std`, `rand`
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
+- `rand`: Enables the `rand` crate dependency (in no-std mode) and exports  `RapidRandomState` to randomly initialize the seed.
 
 ## TODO
 This repo is an active work in progress.
@@ -62,7 +63,7 @@ struct Object {
 ```
 
 ```text
-hash/crate/input_bytes  time:   [5%        median    95%      ]
+hash/crate/input_bytes      time:   [5%        median    95%      ]
 
 hash/rapidhash/str_2        time:   [11.392 ns 11.650 ns 11.949 ns]
 hash/rapidhash/str_8        time:   [11.829 ns 12.129 ns 12.452 ns]
@@ -143,4 +144,14 @@ hash/seahash/str_1024       time:   [141.30 ns 141.91 ns 142.74 ns]
 hash/seahash/str_4096       time:   [498.73 ns 499.36 ns 500.06 ns]
 hash/seahash/u64            time:   [6.1498 ns 6.1878 ns 6.2272 ns]
 hash/seahash/object         time:   [70.144 ns 70.394 ns 70.668 ns]
+
+hash/ahash/str_2            time:   [11.975 ns 12.208 ns 12.528 ns]
+hash/ahash/str_8            time:   [11.764 ns 12.017 ns 12.310 ns]
+hash/ahash/str_16           time:   [11.611 ns 11.847 ns 12.165 ns]
+hash/ahash/str_64           time:   [20.693 ns 21.243 ns 21.948 ns]
+hash/ahash/str_256          time:   [38.064 ns 38.856 ns 39.673 ns]
+hash/ahash/str_1024         time:   [82.701 ns 82.959 ns 83.318 ns]
+hash/ahash/str_4096         time:   [294.13 ns 295.45 ns 297.15 ns]
+hash/ahash/u64              time:   [2.1307 ns 2.1529 ns 2.1725 ns]
+hash/ahash/object           time:   [27.534 ns 27.713 ns 27.910 ns]
 ```

@@ -22,6 +22,7 @@ pub fn bench(c: &mut Criterion) {
         ("hash/xxhash", Box::new(string::bench_xxhash), Box::new(int::bench_xxhash), Box::new(object::bench_xxhash)),
         ("hash/metrohash", Box::new(string::bench_metrohash), Box::new(int::bench_metrohash), Box::new(object::bench_metrohash)),
         ("hash/seahash", Box::new(string::bench_seahash), Box::new(int::bench_seahash), Box::new(object::bench_seahash)),
+        ("hash/ahash", Box::new(string::bench_ahash), Box::new(int::bench_ahash), Box::new(object::bench_ahash)),
     ];
 
     let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];
