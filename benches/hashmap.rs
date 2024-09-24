@@ -5,9 +5,9 @@ use rand::Rng;
 /// Benchmark each hashing algorithm with hashmaps.
 pub fn bench(c: &mut Criterion) {
     let groups: &[(&str, Box<dyn Fn(usize, usize, usize) -> Box<dyn FnMut(&mut Bencher)>>)] = &[
-        ("map_rapidhash", Box::new(bench_rapidhash)),
-        ("map_default", Box::new(bench_default)),
-        ("map_fxhash", Box::new(bench_fxhash)),
+        ("map/rapidhash", Box::new(bench_rapidhash)),
+        ("map/default", Box::new(bench_default)),
+        ("map/fxhash", Box::new(bench_fxhash)),
     ];
 
     let sizes = [

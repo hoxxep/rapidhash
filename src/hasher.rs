@@ -14,6 +14,7 @@ use crate::rapid::{rapid_mix, rapidhash_core, rapidhash_finish, RAPID_SECRET, RA
 /// hasher.write(b"hello world");
 /// let hash = hasher.finish();
 /// ```
+#[derive(Copy, Clone)]
 pub struct RapidHasher {
     seed: u64,
     a: u64,

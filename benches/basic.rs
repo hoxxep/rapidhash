@@ -6,16 +6,16 @@ use rand::rngs::OsRng;
 /// Benchmark each hashing algorithm with various input sizes.
 pub fn bench(c: &mut Criterion) {
     let groups: &[(&str, Box<dyn Fn(usize) -> Box<dyn FnMut(&mut Bencher)>>)] = &[
-        ("rapidhash", Box::new(bench_rapidhash)),
-        ("rapidhash_raw", Box::new(bench_rapidhash_raw)),
-        ("default", Box::new(bench_default)),
-        ("fxhash", Box::new(bench_fxhash)),
-        ("t1ha", Box::new(bench_t1ha)),
-        ("wyhash", Box::new(bench_wyhash)),
-        ("wyhash_raw", Box::new(bench_wyhash_raw)),
-        ("xxhash", Box::new(bench_xxhash)),
-        ("metrohash", Box::new(bench_metrohash)),
-        ("seahash", Box::new(bench_seahash)),
+        ("hash/rapidhash", Box::new(bench_rapidhash)),
+        ("hash/rapidhash_raw", Box::new(bench_rapidhash_raw)),
+        ("hash/default", Box::new(bench_default)),
+        ("hash/fxhash", Box::new(bench_fxhash)),
+        ("hash/t1ha", Box::new(bench_t1ha)),
+        ("hash/wyhash", Box::new(bench_wyhash)),
+        ("hash/wyhash_raw", Box::new(bench_wyhash_raw)),
+        ("hash/xxhash", Box::new(bench_xxhash)),
+        ("hash/metrohash", Box::new(bench_metrohash)),
+        ("hash/seahash", Box::new(bench_seahash)),
     ];
 
     let sizes = [8usize, 16, 64, 256, 1024, 4096];

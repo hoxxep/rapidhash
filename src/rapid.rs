@@ -34,9 +34,6 @@ pub(crate) fn rapidhash_core(mut a: u64, mut b: u64, mut seed: u64, data: &[u8])
             let len = data.len();
             a ^= ((data[0] as u64) << 56) | ((data[len >> 1] as u64) << 32) | data[len - 1] as u64;
             // b = 0;
-        } else {
-            // a = 0;
-            // b = 0;
         }
     } else {
         let mut slice = data;
