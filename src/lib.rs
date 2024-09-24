@@ -6,8 +6,7 @@ const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc9, 0x4b33a6
 
 #[inline(always)]
 fn rapid_mum(a: &mut u64, b: &mut u64) {
-    let mut r = *a as u128;
-    r *= *b as u128;
+    let r = *a as u128 * *b as u128;
     *a = r as u64;
     *b = (r >> 64) as u64;
 }

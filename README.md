@@ -14,6 +14,7 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 This repo is an active work in progress.
 
 - [x] Implement the basic `rapidhash` function.
+- [ ] Add rapidhash protected variant.
 - [ ] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [ ] Add more tests, benchmark comparisons, and further docs.
