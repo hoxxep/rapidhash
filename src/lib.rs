@@ -31,14 +31,20 @@ pub fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
 mod tests {
     extern crate std;
 
-    use std::hash::Hasher;
+    use std::hash::{Hash, Hasher};
     use std::collections::BTreeSet;
     use rand::Rng;
     use rand::rngs::OsRng;
     use super::*;
 
+    #[derive(Hash)]
+    struct Object {
+        bytes: Vec<u8>,
+    }
+
+    /// Check the [rapidhash] oneshot function is equivalent to [RapidHasher]
     #[test]
-    fn it_works() {
+    fn hasher_equivalent_to_oneshot() {
         let hash = rapidhash(b"hello world");
         assert_ne!(hash, 0);
         assert_eq!(hash, 17498481775468162579);
@@ -49,6 +55,20 @@ mod tests {
 
         let hash = rapidhash(b"hello world!");
         assert_eq!(hash, 12238759925102402976);
+    }
+
+    /// `#[derive(Hash)]` writes a length prefix first, check understanding.
+    #[test]
+    fn derive_hash_works() {
+        let object = Object { bytes: b"hello world".to_vec() };
+        let mut hasher = RapidHasher::default();
+        object.hash(&mut hasher);
+        assert_eq!(hasher.finish(), 3415994554582211120);
+
+        let mut hasher = RapidHasher::default();
+        hasher.write_usize(b"hello world".len());
+        hasher.write(b"hello world");
+        assert_eq!(hasher.finish(), 3415994554582211120);
     }
 
     /// Check RapidHasher is equivalent to the raw rapidhash for a single byte stream.

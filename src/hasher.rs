@@ -117,72 +117,72 @@ impl Hasher for RapidHasher {
         // we use this static assert to ensure that usize is not larger than u64 for now.
         const _: () = assert!(usize::MAX as u128 <= u64::MAX as u128, "usize is larger than u64. Please raise a github issue to support this.");
 
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ bytes.len() as u64;
+        self.size += bytes.len() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += bytes.len() as u64;
     }
 
     #[inline]
     fn write_u8(&mut self, i: u8) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u8>() as u64;
+        self.size += size_of::<u8>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<u8>() as u64;
     }
 
     #[inline]
     fn write_u16(&mut self, i: u16) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u16>() as u64;
+        self.size += size_of::<u16>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<u16>() as u64;
     }
 
     #[inline]
     fn write_u32(&mut self, i: u32) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u32>() as u64;
+        self.size += size_of::<u32>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<u32>() as u64;
     }
 
     #[inline]
     fn write_u64(&mut self, i: u64) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u64>() as u64;
+        self.size += size_of::<u64>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<u64>() as u64;
     }
 
     #[inline]
     fn write_u128(&mut self, i: u128) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u128>() as u64;
+        self.size += size_of::<u128>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<u128>() as u64;
     }
 
     #[inline]
     fn write_usize(&mut self, i: usize) {
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<usize>() as u64;
+        self.size += size_of::<usize>() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += size_of::<usize>() as u64;
     }
 }
 
