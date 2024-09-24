@@ -22,3 +22,38 @@ This repo is an active work in progress.
 - [ ] Add more tests, benchmark comparisons, and further docs.
 - [ ] License the code under a permissive license. Need to review whether this repo can be more permissive than the BSD 2-Clause the C++ crate is under.
 - [ ] Publish to crates.io. (Confusingly, there is a rapidhash crate that is not this hash function.)
+
+## Benchmarks
+Initial benchmarks on M1 Max (aarch64) for various input sizes.
+
+```text
+crate/input_size        time:   [min       median    max      ]
+
+rapidhash/8             time:   [12.070 ns 12.412 ns 12.805 ns]
+rapidhash/16            time:   [11.916 ns 12.173 ns 12.482 ns]
+rapidhash/64            time:   [18.683 ns 18.946 ns 19.239 ns]
+rapidhash/256           time:   [37.639 ns 38.398 ns 39.139 ns]
+rapidhash/1024          time:   [57.908 ns 58.396 ns 59.024 ns]
+rapidhash/4096          time:   [172.06 ns 173.17 ns 174.48 ns]
+
+default/8               time:   [15.416 ns 15.696 ns 16.013 ns]
+default/16              time:   [16.633 ns 16.874 ns 17.168 ns]
+default/64              time:   [29.614 ns 30.128 ns 30.704 ns]
+default/256             time:   [94.702 ns 95.833 ns 96.970 ns]
+default/1024            time:   [312.52 ns 319.25 ns 333.32 ns]
+default/4096            time:   [1.2099 µs 1.2122 µs 1.2147 µs]
+
+fxhash/8                time:   [10.136 ns 10.383 ns 10.670 ns]
+fxhash/16               time:   [10.355 ns 10.571 ns 10.821 ns]
+fxhash/64               time:   [19.295 ns 19.621 ns 19.991 ns]
+fxhash/256              time:   [47.209 ns 48.230 ns 49.219 ns]
+fxhash/1024             time:   [198.84 ns 199.50 ns 200.30 ns]
+fxhash/4096             time:   [801.10 ns 802.85 ns 804.72 ns]
+
+t1ha/8                  time:   [12.039 ns 12.319 ns 12.638 ns]
+t1ha/16                 time:   [11.819 ns 12.099 ns 12.446 ns]
+t1ha/64                 time:   [20.800 ns 21.106 ns 21.456 ns]
+t1ha/256                time:   [38.075 ns 39.219 ns 40.378 ns]
+t1ha/1024               time:   [90.607 ns 91.188 ns 91.973 ns]
+t1ha/4096               time:   [309.10 ns 311.11 ns 314.08 ns]
+```

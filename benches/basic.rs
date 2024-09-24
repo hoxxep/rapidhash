@@ -3,29 +3,27 @@ use criterion::{Bencher, Criterion};
 use rand::Rng;
 use rand::rngs::OsRng;
 
+/// Benchmark each hashing algorithm with various input sizes.
 pub fn bench(c: &mut Criterion) {
-    let mut group = c.benchmark_group("basic");
-    group.bench_function("rapidhash_8", bench_rapidhash(8));
-    group.bench_function("rapidhash_16", bench_rapidhash(16));
-    group.bench_function("rapidhash_64", bench_rapidhash(64));
-    group.bench_function("rapidhash_256", bench_rapidhash(256));
-    group.bench_function("rapidhash_1024", bench_rapidhash(1024));
+    let groups: &[(&str, Box<dyn Fn(usize) -> Box<dyn FnMut(&mut Bencher)>>)] = &[
+        ("rapidhash", Box::new(bench_rapidhash)),
+        ("default", Box::new(bench_default)),
+        ("fxhash", Box::new(bench_fxhash)),
+        ("t1ha", Box::new(bench_t1ha)),
+    ];
 
-    group.bench_function("fxhash_8", bench_fxhash(8));
-    group.bench_function("fxhash_16", bench_fxhash(16));
-    group.bench_function("fxhash_64", bench_fxhash(64));
-    group.bench_function("fxhash_256", bench_fxhash(256));
-    group.bench_function("fxhash_1024", bench_fxhash(1024));
+    let sizes = [8usize, 16, 64, 256, 1024, 4096];
 
-    group.bench_function("default_8", bench_default(8));
-    group.bench_function("default_16", bench_default(16));
-    group.bench_function("default_64", bench_default(64));
-    group.bench_function("default_256", bench_default(256));
-    group.bench_function("default_1024", bench_default(1024));
+    for (name, function) in groups.into_iter() {
+        let mut group = c.benchmark_group(name.to_string());
+        for size in sizes {
+            group.bench_function(size.to_string(), function(size));
+        }
+    }
 }
 
-fn bench_rapidhash(size: usize) -> impl FnMut(&mut Bencher) {
-    move |b: &mut Bencher| {
+fn bench_rapidhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
         b.iter_batched(|| {
             let mut slice = vec![0u8; size];
             OsRng.fill(slice.as_mut_slice());
@@ -33,11 +31,11 @@ fn bench_rapidhash(size: usize) -> impl FnMut(&mut Bencher) {
         }, |bytes: Vec<u8>| {
             rapidhash::rapidhash(&bytes)
         }, criterion::BatchSize::SmallInput);
-    }
+    })
 }
 
-fn bench_default(size: usize) -> impl FnMut(&mut Bencher) {
-    move |b: &mut Bencher| {
+fn bench_default(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
         b.iter_batched(|| {
             let mut slice = vec![0u8; size];
             OsRng.fill(slice.as_mut_slice());
@@ -47,12 +45,11 @@ fn bench_default(size: usize) -> impl FnMut(&mut Bencher) {
             hasher.write(&bytes);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);
-    }
+    })
 }
 
-
-fn bench_fxhash(size: usize) -> impl FnMut(&mut Bencher) {
-    move |b: &mut Bencher| {
+fn bench_fxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
         b.iter_batched(|| {
             let mut slice = vec![0u8; size];
             OsRng.fill(slice.as_mut_slice());
@@ -62,5 +59,19 @@ fn bench_fxhash(size: usize) -> impl FnMut(&mut Bencher) {
             hasher.write(&bytes);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);
-    }
+    })
+}
+
+fn bench_t1ha(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = t1ha::T1haHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
 }
