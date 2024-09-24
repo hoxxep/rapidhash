@@ -2,7 +2,7 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Memory safe, dependency free, no-std compatible, non-cryptographic hash function.
+Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -83,7 +83,7 @@ hash/default/str_256        time:   [93.133 ns 94.249 ns 95.356 ns]
 hash/default/str_1024       time:   [309.88 ns 310.65 ns 311.76 ns]
 hash/default/str_4096       time:   [1.2017 µs 1.2039 µs 1.2064 µs]
 hash/default/u64            time:   [3.6682 ns 3.6853 ns 3.7016 ns]
-hash/default/object         time:   [53.493 ns 54.032 ns 54.907 ns
+hash/default/object         time:   [53.493 ns 54.032 ns 54.907 ns]
 
 hash/fxhash/str_2           time:   [9.8713 ns 10.082 ns 10.322 ns]
 hash/fxhash/str_8           time:   [9.7616 ns 10.074 ns 10.600 ns]
