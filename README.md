@@ -55,10 +55,10 @@ There are three types of benchmarks over the different algorithms to cover vario
 ```rust
 #[derive(Hash)]
 struct Object {
-    a: u64,
+    a: u8,
     b: u64,
     s: String,
-    v: Vec<u64>,
+    v: Vec<u32>,
 }
 ```
 
