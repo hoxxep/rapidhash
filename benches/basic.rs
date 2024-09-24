@@ -1,165 +1,42 @@
-use std::hash::Hasher;
 use criterion::{Bencher, Criterion};
-use rand::Rng;
-use rand::rngs::OsRng;
+
+use crate::int;
+use crate::string;
+use crate::object;
 
 /// Benchmark each hashing algorithm with various input sizes.
 pub fn bench(c: &mut Criterion) {
-    let groups: &[(&str, Box<dyn Fn(usize) -> Box<dyn FnMut(&mut Bencher)>>)] = &[
-        ("hash/rapidhash", Box::new(bench_rapidhash)),
-        ("hash/rapidhash_raw", Box::new(bench_rapidhash_raw)),
-        ("hash/default", Box::new(bench_default)),
-        ("hash/fxhash", Box::new(bench_fxhash)),
-        ("hash/t1ha", Box::new(bench_t1ha)),
-        ("hash/wyhash", Box::new(bench_wyhash)),
-        ("hash/wyhash_raw", Box::new(bench_wyhash_raw)),
-        ("hash/xxhash", Box::new(bench_xxhash)),
-        ("hash/metrohash", Box::new(bench_metrohash)),
-        ("hash/seahash", Box::new(bench_seahash)),
+    let groups: &[(
+        &str,
+        Box<dyn Fn(usize) -> Box<dyn FnMut(&mut Bencher)>>,
+        Box<dyn Fn() -> Box<dyn FnMut(&mut Bencher)>>,
+        Box<dyn Fn() -> Box<dyn FnMut(&mut Bencher)>>,
+    )] = &[
+        ("hash/rapidhash", Box::new(string::bench_rapidhash), Box::new(int::bench_rapidhash), Box::new(object::bench_rapidhash)),
+        ("hash/rapidhash_raw", Box::new(string::bench_rapidhash_raw), Box::new(int::bench_rapidhash_raw), Box::new(object::bench_rapidhash)),
+        ("hash/default", Box::new(string::bench_default), Box::new(int::bench_default), Box::new(object::bench_default)),
+        ("hash/fxhash", Box::new(string::bench_fxhash), Box::new(int::bench_fxhash), Box::new(object::bench_fxhash)),
+        ("hash/t1ha", Box::new(string::bench_t1ha), Box::new(int::bench_t1ha), Box::new(object::bench_t1ha)),
+        ("hash/wyhash", Box::new(string::bench_wyhash), Box::new(int::bench_wyhash), Box::new(object::bench_wyhash)),
+        ("hash/wyhash_raw", Box::new(string::bench_wyhash_raw), Box::new(int::bench_wyhash_raw), Box::new(object::bench_wyhash)),
+        ("hash/xxhash", Box::new(string::bench_xxhash), Box::new(int::bench_xxhash), Box::new(object::bench_xxhash)),
+        ("hash/metrohash", Box::new(string::bench_metrohash), Box::new(int::bench_metrohash), Box::new(object::bench_metrohash)),
+        ("hash/seahash", Box::new(string::bench_seahash), Box::new(int::bench_seahash), Box::new(object::bench_seahash)),
     ];
 
     let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];
 
-    for (name, function) in groups.into_iter() {
+    for (name, string_fn, int_fn, object_fn) in groups.into_iter() {
         let mut group = c.benchmark_group(name.to_string());
         for size in sizes {
-            group.bench_function(size.to_string(), function(size));
+            let name = "str_".to_string() + &size.to_string();
+            group.bench_function(name, string_fn(size));
         }
+        group.bench_function("u64", int_fn());
+
+        if name.ends_with("_raw") {
+            continue;  // cannot hash objects with raw impls
+        }
+        group.bench_function("object", object_fn());
     }
-}
-
-fn bench_rapidhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = rapidhash::RapidHasher::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_rapidhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            rapidhash::rapidhash(&bytes)
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_default(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = std::collections::hash_map::DefaultHasher::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_fxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = fxhash::FxHasher::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_t1ha(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = t1ha::T1haHasher::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_wyhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = wyhash::WyHash::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_wyhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            wyhash::wyhash(&bytes, 0)
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_xxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = xxhash_rust::xxh3::Xxh3::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_metrohash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = metrohash::MetroHash::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-fn bench_seahash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            let mut slice = vec![0u8; size];
-            OsRng.fill(slice.as_mut_slice());
-            slice
-        }, |bytes: Vec<u8>| {
-            let mut hasher = seahash::SeaHasher::default();
-            hasher.write(&bytes);
-            hasher.finish()
-        }, criterion::BatchSize::SmallInput);
-    })
 }

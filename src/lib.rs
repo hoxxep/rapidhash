@@ -65,4 +65,17 @@ mod tests {
             hashes.insert(hash1);
         }
     }
+
+    #[test]
+    fn it_hashes_as_expected() {
+        assert_eq!(                                    rapidhash(0u128.to_le_bytes().as_slice()),  8755926293314635566);
+        assert_eq!(                                    rapidhash(1u128.to_le_bytes().as_slice()), 17996969877019643443);
+        assert_eq!(                               rapidhash(0x1000u128.to_le_bytes().as_slice()),  3752997491443908878);
+        assert_eq!(                          rapidhash(0x1000_0000u128.to_le_bytes().as_slice()),  1347028408682550078);
+        assert_eq!(                  rapidhash(0x10000000_00000000u128.to_le_bytes().as_slice()),  3593052489046108800);
+        assert_eq!(                  rapidhash(0x10000000_00000001u128.to_le_bytes().as_slice()),  7365235785575411947);
+        assert_eq!(         rapidhash(0x10000000_00000000_00000000u128.to_le_bytes().as_slice()),  5399386355486589714);
+        assert_eq!(rapidhash(0x10000000_00000000_00000000_00000000u128.to_le_bytes().as_slice()), 13365378750111633005);
+        assert_eq!(rapidhash(0xffffffff_ffffffff_ffffffff_ffffffffu128.to_le_bytes().as_slice()), 10466158564987642889);
+    }
 }
