@@ -2,6 +2,15 @@
 name = "rapidhash"
 version = "0.1.0"
 edition = "2021"
+authors = ["Liam Gray <gmail@liamg.me>"]
+description = "A rust port of rapidhash: an extremely fast, high quality, platform-independent hashing algorithm."
+repository = "https://github.com/hoxxep/rapidhash"
+documentation = "https://docs.rs/rapidhash"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["hash", "rapidhash"]
+categories = ["algorithms", "no-std"]
+exclude = ["Cargo.lock", ".github"]
 
 [lib]
 

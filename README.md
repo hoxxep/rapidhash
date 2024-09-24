@@ -155,3 +155,8 @@ hash/ahash/str_4096         time:   [294.13 ns 295.45 ns 297.15 ns]
 hash/ahash/u64              time:   [2.1307 ns 2.1529 ns 2.1725 ns]
 hash/ahash/object           time:   [25.243 ns 25.384 ns 25.521 ns]
 ```
+
+## License
+This project is licensed under both the MIT and Apache-2.0 licenses. You are free to choose either license.
+
+With thanks to the original [rapidhash](https://github.com/Nicoshev/rapidhash) C++ implementation, which is licensed under the [BSD 2-Clause license](https://github.com/Nicoshev/rapidhash/blob/master/LICENSE).
