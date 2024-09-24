@@ -29,6 +29,7 @@ Initial benchmarks on M1 Max (aarch64) for various input sizes.
 ```text
 crate/input_size        time:   [min       median    max      ]
 
+# currently without the std::hash::Hasher trait overhead
 rapidhash/8             time:   [12.070 ns 12.412 ns 12.805 ns]
 rapidhash/16            time:   [11.916 ns 12.173 ns 12.482 ns]
 rapidhash/64            time:   [18.683 ns 18.946 ns 19.239 ns]
@@ -56,4 +57,19 @@ t1ha/64                 time:   [20.800 ns 21.106 ns 21.456 ns]
 t1ha/256                time:   [38.075 ns 39.219 ns 40.378 ns]
 t1ha/1024               time:   [90.607 ns 91.188 ns 91.973 ns]
 t1ha/4096               time:   [309.10 ns 311.11 ns 314.08 ns]
+
+wyhash/8                time:   [12.134 ns 12.394 ns 12.684 ns]
+wyhash/16               time:   [12.408 ns 12.579 ns 12.789 ns]
+wyhash/64               time:   [17.961 ns 18.125 ns 18.316 ns]
+wyhash/256              time:   [36.161 ns 36.916 ns 37.688 ns]
+wyhash/1024             time:   [68.004 ns 68.844 ns 70.326 ns]
+wyhash/4096             time:   [224.97 ns 225.42 ns 225.97 ns]
+
+# wyhash without the std::hash::Hasher trait overhead
+wyhash_raw/8            time:   [11.274 ns 11.507 ns 11.777 ns]
+wyhash_raw/16           time:   [11.677 ns 11.889 ns 12.149 ns]
+wyhash_raw/64           time:   [17.401 ns 17.570 ns 17.764 ns]
+wyhash_raw/256          time:   [35.592 ns 36.582 ns 37.599 ns]
+wyhash_raw/1024         time:   [68.634 ns 69.488 ns 70.728 ns]
+wyhash_raw/4096         time:   [221.29 ns 222.24 ns 223.66 ns]
 ```

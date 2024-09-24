@@ -10,6 +10,8 @@ pub fn bench(c: &mut Criterion) {
         ("default", Box::new(bench_default)),
         ("fxhash", Box::new(bench_fxhash)),
         ("t1ha", Box::new(bench_t1ha)),
+        ("wyhash", Box::new(bench_wyhash)),
+        ("wyhash_raw", Box::new(bench_wyhash_raw)),
     ];
 
     let sizes = [8usize, 16, 64, 256, 1024, 4096];
@@ -72,6 +74,32 @@ fn bench_t1ha(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
             let mut hasher = t1ha::T1haHasher::default();
             hasher.write(&bytes);
             hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_wyhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = wyhash::WyHash::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_wyhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            wyhash::wyhash(&bytes, 0)
         }, criterion::BatchSize::SmallInput);
     })
 }

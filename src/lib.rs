@@ -122,7 +122,6 @@ mod tests {
         assert_eq!(bytes_u32(&[0, 10, 0, 0]), 2560);
     }
 
-
     #[test]
     fn test_bytes_u64() {
         let bytes = [23, 145, 3, 34, 0, 0, 0, 0, 0, 0, 0].as_slice();
