@@ -103,8 +103,8 @@ impl Default for RapidHasher {
     }
 }
 
-/// This implementation implements methods for all integer types to ensure that rapidhash_core can
-/// be optimized by the compiler for each integer size for a significant performance improvement.
+/// This implementation implements methods for all integer types as the compiler will inline and
+/// optimize the rapidhash_core for each.
 impl Hasher for RapidHasher {
     #[inline]
     fn finish(&self) -> u64 {
@@ -114,16 +114,15 @@ impl Hasher for RapidHasher {
     #[inline]
     fn write(&mut self, bytes: &[u8]) {
         // FUTURE: wyhash processes the bytes as u64::MAX chunks in case chunk.len() > usize.
+        // we use this static assert to ensure that usize is not larger than u64 for now.
         const _: () = assert!(usize::MAX as u128 <= u64::MAX as u128, "usize is larger than u64. Please raise a github issue to support this.");
 
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]);
-        let chunk = bytes;
-        self.seed ^= chunk.len() as u64;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, chunk);
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ bytes.len() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
         self.a = a;
         self.b = b;
         self.seed = seed;
-        self.size += chunk.len() as u64;
+        self.size += bytes.len() as u64;
     }
 
     #[inline]
