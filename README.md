@@ -2,13 +2,22 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Memory safe, dependency free, and no-std compatible.
+Memory safe, dependency free, and no-std compatible. Not cryptographically secure, and not suitable where DOS-protection is required.
+
+From the C++ implementation:
+> Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
 
 ## Usage
 
 ```rust
-use rapidhash::rapidhash;
+use rapidhash::{rapidhash, RapidHasher};
 
+// a std::hash::Hasher compatible hasher
+let mut hasher = RapidHasher::new();
+hasher.write(b"hello world");
+assert_eq!(hasher.finish(), 17498481775468162579);
+
+// raw usage
 assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 ```
 
@@ -17,9 +26,9 @@ This repo is an active work in progress.
 
 - [x] Implement the basic `rapidhash` function.
 - [ ] Add rapidhash protected variant.
-- [ ] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
+- [x] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
-- [ ] Add more tests, benchmark comparisons, and further docs.
+- [x] Add more tests, benchmark comparisons, and further docs.
 - [ ] License the code under a permissive license. Need to review whether this repo can be more permissive than the BSD 2-Clause the C++ crate is under.
 - [ ] Publish to crates.io. (Confusingly, there is a rapidhash crate that is not this hash function.)
 
@@ -29,13 +38,20 @@ Initial benchmarks on M1 Max (aarch64) for various input sizes.
 ```text
 crate/input_size        time:   [min       median    max      ]
 
-# currently without the std::hash::Hasher trait overhead
-rapidhash/8             time:   [12.070 ns 12.412 ns 12.805 ns]
-rapidhash/16            time:   [11.916 ns 12.173 ns 12.482 ns]
-rapidhash/64            time:   [18.683 ns 18.946 ns 19.239 ns]
-rapidhash/256           time:   [37.639 ns 38.398 ns 39.139 ns]
-rapidhash/1024          time:   [57.908 ns 58.396 ns 59.024 ns]
-rapidhash/4096          time:   [172.06 ns 173.17 ns 174.48 ns]
+rapidhash/8             time:   [11.680 ns 11.952 ns 12.266 ns]
+rapidhash/16            time:   [11.572 ns 11.723 ns 11.909 ns]
+rapidhash/64            time:   [18.102 ns 18.288 ns 18.493 ns]
+rapidhash/256           time:   [37.611 ns 38.702 ns 40.131 ns]
+rapidhash/1024          time:   [56.773 ns 57.191 ns 57.885 ns]
+rapidhash/4096          time:   [168.96 ns 169.35 ns 169.77 ns]
+
+# rapidhash::rapidhash, without the std::hash::Hasher trait overhead
+rapidhash_raw/8         time:   [11.540 ns 11.822 ns 12.195 ns]
+rapidhash_raw/16        time:   [11.712 ns 11.933 ns 12.197 ns]
+rapidhash_raw/64        time:   [17.763 ns 18.251 ns 18.879 ns]
+rapidhash_raw/256       time:   [37.636 ns 38.399 ns 39.164 ns]
+rapidhash_raw/1024      time:   [56.629 ns 57.154 ns 58.157 ns]
+rapidhash_raw/4096      time:   [168.79 ns 169.26 ns 169.76 ns]
 
 default/8               time:   [15.416 ns 15.696 ns 16.013 ns]
 default/16              time:   [16.633 ns 16.874 ns 17.168 ns]
@@ -65,7 +81,7 @@ wyhash/256              time:   [36.161 ns 36.916 ns 37.688 ns]
 wyhash/1024             time:   [68.004 ns 68.844 ns 70.326 ns]
 wyhash/4096             time:   [224.97 ns 225.42 ns 225.97 ns]
 
-# wyhash without the std::hash::Hasher trait overhead
+# wyhash::wyhash, without the std::hash::Hasher trait overhead
 wyhash_raw/8            time:   [11.274 ns 11.507 ns 11.777 ns]
 wyhash_raw/16           time:   [11.677 ns 11.889 ns 12.149 ns]
 wyhash_raw/64           time:   [17.401 ns 17.570 ns 17.764 ns]

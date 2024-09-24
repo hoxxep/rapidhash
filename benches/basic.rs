@@ -7,6 +7,7 @@ use rand::rngs::OsRng;
 pub fn bench(c: &mut Criterion) {
     let groups: &[(&str, Box<dyn Fn(usize) -> Box<dyn FnMut(&mut Bencher)>>)] = &[
         ("rapidhash", Box::new(bench_rapidhash)),
+        ("rapidhash_raw", Box::new(bench_rapidhash_raw)),
         ("default", Box::new(bench_default)),
         ("fxhash", Box::new(bench_fxhash)),
         ("t1ha", Box::new(bench_t1ha)),
@@ -25,6 +26,20 @@ pub fn bench(c: &mut Criterion) {
 }
 
 fn bench_rapidhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = rapidhash::RapidHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_rapidhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched(|| {
             let mut slice = vec![0u8; size];
