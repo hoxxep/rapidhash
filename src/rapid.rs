@@ -1,7 +1,7 @@
 pub(crate) const RAPID_SEED: u64 = 0xbdd89aa982704029;
 pub(crate) const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc9, 0x4b33a62ed433d4a3];
 
-#[inline]
+#[inline(always)]
 pub(crate) fn rapidhash_raw(data: &[u8], mut seed: u64) -> u64 {
     seed ^= rapid_mix(seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ (data.len() as u64);
     let (a, b, _) = rapidhash_core(0, 0, seed, data);

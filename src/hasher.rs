@@ -93,6 +93,26 @@ impl RapidHasher {
             size: 0,
         }
     }
+
+    /// Equivalent to [Hasher::write] but always inlines the function.
+    ///
+    /// This can deliver a large performance improvement when the `bytes` length is known.
+    #[inline(always)]
+    pub fn write_always_inline(&mut self, bytes: &[u8]) {
+        // FUTURE: wyhash processes the bytes as u64::MAX chunks in case chunk.len() > usize.
+        // we use this static assert to ensure that usize is not larger than u64 for now.
+        const _: () = assert!(
+            usize::MAX as u128 <= u64::MAX as u128,
+            "usize is wider than u64. Please raise a github issue to support this."
+        );
+
+        self.size += bytes.len() as u64;
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+    }
 }
 
 impl Default for RapidHasher {
@@ -103,86 +123,86 @@ impl Default for RapidHasher {
     }
 }
 
-/// This implementation implements methods for all integer types as the compiler will inline and
-/// optimize the rapidhash_core for each.
+/// This implementation implements methods for all integer types as the compiler will (hopefully...)
+/// inline and heavily optimize the rapidhash_core for each. Where the bytes length is known the
+/// compiler can make significant optimisations and saves us writing them out by hand.
 impl Hasher for RapidHasher {
     #[inline]
     fn finish(&self) -> u64 {
         rapidhash_finish(self.a, self.b, self.size)
     }
 
+    /// Write a byte slice to the hasher.
     #[inline]
     fn write(&mut self, bytes: &[u8]) {
-        // FUTURE: wyhash processes the bytes as u64::MAX chunks in case chunk.len() > usize.
-        // we use this static assert to ensure that usize is not larger than u64 for now.
-        const _: () = assert!(usize::MAX as u128 <= u64::MAX as u128, "usize is larger than u64. Please raise a github issue to support this.");
-
-        self.size += bytes.len() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(bytes);
     }
 
     #[inline]
     fn write_u8(&mut self, i: u8) {
-        self.size += size_of::<u8>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u16(&mut self, i: u16) {
-        self.size += size_of::<u16>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u32(&mut self, i: u32) {
-        self.size += size_of::<u32>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u64(&mut self, i: u64) {
-        self.size += size_of::<u64>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
+
+        // NOTE: in case of compiler regression, it should compile to:
+        // self.size += size_of::<u64>() as u64;
+        // self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
+        // self.a ^= i.rotate_right(32) ^ RAPID_SECRET[1];
+        // self.b ^= i ^ self.seed;
+        // rapid_mum(&mut self.a, &mut self.b);
     }
 
     #[inline]
     fn write_u128(&mut self, i: u128) {
-        self.size += size_of::<u128>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_usize(&mut self, i: usize) {
-        self.size += size_of::<usize>() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_i8(&mut self, i: i8) {
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_i16(&mut self, i: i16) {
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_i32(&mut self, i: i32) {
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_i64(&mut self, i: i64) {
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_i128(&mut self, i: i128) {
+        self.write_always_inline(&i.to_ne_bytes());
+    }
+
+    #[inline]
+    fn write_isize(&mut self, i: isize) {
+        self.write_always_inline(&i.to_ne_bytes());
     }
 }
 

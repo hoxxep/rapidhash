@@ -33,11 +33,21 @@ pub fn bench(c: &mut Criterion) {
             let name = "str_".to_string() + &size.to_string();
             group.bench_function(name, string_fn(size));
         }
-        group.bench_function("u64", int_fn());
+
+        if name == &"hash/rapidhash" {
+            group.bench_function("u8", int::bench_rapidhash_u8());
+            group.bench_function("u16", int::bench_rapidhash_u16());
+            group.bench_function("u32", int::bench_rapidhash_u32());
+            group.bench_function("u64", int_fn());
+            group.bench_function("u128", int::bench_rapidhash_u128());
+        } else {
+            group.bench_function("u64", int_fn());
+        }
 
         if name.ends_with("_raw") {
             continue;  // cannot hash objects with raw impls
         }
         group.bench_function("object", object_fn());
+
     }
 }
