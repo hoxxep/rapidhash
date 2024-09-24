@@ -3,10 +3,10 @@ use criterion::{Bencher};
 
 #[derive(Hash)]
 struct Object {
-    a: u64,
+    a: u8,
     b: u64,
     s: String,
-    v: Vec<u64>,
+    v: Vec<u32>,
 }
 
 impl Object {

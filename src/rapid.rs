@@ -9,14 +9,14 @@ pub(crate) fn rapidhash_raw(data: &[u8], mut seed: u64) -> u64 {
 }
 
 #[inline(always)]
-fn rapid_mum(a: &mut u64, b: &mut u64) {
+pub(crate) fn rapid_mum(a: &mut u64, b: &mut u64) {
     let r = *a as u128 * *b as u128;
     *a = r as u64;
     *b = (r >> 64) as u64;
 }
 
 #[inline(always)]
-pub fn rapid_mix(mut a: u64, mut b: u64) -> u64 {
+pub(crate) fn rapid_mix(mut a: u64, mut b: u64) -> u64 {
     rapid_mum(&mut a, &mut b);
     a ^ b
 }
@@ -83,14 +83,14 @@ pub(crate) fn rapidhash_finish(a: u64, b: u64, len: u64) -> u64 {
 
 #[inline(always)]
 #[allow(dead_code)]
-fn read_u64(slice: &[u8]) -> u64 {
+pub(crate) fn read_u64(slice: &[u8]) -> u64 {
     let mut buf: [u8; 8] = Default::default();
     buf.copy_from_slice(&slice[..8]);
     u64::from_le_bytes(buf)
 }
 
 #[inline(always)]
-fn read_u32(slice: &[u8]) -> u32 {
+pub(crate) fn read_u32(slice: &[u8]) -> u32 {
     let mut buf: [u8; 4] = Default::default();
     buf.copy_from_slice(&slice[..4]);
     u32::from_le_bytes(buf)

@@ -103,6 +103,8 @@ impl Default for RapidHasher {
     }
 }
 
+/// This implementation implements methods for all integer types to ensure that rapidhash_core can
+/// be optimized by the compiler for each integer size for a significant performance improvement.
 impl Hasher for RapidHasher {
     #[inline]
     fn finish(&self) -> u64 {
@@ -122,5 +124,97 @@ impl Hasher for RapidHasher {
         self.b = b;
         self.seed = seed;
         self.size += chunk.len() as u64;
+    }
+
+    #[inline]
+    fn write_u8(&mut self, i: u8) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u8>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<u8>() as u64;
+    }
+
+    #[inline]
+    fn write_u16(&mut self, i: u16) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u16>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<u16>() as u64;
+    }
+
+    #[inline]
+    fn write_u32(&mut self, i: u32) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u32>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<u32>() as u64;
+    }
+
+    #[inline]
+    fn write_u64(&mut self, i: u64) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u64>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<u64>() as u64;
+    }
+
+    #[inline]
+    fn write_u128(&mut self, i: u128) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<u128>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<u128>() as u64;
+    }
+
+    #[inline]
+    fn write_usize(&mut self, i: usize) {
+        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ size_of::<usize>() as u64;
+        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, i.to_ne_bytes().as_slice());
+        self.a = a;
+        self.b = b;
+        self.seed = seed;
+        self.size += size_of::<usize>() as u64;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_hasher_write_u64() {
+        assert_eq!((8 & 24) >> (8 >> 3), 4);
+
+        let ints = [
+            1234u64,
+            0,
+            1,
+            u64::MAX,
+            u64::MAX - 2385962040453523
+        ];
+
+        for int in ints {
+            let mut hasher = RapidHasher::default();
+            hasher.write(int.to_ne_bytes().as_slice());
+            let a = hasher.finish();
+
+            assert_eq!(int.to_ne_bytes().as_slice().len(), 8);
+
+            let mut hasher = RapidHasher::default();
+            hasher.write_u64(int);
+            let b = hasher.finish();
+
+            assert_eq!(a, b, "Mismatching hash for u64 with input {int}");
+        }
     }
 }
