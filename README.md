@@ -2,7 +2,7 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Memory safe, dependency free, and no-std compatible. Not cryptographically secure, and not suitable where DOS-protection is required.
+Memory safe, dependency free, no-std, non-cryptographic hash function. Not suitable where hashing DOS-protection is required.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -28,10 +28,11 @@ This repo is an active work in progress.
 - [x] Implement the basic `rapidhash` function.
 - [ ] Add rapidhash protected variant.
 - [x] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
-- [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [x] Add more tests, benchmark comparisons, and further docs.
+- [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
+- [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
 - [ ] License the code under a permissive license. Need to review whether this repo can be more permissive than the BSD 2-Clause the C++ crate is under.
-- [ ] Publish to crates.io. (Confusingly, there is a rapidhash crate that is not this hash function.)
+- [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name, which currently is not this hash function.)
 
 ## Benchmarks
 Initial benchmarks on M1 Max (aarch64) for various input sizes.
@@ -89,4 +90,25 @@ wyhash_raw/64           time:   [17.401 ns 17.570 ns 17.764 ns]
 wyhash_raw/256          time:   [35.592 ns 36.582 ns 37.599 ns]
 wyhash_raw/1024         time:   [68.634 ns 69.488 ns 70.728 ns]
 wyhash_raw/4096         time:   [221.29 ns 222.24 ns 223.66 ns]
+
+xxhash/8                time:   [17.829 ns 18.094 ns 18.398 ns]
+xxhash/16               time:   [20.159 ns 20.462 ns 20.873 ns]
+xxhash/64               time:   [24.943 ns 25.171 ns 25.436 ns]
+xxhash/256              time:   [44.993 ns 45.597 ns 46.194 ns]
+xxhash/1024             time:   [67.260 ns 68.012 ns 69.004 ns]
+xxhash/4096             time:   [182.22 ns 182.86 ns 183.50 ns]
+
+metrohash/8             time:   [14.429 ns 14.669 ns 14.953 ns]
+metrohash/16            time:   [14.746 ns 14.956 ns 15.231 ns]
+metrohash/64            time:   [22.262 ns 22.546 ns 22.876 ns]
+metrohash/256           time:   [41.037 ns 42.317 ns 43.908 ns]
+metrohash/1024          time:   [84.311 ns 84.837 ns 85.486 ns]
+metrohash/4096          time:   [244.28 ns 244.83 ns 245.47 ns]
+
+seahash/8               time:   [14.247 ns 14.522 ns 14.856 ns]
+seahash/16              time:   [14.452 ns 14.641 ns 14.876 ns]
+seahash/64              time:   [22.007 ns 22.222 ns 22.478 ns]
+seahash/256             time:   [49.987 ns 50.748 ns 51.505 ns]
+seahash/1024            time:   [141.59 ns 141.84 ns 142.15 ns]
+seahash/4096            time:   [498.97 ns 499.74 ns 500.62 ns]
 ```

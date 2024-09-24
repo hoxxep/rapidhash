@@ -13,6 +13,9 @@ pub fn bench(c: &mut Criterion) {
         ("t1ha", Box::new(bench_t1ha)),
         ("wyhash", Box::new(bench_wyhash)),
         ("wyhash_raw", Box::new(bench_wyhash_raw)),
+        ("xxhash", Box::new(bench_xxhash)),
+        ("metrohash", Box::new(bench_metrohash)),
+        ("seahash", Box::new(bench_seahash)),
     ];
 
     let sizes = [8usize, 16, 64, 256, 1024, 4096];
@@ -115,6 +118,48 @@ fn bench_wyhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
             slice
         }, |bytes: Vec<u8>| {
             wyhash::wyhash(&bytes, 0)
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_xxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = xxhash_rust::xxh3::Xxh3::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_metrohash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = metrohash::MetroHash::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+fn bench_seahash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes: Vec<u8>| {
+            let mut hasher = seahash::SeaHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
         }, criterion::BatchSize::SmallInput);
     })
 }
