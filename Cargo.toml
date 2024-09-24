@@ -9,6 +9,10 @@ edition = "2021"
 name = "bench"
 harness = false
 
+[features]
+default = ["std"]
+std = []
+
 [dependencies]
 
 [dev-dependencies]

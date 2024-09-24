@@ -1,7 +1,19 @@
-use core::hash::Hasher;
+use core::hash::{BuildHasherDefault, Hasher};
 use crate::rapid::{rapid_mix, rapidhash_core, rapidhash_finish, RAPID_SECRET, RAPID_SEED};
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash) algorithm.
+///
+/// See [RapidHashBuilder] for usage with [std::collections::HashMap].
+///
+/// # Example
+/// ```
+/// use std::hash::Hasher;
+/// use rapidhash::RapidHasher;
+///
+/// let mut hasher = RapidHasher::default();
+/// hasher.write(b"hello world");
+/// let hash = hasher.finish();
+/// ```
 pub struct RapidHasher {
     seed: u64,
     a: u64,
@@ -9,7 +21,45 @@ pub struct RapidHasher {
     size: u64,
 }
 
+/// A [BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
+///
+/// # Example
+/// ```
+/// use std::collections::HashMap;
+/// use std::hash::Hasher;
+/// use rapidhash::RapidHashBuilder;
+///
+/// let mut map = HashMap::with_hasher(RapidHashBuilder::default());
+/// map.insert(42, "the answer");
+/// ```
+pub type RapidHashBuilder = BuildHasherDefault<RapidHasher>;
+
+/// A [std::collections::HashMap] type that uses the [RapidHashBuilder] hasher.
+///
+/// # Example
+/// ```
+/// use rapidhash::RapidHashMap;
+/// let mut map = RapidHashMap::default();
+/// map.insert(42, "the answer");
+/// ```
+#[cfg(feature = "std")]
+pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
+
+/// A [std::collections::HashSet] type that uses the [RapidHashBuilder] hasher.
+///
+/// # Example
+/// ```
+/// use rapidhash::RapidHashMap;
+/// let mut map = RapidHashMap::default();
+/// map.insert(42, "the answer");
+/// ```
+#[cfg(feature = "std")]
+pub type RapidHashSet<K> = std::collections::HashSet<K, RapidHashBuilder>;
+
 impl RapidHasher {
+    /// Create a new [RapidHasher] with a custom seed.
+    ///
+    /// It is recommended to use [RapidHasher::default] instead.
     #[inline]
     pub fn new(seed: u64) -> Self {
         Self {
@@ -22,6 +72,7 @@ impl RapidHasher {
 }
 
 impl Default for RapidHasher {
+    /// Create a new [RapidHasher] with the default seed.
     #[inline]
     fn default() -> Self {
         Self::new(RAPID_SEED)

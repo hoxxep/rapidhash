@@ -1,11 +1,11 @@
 #![doc = include_str!("../README.md")]
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 
 mod hasher;
 mod rapid;
 
-pub use crate::hasher::RapidHasher;
-use rapid::{rapidhash_raw, RAPID_SEED};
+pub use crate::hasher::*;
+use crate::rapid::{rapidhash_raw, RAPID_SEED};
 
 /// Rapidhash a single byte stream, matching the C++ implementation.
 #[inline]

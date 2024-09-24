@@ -2,7 +2,7 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Memory safe, dependency free, no-std, non-cryptographic hash function. Not suitable where hashing DOS-protection is required.
+Memory safe, dependency free, no-std compatible, non-cryptographic hash function. Not suitable where hashing DOS-protection is required.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -11,16 +11,25 @@ From the C++ implementation:
 
 ```rust
 use std::hash::Hasher;
-use rapidhash::{rapidhash, RapidHasher};
+use rapidhash::{rapidhash, RapidHasher, RapidHashMap};
 
 // a std::hash::Hasher compatible hasher
 let mut hasher = RapidHasher::default();
 hasher.write(b"hello world");
 assert_eq!(hasher.finish(), 17498481775468162579);
 
+// with the "std" feature, using the RapidHashMap helper type
+let mut map = RapidHashMap::default();
+map.insert("hello", "world");
+
 // raw usage
 assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 ```
+
+## Features
+
+- `default`: `std`
+- `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
 
 ## TODO
 This repo is an active work in progress.
