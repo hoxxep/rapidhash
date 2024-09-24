@@ -39,7 +39,7 @@ mod tests {
 
     #[derive(Hash)]
     struct Object {
-        bytes: Vec<u8>,
+        bytes: std::vec::Vec<u8>,
     }
 
     /// Check the [rapidhash] oneshot function is equivalent to [RapidHasher]
