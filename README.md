@@ -2,6 +2,8 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
+Memory safe, dependency free, and no-std compatible.
+
 ## Usage
 
 ```rust

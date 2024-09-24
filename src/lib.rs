@@ -1,4 +1,5 @@
-#[doc = include_str!("../README.md")]
+#![doc = include_str!("../README.md")]
+#![no_std]
 
 const RAPID_SEED: u64 = 0xbdd89aa982704029;
 const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc9, 0x4b33a62ed433d4a3];
