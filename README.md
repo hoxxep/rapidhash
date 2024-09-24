@@ -10,10 +10,11 @@ From the C++ implementation:
 ## Usage
 
 ```rust
+use std::hash::Hasher;
 use rapidhash::{rapidhash, RapidHasher};
 
 // a std::hash::Hasher compatible hasher
-let mut hasher = RapidHasher::new();
+let mut hasher = RapidHasher::default();
 hasher.write(b"hello world");
 assert_eq!(hasher.finish(), 17498481775468162579);
 

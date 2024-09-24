@@ -35,7 +35,7 @@ impl Hasher for RapidHasher {
     }
 
     #[inline]
-    fn write(&mut self, mut bytes: &[u8]) {
+    fn write(&mut self, bytes: &[u8]) {
         // FUTURE: wyhash processes the bytes as u64::MAX chunks in case chunk.len() > usize.
         const _: () = assert!(usize::MAX as u128 <= u64::MAX as u128, "usize is larger than u64. Please raise a github issue to support this.");
 
