@@ -39,10 +39,10 @@ This repo is an active work in progress.
 - [ ] Add rapidhash protected variant.
 - [x] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
 - [x] Add more tests, benchmark comparisons, and further docs.
-- [ ] Review assembly output, and review code for small input sizes.
+- [x] Review assembly output, and review code for small input sizes.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
-- [ ] License the code under a permissive license. Need to review whether this repo can be more permissive than the BSD 2-Clause the C++ crate is under.
+- [x] License the code under a permissive license.
 - [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name, which currently is not this hash function.)
 
 ## Benchmarks
