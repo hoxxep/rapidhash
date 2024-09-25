@@ -1,5 +1,5 @@
 #![doc = include_str!("../README.md")]
-#![cfg_attr(doc, feature(doc_auto_cfg))]
+#![cfg_attr(all(doc, not(feature = "_no_doc")), feature(doc_auto_cfg))]
 #![cfg_attr(not(feature = "std"), no_std)]
 
 mod hasher;
