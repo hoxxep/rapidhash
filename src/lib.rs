@@ -21,7 +21,7 @@ pub fn rapidhash(data: &[u8]) -> u64 {
     rapidhash_raw(data, RAPID_SEED)
 }
 
-/// Rapidhash a single bytestream, matching the C++ implementation, with a custom seed.
+/// Rapidhash a single byte stream, matching the C++ implementation, with a custom seed.
 #[inline]
 pub fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
     rapidhash_raw(data, seed)

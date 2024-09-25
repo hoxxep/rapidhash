@@ -36,14 +36,14 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 This repo is an active work in progress.
 
 - [x] Implement the basic `rapidhash` function.
-- [ ] Add rapidhash protected variant.
-- [x] Evaluate building a `RapidHasher` for the `std::hash::Hasher` trait.
+- [x] Build a `RapidHasher` for the `std::hash::Hasher` trait.
 - [x] Add more tests, benchmark comparisons, and further docs.
 - [x] Review assembly output, and review code for small input sizes.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
+- [ ] Add rapidhash protected variant.
 - [x] License the code under a permissive license.
-- [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name, which currently is not this hash function.)
+- [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name.)
 
 ## Benchmarks
 Initial benchmarks on M1 Max (aarch64) for various input sizes.

@@ -3,22 +3,27 @@ pub(crate) const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc
 
 #[inline(always)]
 pub(crate) fn rapidhash_raw(data: &[u8], mut seed: u64) -> u64 {
-    seed ^= rapid_mix(seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ (data.len() as u64);
+    seed = rapidhash_seed(seed, data.len() as u64);
     let (a, b, _) = rapidhash_core(0, 0, seed, data);
     rapidhash_finish(a, b, data.len() as u64)
 }
 
 #[inline(always)]
-pub(crate) fn rapid_mum(a: &mut u64, b: &mut u64) {
+pub fn rapid_mum(a: &mut u64, b: &mut u64) {
     let r = *a as u128 * *b as u128;
     *a = r as u64;
     *b = (r >> 64) as u64;
 }
 
 #[inline(always)]
-pub(crate) fn rapid_mix(mut a: u64, mut b: u64) -> u64 {
+pub fn rapid_mix(mut a: u64, mut b: u64) -> u64 {
     rapid_mum(&mut a, &mut b);
     a ^ b
+}
+
+#[inline(always)]
+pub(crate) fn rapidhash_seed(seed: u64, len: u64) -> u64 {
+    seed ^ rapid_mix(seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ len
 }
 
 #[inline(always)]
@@ -82,7 +87,6 @@ pub(crate) fn rapidhash_finish(a: u64, b: u64, len: u64) -> u64 {
 }
 
 #[inline(always)]
-#[allow(dead_code)]
 pub(crate) fn read_u64(slice: &[u8]) -> u64 {
     let mut buf: [u8; 8] = Default::default();
     buf.copy_from_slice(&slice[..8]);

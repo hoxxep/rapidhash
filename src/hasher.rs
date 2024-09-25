@@ -1,5 +1,5 @@
 use core::hash::Hasher;
-use crate::rapid::{rapid_mix, rapidhash_core, rapidhash_finish, RAPID_SECRET, RAPID_SEED};
+use crate::rapid::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SEED};
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash) algorithm.
 ///
@@ -14,7 +14,7 @@ use crate::rapid::{rapid_mix, rapidhash_core, rapidhash_finish, RAPID_SECRET, RA
 /// hasher.write(b"hello world");
 /// let hash = hasher.finish();
 /// ```
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub struct RapidHasher {
     seed: u64,
     a: u64,
@@ -107,7 +107,7 @@ impl RapidHasher {
         );
 
         self.size += bytes.len() as u64;
-        self.seed ^= rapid_mix(self.seed ^ RAPID_SECRET[0], RAPID_SECRET[1]) ^ self.size;
+        self.seed = rapidhash_seed(self.seed, self.size);
         let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
         self.a = a;
         self.b = b;
