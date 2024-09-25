@@ -125,8 +125,6 @@ pub fn bench_ahash() -> Box<dyn FnMut(&mut Bencher)> {
         }, |o| {
             let mut hasher = ahash::AHasher::default();
             o.hash(&mut hasher);
-
-
             hasher.finish()
         }, criterion::BatchSize::SmallInput);
     })

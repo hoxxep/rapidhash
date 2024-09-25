@@ -28,7 +28,7 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 
 ## Features
 
-- `default`: `std`, `rand`
+- `default`: `std`
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
 - `rand`: Enables the `rand` crate dependency (in no-std mode) and exports  `RapidRandomState` to randomly initialize the seed.
 - `unsafe`: Enables unsafe pointer arithmetic to skip some unnecessary bounds checks on small byte slice inputs (len <= 16), for a 3-4% performance improvement.
@@ -100,6 +100,16 @@ hash/fxhash/str_4096    time:   [730.49 ns 731.34 ns 732.28 ns]
 hash/fxhash/u64         time:   [890.02 ps 909.37 ps 928.01 ps]
 hash/fxhash/object      time:   [6.8636 ns 6.8953 ns 6.9276 ns]
 
+hash/ahash/str_2        time:   [2.8815 ns 2.9023 ns 2.9241 ns]
+hash/ahash/str_8        time:   [2.8560 ns 2.8748 ns 2.8988 ns]
+hash/ahash/str_16       time:   [2.8021 ns 2.8300 ns 2.8641 ns]
+hash/ahash/str_64       time:   [4.6048 ns 4.6278 ns 4.6548 ns]
+hash/ahash/str_256      time:   [14.133 ns 14.201 ns 14.279 ns]
+hash/ahash/str_1024     time:   [57.845 ns 57.977 ns 58.118 ns]
+hash/ahash/str_4096     time:   [264.18 ns 265.25 ns 266.40 ns]
+hash/ahash/u64          time:   [1.8231 ns 1.8495 ns 1.8749 ns]
+hash/ahash/object       time:   [6.1482 ns 6.1801 ns 6.2114 ns]
+
 hash/t1ha/str_2         time:   [2.8340 ns 2.8494 ns 2.8673 ns]
 hash/t1ha/str_8         time:   [2.8275 ns 2.8407 ns 2.8556 ns]
 hash/t1ha/str_16        time:   [2.9214 ns 2.9432 ns 2.9685 ns]
@@ -149,17 +159,9 @@ hash/seahash/str_1024   time:   [116.30 ns 118.19 ns 121.17 ns]
 hash/seahash/str_4096   time:   [472.41 ns 473.23 ns 474.11 ns]
 hash/seahash/u64        time:   [6.4829 ns 6.5186 ns 6.5536 ns]
 hash/seahash/object     time:   [47.885 ns 47.933 ns 47.983 ns]
-
-hash/ahash/str_2        time:   [2.8815 ns 2.9023 ns 2.9241 ns]
-hash/ahash/str_8        time:   [2.8560 ns 2.8748 ns 2.8988 ns]
-hash/ahash/str_16       time:   [2.8021 ns 2.8300 ns 2.8641 ns]
-hash/ahash/str_64       time:   [4.6048 ns 4.6278 ns 4.6548 ns]
-hash/ahash/str_256      time:   [14.133 ns 14.201 ns 14.279 ns]
-hash/ahash/str_1024     time:   [57.845 ns 57.977 ns 58.118 ns]
-hash/ahash/str_4096     time:   [264.18 ns 265.25 ns 266.40 ns]
-hash/ahash/u64          time:   [1.8231 ns 1.8495 ns 1.8749 ns]
-hash/ahash/object       time:   [6.1482 ns 6.1801 ns 6.2114 ns]
 ```
+
+_Note: ahash is using the fallback algorithm on aarch64 targets and therefore these benchmarks. It's also not cross-platform nor stable, and the fallback algorithm is substantially weaker from the aes hashing algorithm._
 
 ## License
 This project is licensed under both the MIT and Apache-2.0 licenses. You are free to choose either license.

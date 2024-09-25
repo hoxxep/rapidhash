@@ -16,13 +16,13 @@ pub fn bench(c: &mut Criterion) {
         ("hash/rapidhash_raw", Box::new(vector::bench_rapidhash_raw), Box::new(int::bench_rapidhash_raw), Box::new(object::bench_rapidhash)),
         ("hash/default", Box::new(vector::bench_default), Box::new(int::bench_default), Box::new(object::bench_default)),
         ("hash/fxhash", Box::new(vector::bench_fxhash), Box::new(int::bench_fxhash), Box::new(object::bench_fxhash)),
+        ("hash/ahash", Box::new(vector::bench_ahash), Box::new(int::bench_ahash), Box::new(object::bench_ahash)),
         ("hash/t1ha", Box::new(vector::bench_t1ha), Box::new(int::bench_t1ha), Box::new(object::bench_t1ha)),
         ("hash/wyhash", Box::new(vector::bench_wyhash), Box::new(int::bench_wyhash), Box::new(object::bench_wyhash)),
         ("hash/wyhash_raw", Box::new(vector::bench_wyhash_raw), Box::new(int::bench_wyhash_raw), Box::new(object::bench_wyhash)),
         ("hash/xxhash", Box::new(vector::bench_xxhash), Box::new(int::bench_xxhash), Box::new(object::bench_xxhash)),
         ("hash/metrohash", Box::new(vector::bench_metrohash), Box::new(int::bench_metrohash), Box::new(object::bench_metrohash)),
         ("hash/seahash", Box::new(vector::bench_seahash), Box::new(int::bench_seahash), Box::new(object::bench_seahash)),
-        ("hash/ahash", Box::new(vector::bench_ahash), Box::new(int::bench_ahash), Box::new(object::bench_ahash)),
     ];
 
     let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];

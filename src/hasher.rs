@@ -22,9 +22,9 @@ pub struct RapidHasher {
     size: u64,
 }
 
-/// A [BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
+/// A [std::hash::BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
 ///
-/// This is an alias for [BuildHasherDefault<RapidHasher>] with a static seed.
+/// This is an alias for [`std::hash::BuildHasherDefault<RapidHasher>`] with a static seed.
 ///
 /// Note there that [crate::RapidRandomState] with the `rand` feature can be used instead for a
 /// [std::hash::BuildHasher] that initialises with a random seed.
