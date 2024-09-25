@@ -94,8 +94,9 @@ mod tests {
         }
     }
 
+    /// Hardcoded hash values that are known to be correct.
     #[test]
-    fn it_hashes_as_expected() {
+    fn hashes_to_expected_values() {
         assert_eq!(                                    rapidhash(0u128.to_le_bytes().as_slice()),  8755926293314635566);
         assert_eq!(                                    rapidhash(1u128.to_le_bytes().as_slice()), 17996969877019643443);
         assert_eq!(                               rapidhash(0x1000u128.to_le_bytes().as_slice()),  3752997491443908878);
@@ -105,5 +106,88 @@ mod tests {
         assert_eq!(         rapidhash(0x10000000_00000000_00000000u128.to_le_bytes().as_slice()),  5399386355486589714);
         assert_eq!(rapidhash(0x10000000_00000000_00000000_00000000u128.to_le_bytes().as_slice()), 13365378750111633005);
         assert_eq!(rapidhash(0xffffffff_ffffffff_ffffffff_ffffffffu128.to_le_bytes().as_slice()), 10466158564987642889);
+    }
+
+    /// Ensure that changing a single bit flips at least 10 bits in the resulting hash, and on
+    /// average flips half of the bits.
+    ///
+    /// These tests are not deterministic, but should fail with a very low probability.
+    #[test]
+    fn flip_bit_trial() {
+        use rand::Rng;
+
+        let mut flips = std::vec![];
+
+        for len in 1..=256 {
+            let mut data = std::vec![0; len];
+            rand::thread_rng().fill(&mut data[..]);
+
+            let hash = rapidhash(&data);
+            for byte in 0..len {
+                for bit in 0..8 {
+                    let mut data = data.clone();
+                    data[byte] ^= 1 << bit;
+                    let new_hash = rapidhash(&data);
+                    assert_ne!(hash, new_hash, "Flipping bit {} did not change hash", byte);
+                    let xor = hash ^ new_hash;
+                    let flipped = xor.count_ones() as u64;
+                    assert!(xor.count_ones() >= 10, "Flipping bit {byte}:{bit} changed only {flipped} bits");
+
+                    flips.push(flipped);
+                }
+            }
+        }
+
+        let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
+        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
+    }
+
+    /// Helper method for [flip_bit_trial_streaming]. Hashes a byte stream in u8 chunks.
+    fn streaming_hash(data: &[u8]) -> u64 {
+        let mut hasher = RapidHasher::default();
+        for byte in data {
+            hasher.write_u8(*byte);
+        }
+        hasher.finish()
+    }
+
+    /// The same as [flip_bit_trial], but against our streaming implementation, to ensure that
+    /// reusing the `a`, `b`, and `seed` state is not causing glaringly obvious issues.
+    ///
+    /// This test is not a substitute for SMHasher or similar.
+    ///
+    /// These tests are not deterministic, but should fail with a very low probability.
+    #[test]
+    fn flip_bit_trial_streaming() {
+        use rand::Rng;
+
+        let mut flips = std::vec![];
+
+        for len in 1..=256 {
+            let mut data = std::vec![0; len];
+            rand::thread_rng().fill(&mut data[..]);
+
+            let hash = streaming_hash(&data);
+            for byte in 0..len {
+                for bit in 0..8 {
+                    let mut data = data.clone();
+                    data[byte] ^= 1 << bit;
+
+                    // check that the hash changed
+                    let new_hash = streaming_hash(&data);
+                    assert_ne!(hash, new_hash, "Flipping bit {} did not change hash", byte);
+
+                    // track how many bits were flipped
+                    let xor = hash ^ new_hash;
+                    let flipped = xor.count_ones() as u64;
+                    assert!(xor.count_ones() >= 10, "Flipping bit {byte}:{bit} changed only {flipped} bits");
+                    flips.push(flipped);
+                }
+            }
+        }
+
+        // check that on average half of the bits were flipped
+        let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
+        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
     }
 }
