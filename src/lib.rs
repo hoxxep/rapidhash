@@ -1,10 +1,13 @@
 #![doc = include_str!("../README.md")]
-#![cfg_attr(all(doc, not(feature = "_no_doc")), feature(doc_auto_cfg))]
 #![cfg_attr(not(feature = "std"), no_std)]
+
+#![cfg_attr(docsrs, feature(doc_auto_cfg))]
+#![cfg_attr(docsrs, feature(doc_cfg_hide))]
+#![cfg_attr(docsrs, doc(cfg_hide(docsrs)))]
 
 mod hasher;
 mod rapid;
-#[cfg(any(feature = "rand", doc))]
+#[cfg(any(feature = "rand", docsrs))]
 mod random;
 
 #[doc(inline)]
@@ -13,7 +16,7 @@ pub use crate::hasher::*;
 use crate::rapid::{rapidhash_raw, RAPID_SEED};
 
 #[doc(inline)]
-#[cfg(any(feature = "rand", doc))]
+#[cfg(any(feature = "rand", docsrs))]
 pub use crate::random::*;
 
 /// Rapidhash a single byte stream, matching the C++ implementation.

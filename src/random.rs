@@ -16,6 +16,7 @@ use crate::RapidHasher;
 /// let mut map = HashMap::with_hasher(RapidRandomState::default());
 /// map.insert(42, "the answer");
 /// ```
+#[cfg(any(feature = "rand", docsrs))]
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct RapidRandomState {
     seed: u64,

@@ -48,7 +48,7 @@ pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 /// let mut map = RapidHashMap::default();
 /// map.insert(42, "the answer");
 /// ```
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", docsrs))]
 pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 
 /// A [std::collections::HashSet] type that uses the [RapidHashBuilder] hasher.
@@ -59,7 +59,7 @@ pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 /// let mut map = RapidHashMap::default();
 /// map.insert(42, "the answer");
 /// ```
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", docsrs))]
 pub type RapidHashSet<K> = std::collections::HashSet<K, RapidHashBuilder>;
 
 impl RapidHasher {
