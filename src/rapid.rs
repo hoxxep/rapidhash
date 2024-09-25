@@ -86,18 +86,34 @@ pub(crate) fn rapidhash_finish(a: u64, b: u64, len: u64) -> u64 {
     rapid_mix(a ^ RAPID_SECRET[0] ^ len, b ^ RAPID_SECRET[1])
 }
 
+#[cfg(not(feature=  "unsafe"))]
 #[inline(always)]
-pub(crate) fn read_u64(slice: &[u8]) -> u64 {
+fn read_u64(slice: &[u8]) -> u64 {
     let mut buf: [u8; 8] = Default::default();
     buf.copy_from_slice(&slice[..8]);
     u64::from_le_bytes(buf)
 }
 
+#[cfg(not(feature=  "unsafe"))]
 #[inline(always)]
-pub(crate) fn read_u32(slice: &[u8]) -> u32 {
+fn read_u32(slice: &[u8]) -> u32 {
     let mut buf: [u8; 4] = Default::default();
     buf.copy_from_slice(&slice[..4]);
     u32::from_le_bytes(buf)
+}
+
+// SAFETY: `slice` must be at least 8 bytes long, and we guarantee so within this file.
+#[cfg(feature = "unsafe")]
+#[inline(always)]
+fn read_u64(slice: &[u8]) -> u64 {
+    unsafe { std::ptr::read_unaligned(slice.as_ptr() as *const u64) }
+}
+
+// SAFETY: `slice` must be at least 4 bytes long, and we guarantee so within this file.
+#[cfg(feature=  "unsafe")]
+#[inline(always)]
+fn read_u32(slice: &[u8]) -> u32 {
+    unsafe { std::ptr::read_unaligned(slice.as_ptr() as *const u32) }
 }
 
 #[cfg(test)]

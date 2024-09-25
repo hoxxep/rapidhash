@@ -24,9 +24,10 @@ pub struct RapidHasher {
 
 /// A [BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
 ///
-/// With the `rand` feature:
-/// - enabled: this is an alias for [RapidRandomState].
-/// - disabled: this is an alias for [BuildHasherDefault<RapidHasher>] with a static seed.
+/// This is an alias for [BuildHasherDefault<RapidHasher>] with a static seed.
+///
+/// Note there that [crate::RapidRandomState] with the `rand` feature can be used instead for a
+/// [std::hash::BuildHasher] that initialises with a random seed.
 ///
 /// # Example
 /// ```
@@ -37,26 +38,7 @@ pub struct RapidHasher {
 /// let mut map = HashMap::with_hasher(RapidHashBuilder::default());
 /// map.insert(42, "the answer");
 /// ```
-#[cfg(not(feature = "rand"))]
 pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
-
-/// A [BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
-///
-/// With the `rand` feature:
-/// - enabled: this is an alias for [RapidRandomState].
-/// - disabled: this is an alias for [BuildHasherDefault<RapidHasher>] with a static seed.
-///
-/// # Example
-/// ```
-/// use std::collections::HashMap;
-/// use std::hash::Hasher;
-/// use rapidhash::RapidHashBuilder;
-///
-/// let mut map = HashMap::with_hasher(RapidHashBuilder::default());
-/// map.insert(42, "the answer");
-/// ```
-#[cfg(feature = "rand")]
-pub type RapidHashBuilder = crate::random::RapidRandomState;
 
 /// A [std::collections::HashMap] type that uses the [RapidHashBuilder] hasher.
 ///

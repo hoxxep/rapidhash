@@ -2,7 +2,7 @@ use criterion::{criterion_group, criterion_main};
 
 mod basic;
 mod int;
-mod string;
+mod vector;
 mod object;
 mod hashmap;
 

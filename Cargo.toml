@@ -19,9 +19,10 @@ name = "bench"
 harness = false
 
 [features]
-default = ["std", "rand"]
-std = []
-rand = ["dep:rand"]
+default = ["std"]
+std = []  # enable std library for RapidHashMap and RapidHashSet helpers
+rand = ["dep:rand"]  # enable the rand library for random seed initialisation
+unsafe = []  # enable unsafe pointer arithmetic to skip unnecessary bounds checks
 
 [dependencies]
 rand = { version = "0.8.5", default-features = false, optional = true }

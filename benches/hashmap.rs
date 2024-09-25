@@ -56,15 +56,15 @@ fn sample_u64(count: usize) -> Vec<u64> {
         .collect()
 }
 
+/// Use .iter_batched_ref to avoid paying the HashMap destruction cost.
 fn bench_rapidhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample(count, min, max)
-        }, |strings: Vec<String>| {
-            let mut map = rapidhash::RapidHashMap::default();
+        b.iter_batched_ref(|| {
+            (rapidhash::RapidHashMap::default(), sample(count, min, max))
+        }, |(map, strings)| {
             for string in strings {
                 let len = string.len();
-                map.insert(string, len);
+                map.insert(string.clone(), len);
             }
         }, criterion::BatchSize::LargeInput);
     })
@@ -72,13 +72,12 @@ fn bench_rapidhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut B
 
 fn bench_rapidhash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample_u64(count)
-        }, |ints: Vec<u64>| {
-            let mut map = rapidhash::RapidHashMap::default();
+        b.iter_batched_ref(|| {
+            (rapidhash::RapidHashMap::default(), sample_u64(count))
+        }, |(map, ints)| {
             for int in ints {
-                let len = int >> 3;
-                map.insert(int, len);
+                let len = *int >> 3;
+                map.insert(*int, len);
             }
         }, criterion::BatchSize::LargeInput);
     })
@@ -86,13 +85,12 @@ fn bench_rapidhash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
 
 fn bench_default(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample(count, min, max)
-        }, |strings: Vec<String>| {
-            let mut map = std::collections::HashMap::new();
+        b.iter_batched_ref(|| {
+            (std::collections::HashMap::new(), sample(count, min, max))
+        }, |(map, strings)| {
             for string in strings {
                 let len = string.len();
-                map.insert(string, len);
+                map.insert(string.clone(), len);
             }
         }, criterion::BatchSize::LargeInput);
     })
@@ -100,13 +98,12 @@ fn bench_default(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Ben
 
 fn bench_default_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample_u64(count)
-        }, |ints: Vec<u64>| {
-            let mut map = std::collections::HashMap::new();
+        b.iter_batched_ref(|| {
+            (std::collections::HashMap::new(), sample_u64(count))
+        }, |(map, ints)| {
             for int in ints {
-                let len = int >> 3;
-                map.insert(int, len);
+                let len = *int >> 3;
+                map.insert(*int, len);
             }
         }, criterion::BatchSize::LargeInput);
     })
@@ -114,13 +111,12 @@ fn bench_default_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
 
 fn bench_fxhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample(count, min, max)
-        }, |strings: Vec<String>| {
-            let mut map = fxhash::FxHashMap::default();
+        b.iter_batched_ref(|| {
+            (fxhash::FxHashMap::default(), sample(count, min, max))
+        }, |(map, strings)| {
             for string in strings {
                 let len = string.len();
-                map.insert(string, len);
+                map.insert(string.clone(), len);
             }
         }, criterion::BatchSize::LargeInput);
     })
@@ -128,13 +124,12 @@ fn bench_fxhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Benc
 
 fn bench_fxhash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            sample_u64(count)
-        }, |ints: Vec<u64>| {
-            let mut map = fxhash::FxHashMap::default();
+        b.iter_batched_ref(|| {
+            (fxhash::FxHashMap::default(), sample_u64(count))
+        }, |(map, ints)| {
             for int in ints {
-                let len = int >> 3;
-                map.insert(int, len);
+                let len = *int >> 3;
+                map.insert(*int, len);
             }
         }, criterion::BatchSize::LargeInput);
     })
