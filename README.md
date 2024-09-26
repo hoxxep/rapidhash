@@ -22,7 +22,7 @@ assert_eq!(hasher.finish(), 17498481775468162579);
 const HASH: u64 = RapidHasher::default_const()
     .write_const(b"hello world")
     .finish_const();
-assert_eq!(const_hash, 17498481775468162579);
+assert_eq!(HASH, 17498481775468162579);
 
 // with the "std" feature, using the RapidHashMap helper type
 let mut map = RapidHashMap::default();
