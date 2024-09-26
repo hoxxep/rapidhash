@@ -1,5 +1,5 @@
 use rand_core::{RngCore, SeedableRng, Error, impls};
-use crate::rapid::{rapid_mix, rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SECRET};
+use crate::rapid_const::{rapid_mix, rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SECRET};
 
 /// Generate the next random number in a sequence using the rapidhash mixing algorithm.
 ///
@@ -29,8 +29,9 @@ pub fn rapidrng_quality(state: &mut [u64; 3]) -> u64 {
     state[0] = state[0].wrapping_add(RAPID_SECRET[0]);
     state[1] ^= RAPID_SECRET[1];
     state[2] ^= state[0];
-    let (a, b) = state.split_at_mut_checked(2).unwrap();
-    crate::rapid::rapid_mum(&mut a[1], &mut b[0]);
+    let (a, b) = crate::rapid_const::rapid_mum(state[1], state[2]);
+    state[1] = a;
+    state[2] = b;
     state[1] ^ state[2]
 }
 

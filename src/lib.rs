@@ -5,10 +5,11 @@
 #![cfg_attr(docsrs, feature(doc_cfg_hide))]
 #![cfg_attr(docsrs, doc(cfg_hide(docsrs)))]
 
-#[warn(missing_docs)]
+#[deny(missing_docs)]
+#[deny(unused_must_use)]
 
+mod rapid_const;
 mod rapid_hasher;
-mod rapid;
 #[cfg(any(feature = "rng", docsrs))]
 mod rng;
 #[cfg(any(feature = "rand", docsrs))]
@@ -17,25 +18,24 @@ mod random_state;
 #[doc(inline)]
 pub use crate::rapid_hasher::*;
 
-use crate::rapid::{rapidhash_raw, RAPID_SEED};
+use crate::rapid_const::{rapidhash_raw, RAPID_SEED};
 
 #[doc(inline)]
 #[cfg(any(feature = "rand", docsrs))]
 pub use crate::random_state::*;
-
 #[doc(inline)]
 #[cfg(any(feature = "rng", docsrs))]
 pub use crate::rng::*;
 
 /// Rapidhash a single byte stream, matching the C++ implementation.
 #[inline]
-pub fn rapidhash(data: &[u8]) -> u64 {
+pub const fn rapidhash(data: &[u8]) -> u64 {
     rapidhash_raw(data, RAPID_SEED)
 }
 
 /// Rapidhash a single byte stream, matching the C++ implementation, with a custom seed.
 #[inline]
-pub fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
+pub const fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
     rapidhash_raw(data, seed)
 }
 

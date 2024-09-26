@@ -1,5 +1,5 @@
 use core::hash::Hasher;
-use crate::rapid::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SEED};
+use crate::rapid_const::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SEED};
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash) algorithm.
 ///
@@ -63,11 +63,15 @@ pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 pub type RapidHashSet<K> = std::collections::HashSet<K, RapidHashBuilder>;
 
 impl RapidHasher {
+    /// Default `RapidHasher` seed.
+    pub const DEFAULT_SEED: u64 = RAPID_SEED;
+
     /// Create a new [RapidHasher] with a custom seed.
     ///
     /// It is recommended to use [RapidHasher::default] instead.
     #[inline]
-    pub fn new(seed: u64) -> Self {
+    #[must_use]
+    pub const fn new(seed: u64) -> Self {
         Self {
             seed,
             a: 0,
@@ -76,11 +80,20 @@ impl RapidHasher {
         }
     }
 
-    /// Equivalent to [Hasher::write] but always inlines the function.
+    /// Create a new [RapidHasher] using the default seed.
+    #[inline]
+    #[must_use]
+    pub const fn default_const() -> Self {
+        Self::new(Self::DEFAULT_SEED)
+    }
+
+    /// Const equivalent to [Hasher::write], and marked as `#[inline(always)]`.
     ///
-    /// This can deliver a large performance improvement when the `bytes` length is known.
+    /// This can deliver a large performance improvement when the `bytes` length is known at compile
+    /// time.
     #[inline(always)]
-    pub fn write_always_inline(&mut self, bytes: &[u8]) {
+    #[must_use]
+    pub const fn write_const_inline_always(&self, bytes: &[u8]) -> Self {
         // FUTURE: wyhash processes the bytes as u64::MAX chunks in case chunk.len() > usize.
         // we use this static assert to ensure that usize is not larger than u64 for now.
         const _: () = assert!(
@@ -88,12 +101,46 @@ impl RapidHasher {
             "usize is wider than u64. Please raise a github issue to support this."
         );
 
-        self.size += bytes.len() as u64;
-        self.seed = rapidhash_seed(self.seed, self.size);
-        let (a, b, seed) = rapidhash_core(self.a, self.b, self.seed, bytes);
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
+        let mut this = *self;
+        this.size += bytes.len() as u64;
+        this.seed = rapidhash_seed(this.seed, this.size);
+        let (a, b, seed) = rapidhash_core(this.a, this.b, this.seed, bytes);
+        this.a = a;
+        this.b = b;
+        this.seed = seed;
+        this
+    }
+
+    /// Const equivalent to [Hasher::finish], and marked as `#[inline(always)]`.
+    #[inline(always)]
+    #[must_use]
+    pub const fn finish_const_inline_always(&self) -> u64 {
+        rapidhash_finish(self.a, self.b, self.size)
+    }
+
+    /// Const equivalent to [Hasher::write].
+    ///
+    /// # Example
+    /// ```rust
+    /// use rapidhash::RapidHasher;
+    ///
+    /// let hasher = RapidHasher::default_const();
+    /// let hash = hasher
+    ///     .write_const(b"some bytes")
+    ///     .write_const(b"and some more bytes")
+    ///     .finish_const();
+    /// ```
+    #[inline]
+    #[must_use]
+    pub const fn write_const(&self, bytes: &[u8]) -> Self {
+        self.write_const_inline_always(bytes)
+    }
+
+    /// Const equivalent to [Hasher::finish].
+    #[inline]
+    #[must_use]
+    pub const fn finish_const(&self) -> u64 {
+        self.finish_const_inline_always()
     }
 }
 
@@ -111,33 +158,33 @@ impl Default for RapidHasher {
 impl Hasher for RapidHasher {
     #[inline]
     fn finish(&self) -> u64 {
-        rapidhash_finish(self.a, self.b, self.size)
+        self.finish_const_inline_always()
     }
 
     /// Write a byte slice to the hasher.
     #[inline]
     fn write(&mut self, bytes: &[u8]) {
-        self.write_always_inline(bytes);
+        *self = self.write_const_inline_always(bytes);
     }
 
     #[inline]
     fn write_u8(&mut self, i: u8) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u16(&mut self, i: u16) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u32(&mut self, i: u32) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_u64(&mut self, i: u64) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
 
         // NOTE: in case of compiler regression, it should compile to:
         // self.size += size_of::<u64>() as u64;
@@ -149,42 +196,42 @@ impl Hasher for RapidHasher {
 
     #[inline]
     fn write_u128(&mut self, i: u128) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_usize(&mut self, i: usize) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_i8(&mut self, i: i8) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_i16(&mut self, i: i16) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_i32(&mut self, i: i32) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_i64(&mut self, i: i64) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_i128(&mut self, i: i128) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 
     #[inline]
     fn write_isize(&mut self, i: isize) {
-        self.write_always_inline(&i.to_ne_bytes());
+        *self = self.write_const_inline_always(&i.to_ne_bytes());
     }
 }
 

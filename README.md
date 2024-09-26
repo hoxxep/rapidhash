@@ -2,7 +2,7 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function.
+Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function. The hash function is a `const` implementation for compile-time hashing.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -18,11 +18,17 @@ let mut hasher = RapidHasher::default();
 hasher.write(b"hello world");
 assert_eq!(hasher.finish(), 17498481775468162579);
 
+// a const hasher
+const HASH: u64 = RapidHasher::default_const()
+    .write_const(b"hello world")
+    .finish_const();
+assert_eq!(const_hash, 17498481775468162579);
+
 // with the "std" feature, using the RapidHashMap helper type
 let mut map = RapidHashMap::default();
 map.insert("hello", "world");
 
-// raw usage
+// raw usage (also const)
 assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 ```
 
@@ -45,8 +51,9 @@ This repo is an active work in progress.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
 - [ ] Add rapidhash protected variant.
-- [ ] `const` implementation for compile-time hashing.
+- [x] `const` implementation for compile-time hashing.
 - [x] License the code under a permissive license.
+- [ ] A rapidhash-based random number generator (currently WIP).
 - [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name.)
 
 ## Benchmarks
