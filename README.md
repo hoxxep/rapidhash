@@ -1,8 +1,8 @@
-# rapidhash - rust implementation
+# rapidhash - const rust implementation
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function. The hash function is a `const` implementation for compile-time hashing.
+Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function. This is a stable, platform-independent, and `const` implementation of rapidhash, suitable for both compile-time and run-time hashing.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
