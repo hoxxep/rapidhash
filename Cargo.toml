@@ -27,11 +27,13 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 default = ["std"]
 std = []  # enable std library for RapidHashMap and RapidHashSet helpers
-rand = ["dep:rand"]  # enable the rand library for random seed initialisation
+rand = ["dep:rand", "std"]  # enable the rand library for random seed initialisation
+rng = ["dep:rand_core"]  # fast random number generator using rapidhash
 unsafe = []  # enable unsafe pointer arithmetic to skip unnecessary bounds checks
 
 [dependencies]
-rand = { version = "0.8.5", default-features = false, optional = true }
+rand = { version = "0.8.5", optional = true }
+rand_core = { version = "0.6.4", default-features = false, optional = true }
 
 [dev-dependencies]
 criterion = "0.5.1"
@@ -43,3 +45,4 @@ xxhash-rust = { version = "0.8.12", features = ["xxh3"] }
 metrohash = "1.0.6"
 seahash = "4.1.0"
 ahash = "0.8.11"
+fastrand = "2.1.1"

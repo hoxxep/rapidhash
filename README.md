@@ -31,6 +31,7 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 - `default`: `std`
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
 - `rand`: Enables the `rand` crate dependency (in no-std mode) and exports  `RapidRandomState` to randomly initialize the seed.
+- `rng`: Enables `RapidRng`, a fast, non-cryptographic random number generator based on rapidhash.
 - `unsafe`: Enables unsafe pointer arithmetic to skip some unnecessary bounds checks on small byte slice inputs (len <= 16), for a 3-4% performance improvement.
 
 ## TODO
