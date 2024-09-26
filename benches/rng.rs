@@ -18,6 +18,11 @@ pub fn bench(c: &mut Criterion) {
         group.bench_function("10000", bench_rapidhash_quality(10000));
     }
     {
+        let mut group = c.benchmark_group("rng/rapidhash_time");
+        group.bench_function("1", bench_rapidhash_time(1));
+        group.bench_function("10000", bench_rapidhash_time(10000));
+    }
+    {
         let mut group = c.benchmark_group("rng/wyhash");
         group.bench_function("1", bench_wyhash(1));
         group.bench_function("10000", bench_wyhash(10000));
@@ -63,7 +68,7 @@ pub fn bench_rapidhash_fast(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             for _ in 0..count {
                 out ^= rapidhash::rapidrng_fast(&mut i);
             }
-            (out, rapidhash::rapidrng_fast(&mut i))
+            out
         }, criterion::BatchSize::SmallInput);
     })
 }
@@ -74,10 +79,24 @@ pub fn bench_rapidhash_quality(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             rand::random()
         }, |mut i: [u64; 3]| {
             let mut out: u64 = 0;
-            for _ in 0..count {
+            for _ in 0..=count {
                 out ^= rapidhash::rapidrng_quality(&mut i);
             }
-            (out, rapidhash::rapidrng_quality(&mut i))
+            out
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_rapidhash_time(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random()
+        }, |mut i: u64| {
+            let mut out: u64 = 0;
+            for _ in 0..=count {
+                out ^= rapidhash::rapidrng_time(&mut i);
+            }
+            out
         }, criterion::BatchSize::SmallInput);
     })
 }

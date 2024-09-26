@@ -29,6 +29,7 @@ default = ["std"]
 std = []  # enable std library for RapidHashMap and RapidHashSet helpers
 rand = ["dep:rand", "std"]  # enable the rand library for random seed initialisation
 rng = ["dep:rand_core"]  # fast random number generator using rapidhash
+time = ["std"]  # enable rng seeding using system time
 unsafe = []  # enable unsafe pointer arithmetic to skip unnecessary bounds checks
 
 [dependencies]
