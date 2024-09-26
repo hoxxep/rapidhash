@@ -5,19 +5,19 @@
 #![cfg_attr(docsrs, feature(doc_cfg_hide))]
 #![cfg_attr(docsrs, doc(cfg_hide(docsrs)))]
 
-mod hasher;
+mod rapid_hasher;
 mod rapid;
 #[cfg(any(feature = "rand", docsrs))]
-mod random;
+mod random_state;
 
 #[doc(inline)]
-pub use crate::hasher::*;
+pub use crate::rapid_hasher::*;
 
 use crate::rapid::{rapidhash_raw, RAPID_SEED};
 
 #[doc(inline)]
 #[cfg(any(feature = "rand", docsrs))]
-pub use crate::random::*;
+pub use crate::random_state::*;
 
 /// Rapidhash a single byte stream, matching the C++ implementation.
 #[inline]
