@@ -7,21 +7,21 @@
 
 #[warn(missing_docs)]
 
-mod hasher;
+mod rapid_hasher;
 mod rapid;
-#[cfg(any(feature = "rand", docsrs))]
-mod random;
 #[cfg(any(feature = "rng", docsrs))]
 mod rng;
+#[cfg(any(feature = "rand", docsrs))]
+mod random_state;
 
 #[doc(inline)]
-pub use crate::hasher::*;
+pub use crate::rapid_hasher::*;
 
 use crate::rapid::{rapidhash_raw, RAPID_SEED};
 
 #[doc(inline)]
 #[cfg(any(feature = "rand", docsrs))]
-pub use crate::random::*;
+pub use crate::random_state::*;
 
 #[doc(inline)]
 #[cfg(any(feature = "rng", docsrs))]

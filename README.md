@@ -45,6 +45,7 @@ This repo is an active work in progress.
 - [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
 - [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
 - [ ] Add rapidhash protected variant.
+- [ ] `const` implementation for compile-time hashing.
 - [x] License the code under a permissive license.
 - [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name.)
 

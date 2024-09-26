@@ -105,14 +105,16 @@ fn read_u32(slice: &[u8]) -> u32 {
 // SAFETY: `slice` must be at least 8 bytes long, and we guarantee so within this file.
 #[cfg(feature = "unsafe")]
 #[inline(always)]
-fn read_u64(slice: &[u8]) -> u64 {
+const fn read_u64(slice: &[u8]) -> u64 {
+    debug_assert!(slice.len() >= 8);
     unsafe { std::ptr::read_unaligned(slice.as_ptr() as *const u64) }
 }
 
 // SAFETY: `slice` must be at least 4 bytes long, and we guarantee so within this file.
 #[cfg(feature=  "unsafe")]
 #[inline(always)]
-fn read_u32(slice: &[u8]) -> u32 {
+const fn read_u32(slice: &[u8]) -> u32 {
+    debug_assert!(slice.len() >= 4);
     unsafe { std::ptr::read_unaligned(slice.as_ptr() as *const u32) }
 }
 
