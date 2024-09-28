@@ -39,6 +39,7 @@ rand_core = { version = "0.6.4", default-features = false, optional = true }
 [dev-dependencies]
 criterion = "0.5.1"
 rand = "0.8.5"
+const-random = "0.1.18"
 fxhash = "0.2.1"
 t1ha = "0.1.2"
 wyhash = "0.5.0"
@@ -46,4 +47,5 @@ xxhash-rust = { version = "0.8.12", features = ["xxh3"] }
 metrohash = "1.0.6"
 seahash = "4.1.0"
 ahash = "0.8.11"
+gxhash = "3.4.1"
 fastrand = "2.1.1"

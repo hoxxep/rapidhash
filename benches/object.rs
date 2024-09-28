@@ -34,6 +34,18 @@ pub fn bench_rapidhash() -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
+pub fn bench_rapidhash_inline() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = rapidhash::RapidHasherInline::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
 pub fn bench_default() -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
@@ -124,6 +136,18 @@ pub fn bench_ahash() -> Box<dyn FnMut(&mut Bencher)> {
             Object::random()
         }, |o| {
             let mut hasher = ahash::AHasher::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_gxhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = gxhash::GxHasher::default();
             o.hash(&mut hasher);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);

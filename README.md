@@ -2,7 +2,16 @@
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Extremely fast, high-quality, platform-independent, memory safe, no-std compatible, non-cryptographic hash function. This is a stable, platform-independent, and `const` implementation of rapidhash, suitable for both compile-time and run-time hashing.
+- **High quality**, the fastest hash passing all tests in the SMHasher and SMHasher3 benchmark. Collision-based study showed a collision probability lower than wyhash and close to ideal.
+- **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash.
+- **Platform independent**, no dependency on machine-specific vectorized or cryptographic hardware instructions. Optimised for both AMD64 and AArch64
+- **Official successor to wyhash**, with improved speed, quality, and compatibility.
+- `no-std` when disabling the `std` feature.
+- `const` implementation for both compile-time and run-time hashing.
+- `std::hash::Hasher` compatible hasher.
+- `inline(always)` variant `RapidHashInline` and `RapidHashInlineBuilder` for compiler optimisations on specific input types (can be in the realm of +30% faster when hashing complex objects).
+- Memory safe, when the `unsafe` feature is disabled (default).
+- Non-cyptographic hash function.
 
 From the C++ implementation:
 > Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
@@ -34,11 +43,11 @@ assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 
 ## Features
 
-- `default`: `std`
+- `default`: `std`, `rand`, `rng`, `time`
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
 - `rand`: Enables the `rand` crate dependency (in no-std mode) and exports  `RapidRandomState` to randomly initialize the seed.
 - `rng`: Enables `RapidRng`, a fast, non-cryptographic random number generator based on rapidhash.
-- `time`: Enable `rapidrng_time` for rng seeding based on the current time.
+- `time`: Enable `rapidrng_time` for rng seeding based on the current system time.
 - `unsafe`: Enables unsafe pointer arithmetic to skip some unnecessary bounds checks on small byte slice inputs (len <= 16), for a 3-4% performance improvement.
 
 ## TODO
@@ -89,6 +98,8 @@ hash/rapidhash/u32      time:   [1.2956 ns 1.3173 ns 1.3398 ns]
 hash/rapidhash/u64      time:   [1.2970 ns 1.3162 ns 1.3353 ns]
 hash/rapidhash/u128     time:   [1.8301 ns 1.8758 ns 1.9172 ns]
 hash/rapidhash/object   time:   [17.255 ns 17.344 ns 17.441 ns]
+hash/rapidhash/object_inline
+                        time:   [7.8873 ns 7.9179 ns 7.9479 ns]
 
 hash/default/str_2      time:   [5.4913 ns 5.5070 ns 5.5248 ns]
 hash/default/str_8      time:   [6.4975 ns 6.5571 ns 6.6593 ns]
@@ -109,6 +120,16 @@ hash/fxhash/str_1024    time:   [136.43 ns 136.66 ns 136.92 ns]
 hash/fxhash/str_4096    time:   [730.49 ns 731.34 ns 732.28 ns]
 hash/fxhash/u64         time:   [890.02 ps 909.37 ps 928.01 ps]
 hash/fxhash/object      time:   [6.8636 ns 6.8953 ns 6.9276 ns]
+
+hash/gxhash/str_2       time:   [2.5633 ns 2.6010 ns 2.6443 ns]
+hash/gxhash/str_8       time:   [2.5602 ns 2.6449 ns 2.7706 ns]
+hash/gxhash/str_16      time:   [2.5881 ns 2.6530 ns 2.7477 ns]
+hash/gxhash/str_64      time:   [3.3580 ns 3.4055 ns 3.4567 ns]
+hash/gxhash/str_256     time:   [7.6870 ns 7.8056 ns 7.9192 ns]
+hash/gxhash/str_1024    time:   [17.547 ns 17.798 ns 18.047 ns]
+hash/gxhash/str_4096    time:   [61.094 ns 64.937 ns 71.977 ns]
+hash/gxhash/u64         time:   [1.0981 ns 1.1164 ns 1.1334 ns]
+hash/gxhash/object      time:   [5.2970 ns 5.3257 ns 5.3563 ns]
 
 hash/ahash/str_2        time:   [2.8815 ns 2.9023 ns 2.9241 ns]
 hash/ahash/str_8        time:   [2.8560 ns 2.8748 ns 2.8988 ns]

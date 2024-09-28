@@ -176,3 +176,15 @@ pub fn bench_ahash() -> Box<dyn FnMut(&mut Bencher)> {
         }, criterion::BatchSize::SmallInput);
     })
 }
+
+pub fn bench_gxhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random::<u64>()
+        }, |i: u64| {
+            let mut hasher = gxhash::GxHasher::default();
+            hasher.write_u64(i);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
