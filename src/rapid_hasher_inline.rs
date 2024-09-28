@@ -8,28 +8,28 @@ use crate::rapid_const::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID
 /// objects, but should be benchmarked for your specific use case. If you have HashMaps for many
 /// different types this may come at the cost of some binary size increase.
 ///
-/// See [rapidhash::RapidHasher] for default non-forced inline methods.
+/// See [crate::RapidHasher] for default non-forced inline methods.
 ///
-/// See [RapidHashInlineBuilder] for usage with [std::collections::HashMap].
+/// See [RapidInlineHashBuilder] for usage with [std::collections::HashMap].
 ///
 /// # Example
 /// ```
 /// use std::hash::Hasher;
-/// use rapidhash::RapidHasherInline;
+/// use rapidhash::RapidInlineHasher;
 ///
-/// let mut hasher = RapidHasherInline::default();
+/// let mut hasher = RapidInlineHasher::default();
 /// hasher.write(b"hello world");
 /// let hash = hasher.finish();
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub struct RapidHasherInline {
+pub struct RapidInlineHasher {
     seed: u64,
     a: u64,
     b: u64,
     size: u64,
 }
 
-/// A [std::hash::BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
+/// A [std::hash::BuildHasher] trait compatible hasher that uses the [RapidInlineHasher] algorithm.
 ///
 /// This is an alias for [`std::hash::BuildHasherDefault<RapidHasher>`] with a static seed.
 ///
@@ -40,14 +40,14 @@ pub struct RapidHasherInline {
 /// ```
 /// use std::collections::HashMap;
 /// use std::hash::Hasher;
-/// use rapidhash::RapidHashInlineBuilder;
+/// use rapidhash::RapidInlineHashBuilder;
 ///
-/// let mut map = HashMap::with_hasher(RapidHashInlineBuilder::default());
+/// let mut map = HashMap::with_hasher(RapidInlineHashBuilder::default());
 /// map.insert(42, "the answer");
 /// ```
-pub type RapidHashInlineBuilder = core::hash::BuildHasherDefault<RapidHasherInline>;
+pub type RapidInlineHashBuilder = core::hash::BuildHasherDefault<RapidInlineHasher>;
 
-/// A [std::collections::HashMap] type that uses the [RapidHashInlineBuilder] hasher.
+/// A [std::collections::HashMap] type that uses the [RapidInlineHashBuilder] hasher.
 ///
 /// # Example
 /// ```
@@ -56,9 +56,9 @@ pub type RapidHashInlineBuilder = core::hash::BuildHasherDefault<RapidHasherInli
 /// map.insert(42, "the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidHashInlineBuilder>;
+pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineHashBuilder>;
 
-/// A [std::collections::HashSet] type that uses the [RapidHashInlineBuilder] hasher.
+/// A [std::collections::HashSet] type that uses the [RapidInlineHashBuilder] hasher.
 ///
 /// # Example
 /// ```
@@ -67,15 +67,13 @@ pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidHashInl
 /// set.insert("the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidInlineHashSet<K> = std::collections::HashSet<K, RapidHashInlineBuilder>;
+pub type RapidInlineHashSet<K> = std::collections::HashSet<K, RapidInlineHashBuilder>;
 
-impl RapidHasherInline {
+impl RapidInlineHasher {
     /// Default `RapidHasher` seed.
     pub const DEFAULT_SEED: u64 = RAPID_SEED;
 
-    /// Create a new [RapidHasher] with a custom seed.
-    ///
-    /// It is recommended to use [RapidHasher::default] instead.
+    /// Create a new [RapidInlineHasher] with a custom seed.
     #[inline(always)]
     #[must_use]
     pub const fn new(seed: u64) -> Self {
@@ -87,7 +85,7 @@ impl RapidHasherInline {
         }
     }
 
-    /// Create a new [RapidHasher] using the default seed.
+    /// Create a new [RapidInlineHasher] using the default seed.
     #[inline(always)]
     #[must_use]
     pub const fn default_const() -> Self {
@@ -126,8 +124,8 @@ impl RapidHasherInline {
     }
 }
 
-impl Default for RapidHasherInline {
-    /// Create a new [RapidHasher] with the default seed.
+impl Default for RapidInlineHasher {
+    /// Create a new [RapidInlineHasher] with the default seed.
     #[inline(always)]
     fn default() -> Self {
         Self::new(RAPID_SEED)
@@ -137,7 +135,7 @@ impl Default for RapidHasherInline {
 /// This implementation implements methods for all integer types as the compiler will (hopefully...)
 /// inline and heavily optimize the rapidhash_core for each. Where the bytes length is known the
 /// compiler can make significant optimisations and saves us writing them out by hand.
-impl Hasher for RapidHasherInline {
+impl Hasher for RapidInlineHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
         self.finish_const()
@@ -234,13 +232,13 @@ mod tests {
         ];
 
         for int in ints {
-            let mut hasher = RapidHasherInline::default();
+            let mut hasher = RapidInlineHasher::default();
             hasher.write(int.to_ne_bytes().as_slice());
             let a = hasher.finish();
 
             assert_eq!(int.to_ne_bytes().as_slice().len(), 8);
 
-            let mut hasher = RapidHasherInline::default();
+            let mut hasher = RapidInlineHasher::default();
             hasher.write_u64(int);
             let b = hasher.finish();
 

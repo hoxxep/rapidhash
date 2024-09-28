@@ -1,10 +1,10 @@
 use core::hash::Hasher;
 use crate::rapid_const::{RAPID_SEED};
-use crate::RapidHasherInline;
+use crate::RapidInlineHasher;
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash) algorithm.
 ///
-/// See [RapidHasherInline] for an `#[inline(always)]` version of this hasher, which can deliver
+/// See [RapidInlineHasher] for an `#[inline(always)]` version of this hasher, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
 ///
 /// See [RapidHashBuilder] for usage with [std::collections::HashMap].
@@ -19,13 +19,13 @@ use crate::RapidHasherInline;
 /// let hash = hasher.finish();
 /// ```
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub struct RapidHasher(RapidHasherInline);
+pub struct RapidHasher(RapidInlineHasher);
 
 /// A [std::hash::BuildHasher] trait compatible hasher that uses the [RapidHasher] algorithm.
 ///
 /// This is an alias for [`std::hash::BuildHasherDefault<RapidHasher>`] with a static seed.
 ///
-/// See [RapidHasherInline] for an `#[inline(always)]` version of this hasher, which can deliver
+/// See [RapidInlineHasher] for an `#[inline(always)]` version of this hasher, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
 ///
 /// See [crate::RapidRandomState] with the `rand` feature can be used instead for a
@@ -44,7 +44,7 @@ pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 
 /// A [std::collections::HashMap] type that uses the [RapidHashBuilder] hasher.
 ///
-/// See [RapidInlineHashMap] for an `#[inline(always)]` version of this type, which can deliver
+/// See [crate::RapidInlineHashMap] for an `#[inline(always)]` version of this type, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
 ///
 /// # Example
@@ -58,8 +58,8 @@ pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 
 /// A [std::collections::HashSet] type that uses the [RapidHashBuilder] hasher.
 ///
-/// See [RapidInlineHashSet] for an `#[inline(always)]` version of this type, which can deliver
-/// speed improvements of around 30% when hashing complex objects.
+/// See [crate::RapidInlineHashSet] for an `#[inline(always)]` version of this type, which can
+/// deliver speed improvements of around 30% when hashing complex objects.
 ///
 /// # Example
 /// ```
@@ -75,12 +75,10 @@ impl RapidHasher {
     pub const DEFAULT_SEED: u64 = RAPID_SEED;
 
     /// Create a new [RapidHasher] with a custom seed.
-    ///
-    /// It is recommended to use [RapidHasher::default] instead.
     #[inline]
     #[must_use]
     pub const fn new(seed: u64) -> Self {
-        Self(RapidHasherInline::new(seed))
+        Self(RapidInlineHasher::new(seed))
     }
 
     /// Create a new [RapidHasher] using the default seed.

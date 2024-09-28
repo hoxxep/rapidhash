@@ -13,6 +13,7 @@ mod rapid_hasher;
 mod rapid_hasher_inline;
 #[cfg(any(feature = "rand", docsrs))]
 mod random_state;
+#[cfg(any(feature = "rng", docsrs))]
 mod rng;
 
 #[doc(inline)]
@@ -25,6 +26,7 @@ pub use crate::rapid_hasher_inline::*;
 #[cfg(any(feature = "rand", docsrs))]
 pub use crate::random_state::*;
 #[doc(inline)]
+#[cfg(any(feature = "rng", docsrs))]
 pub use crate::rng::*;
 
 

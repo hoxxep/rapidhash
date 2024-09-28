@@ -1,36 +1,25 @@
-# rapidhash - const rust implementation
+# rapidhash - rust implementation
 
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
 - **High quality**, the fastest hash passing all tests in the SMHasher and SMHasher3 benchmark. Collision-based study showed a collision probability lower than wyhash and close to ideal.
-- **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash. Fastest memory-safe hash.
-- **Platform independent**, no dependency on machine-specific vectorized or cryptographic hardware instructions. Optimised for both AMD64 and AArch64.
+- **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash. Fastest memory-safe hash. Fastest platform-independent hash. Fastest const hash.
+- **Platform independent**, works on all platforms, no dependency on machine-specific vectorized or cryptographic hardware instructions. Optimised for both AMD64 and AArch64.
+- **Memory safe**, when the `unsafe` feature is disabled (default). This implementation has also been fuzz-tested with `cargo fuzz`.
+- **No dependencies and no-std compatible** when disabling the `std` feature.
 - **Official successor to wyhash**, with improved speed, quality, and compatibility.
-- `no-std` compatible when disabling the `std` feature.
-- `const` implementation for both compile-time and run-time hashing.
+- `const` hash implementation for both run-time and compile-time hashing.
 - `std::hash::Hasher` compatible hasher.
-- `inline(always)` variant `RapidHashInline` and `RapidHashInlineBuilder` for compiler optimisations on specific input types (can be in the realm of +30% faster when hashing complex objects).
-- Memory safe, when the `unsafe` feature is disabled (default).
-- Non-cyptographic hash function.
-
-From the C++ implementation:
-> Passes all tests in both SMHasher and SMHasher3, collision-based study showed a collision probability lower than wyhash and close to ideal.
+- `#[inline(always)]` variants `RapidInlineHash` and `RapidInlineHashBuilder` for compiler optimisations on specific input types (can be in the over 30% faster when hashing numbers, structs, and fixed-size arrays).
+- Non-cryptographic hash function.
 
 ## Usage
-
+### Hashing
 ```rust
 use std::hash::Hasher;
-use rapidhash::{rapidhash, RapidHasher, RapidHashMap, RapidInlineHashMap};
+use rapidhash::{rapidhash, RapidHasher};
 
-// with the "std" feature, using the RapidHashMap helper type
-let mut map = RapidHashMap::default();
-map.insert("hello", "world");
-
-// a hash map type using the RapidHashInlineBuilder to force the compiler to inline the hash function for further optimisations (can be +30% faster)
-let mut map = RapidInlineHashMap::default();
-map.insert("hello", "world");
-
-// raw usage (also const)
+// direct const usage
 assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 
 // a std::hash::Hasher compatible hasher
@@ -45,14 +34,28 @@ const HASH: u64 = RapidHasher::default_const()
 assert_eq!(HASH, 17498481775468162579);
 ```
 
+### Helper Types
+```rust
+// also includes HashSet equivalents
+use rapidhash::{RapidHashMap, RapidInlineHashMap};
+
+// std HashMap with the RapidHashBuilder hasher.
+let mut map = RapidHashMap::default();
+map.insert("hello", "world");
+
+// a hash map type using the RapidInlineHashBuilder to force the compiler to
+// inline the hash function for further optimisations (can be over 30% faster).
+let mut map = RapidInlineHashMap::default();
+map.insert("hello", "world");
+```
+
 ## Features
 
-- `default`: `std`, `rand`, `rng`, `time`
+- `default`: `std`
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types.
-- `rand`: Enables the `rand` crate dependency (in no-std mode) and exports  `RapidRandomState` to randomly initialize the seed.
-- `rng`: Enables `RapidRng`, a fast, non-cryptographic random number generator based on rapidhash.
-- `time`: Enable `rapidrng_time` for rng seeding based on the current system time.
-- `unsafe`: Enables unsafe pointer arithmetic to skip some unnecessary bounds checks on small byte slice inputs (len <= 16), for a 3-4% performance improvement.
+- `rand`: Enables `RapidRandomState`, a `BuildHasher` that randomly initializes the seed. Includes the `rand` crate dependency.
+- `rng`: Enables `RapidRng`, a fast, non-cryptographic random number generator based on rapidhash. Includes the `rand_core` crate dependency.
+- `unsafe`: Uses unsafe pointer arithmetic to skip some unnecessary bounds checks for a small 3-4% performance improvement.
 
 ## TODO
 This repo is an active work in progress.
