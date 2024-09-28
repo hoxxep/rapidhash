@@ -170,7 +170,7 @@ mod tests {
         assert_ne!(x, y);
     }
 
-    #[cfg(feature = "rng")]
+    #[cfg(all(feature = "rng", feature = "std"))]
     #[test]
     fn bit_flip_trial() {
         let cycles = 100_000;
@@ -197,6 +197,7 @@ mod tests {
         assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn bit_flip_trial_fast() {
         let cycles = 100_000;
