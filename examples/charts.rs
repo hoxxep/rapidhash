@@ -1,5 +1,4 @@
 use plotters::prelude::*;
-use seahash::hash;
 use serde::Deserialize;
 
 /// Build charts for the README using criterion benchmarking results.
@@ -110,16 +109,8 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[derive(Debug, Deserialize)]
-struct CriterionConfidence {
-    confidence_level: f64,
-    lower_bound: f64,
-    upper_bound: f64,
-}
-
-#[derive(Debug, Deserialize)]
 struct CriterionMean {
     point_estimate: f64,
-    confidence_interval: CriterionConfidence,
 }
 
 #[derive(Debug, Deserialize)]

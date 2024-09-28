@@ -202,6 +202,7 @@ mod tests {
         assert_eq!(read_u64(bytes, 0), 0);
     }
 
+    #[cfg(feature = "std")]
     #[test]
     fn test_u32_to_u128_delta() {
         fn formula(len: u64) -> u64 {
@@ -215,11 +216,11 @@ mod tests {
             }
         }
 
-        let inputs: Vec<u64> = (4..=16).collect();
-        let outputs: Vec<u64> = inputs.iter().map(|&x| formula(x)).collect();
-        let expected = vec![0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+        let inputs: std::vec::Vec<u64> = (4..=16).collect();
+        let outputs: std::vec::Vec<u64> = inputs.iter().map(|&x| formula(x)).collect();
+        let expected = std::vec![0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4];
         assert_eq!(outputs, expected);
-        assert_eq!(outputs, inputs.iter().map(|&x| formula2(x)).collect::<Vec<_>>());
+        assert_eq!(outputs, inputs.iter().map(|&x| formula2(x)).collect());
     }
 
     #[test]
