@@ -10,7 +10,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["hash", "rapidhash"]
 categories = ["algorithms", "no-std"]
-exclude = ["Cargo.lock", ".github"]
+exclude = ["Cargo.lock", ".github", "fuzz"]
 
 [lib]
 
@@ -37,7 +37,7 @@ rand = { version = "0.8.5", optional = true }
 rand_core = { version = "0.6.4", default-features = false, optional = true }
 
 [dev-dependencies]
-criterion = "0.5.1"
+criterion = { version = "0.5.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
 rand = "0.8.5"
 const-random = "0.1.18"
 fxhash = "0.2.1"
@@ -49,3 +49,8 @@ seahash = "4.1.0"
 ahash = "0.8.11"
 gxhash = "3.4.1"
 fastrand = "2.1.1"
+
+# for the charts example to generate README plots
+plotters = { version = "0.3.7", default-features = false, features = ["chrono", "image", "svg_backend", "bitmap_backend", "bitmap_encoder", "line_series"] }
+serde = "1.0.210"
+serde_cbor = "0.11.2"

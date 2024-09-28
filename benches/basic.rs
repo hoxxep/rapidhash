@@ -1,4 +1,4 @@
-use criterion::{Bencher, Criterion};
+use criterion::{Bencher, Criterion, Throughput};
 
 use crate::int;
 use crate::vector;
@@ -35,9 +35,11 @@ pub fn bench(c: &mut Criterion) {
         let mut group = c.benchmark_group(name.to_string());
         for size in sizes {
             let name = "str_".to_string() + &size.to_string();
+            group.throughput(Throughput::Bytes(size as u64));
             group.bench_function(name, string_fn(size));
         }
 
+        group.throughput(Throughput::Elements(1));
         if name == &"hash/rapidhash" {
             group.bench_function("u8", int::bench_rapidhash_u8());
             group.bench_function("u16", int::bench_rapidhash_u16());

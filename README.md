@@ -3,10 +3,10 @@
 A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
 - **High quality**, the fastest hash passing all tests in the SMHasher and SMHasher3 benchmark. Collision-based study showed a collision probability lower than wyhash and close to ideal.
-- **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash.
-- **Platform independent**, no dependency on machine-specific vectorized or cryptographic hardware instructions. Optimised for both AMD64 and AArch64
+- **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash. Fastest memory-safe hash.
+- **Platform independent**, no dependency on machine-specific vectorized or cryptographic hardware instructions. Optimised for both AMD64 and AArch64.
 - **Official successor to wyhash**, with improved speed, quality, and compatibility.
-- `no-std` when disabling the `std` feature.
+- `no-std` compatible when disabling the `std` feature.
 - `const` implementation for both compile-time and run-time hashing.
 - `std::hash::Hasher` compatible hasher.
 - `inline(always)` variant `RapidHashInline` and `RapidHashInlineBuilder` for compiler optimisations on specific input types (can be in the realm of +30% faster when hashing complex objects).

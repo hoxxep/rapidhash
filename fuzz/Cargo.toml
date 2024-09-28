@@ -1,0 +1,37 @@
+[package]
+name = "rapidhash-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[features]
+unsafe = ["rapidhash/unsafe"]
+
+[dependencies]
+rapidhash = { path = ".." }
+libfuzzer-sys = "0.4"
+afl = "*"
+
+[[bin]]
+name = "rapidhash"
+path = "fuzz_targets/rapidhash.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "rapidhasher"
+path = "fuzz_targets/rapidhasher.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "afl_rapidhash"
+path = "src/afl_rapidhash.rs"
+test = false
+doc = false
+bench = false
