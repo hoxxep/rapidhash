@@ -1,3 +1,4 @@
+#[cfg(feature = "rng")]
 use rand_core::{RngCore, SeedableRng, Error, impls};
 use crate::rapid_const::{rapid_mix, rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SECRET};
 
@@ -40,6 +41,8 @@ pub fn rapidrng_quality(state: &mut [u64; 3]) -> u64 {
 /// Note fetching system time requires a syscall and is therefore much slower than [rapidrng_fast].
 /// It can also be used to seed [rapidrng_fast].
 ///
+/// Requires the `std` feature and a platform that supports [std::time::SystemTime].
+///
 /// # Example
 /// ```rust
 /// use rapidhash::{rapidrng_fast, rapidrng_time};
@@ -52,7 +55,7 @@ pub fn rapidrng_quality(state: &mut [u64; 3]) -> u64 {
 ///     println!("{}", rapidrng_fast(&mut seed));
 /// }
 /// ```
-#[cfg(feature = "time")]
+#[cfg(feature = "std")]
 #[inline]
 pub fn rapidrng_time(seed: &mut u64) -> u64 {
     let time = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap();
@@ -110,6 +113,7 @@ impl RapidRng {
     }
 }
 
+#[cfg(feature = "rng")]
 impl RngCore for RapidRng {
     #[inline]
     fn next_u32(&mut self) -> u32 {
@@ -133,6 +137,7 @@ impl RngCore for RapidRng {
     }
 }
 
+#[cfg(feature = "rng")]
 impl SeedableRng for RapidRng {
     type Seed = [u8; 24];
 
@@ -155,6 +160,7 @@ impl SeedableRng for RapidRng {
 mod tests {
     use super::*;
 
+    #[cfg(feature = "rng")]
     #[test]
     fn test_rapidrng() {
         let mut rng = RapidRng::new(0);
@@ -164,6 +170,7 @@ mod tests {
         assert_ne!(x, y);
     }
 
+    #[cfg(feature = "rng")]
     #[test]
     fn bit_flip_trial() {
         let cycles = 100_000;
@@ -215,7 +222,7 @@ mod tests {
         assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
     }
 
-    #[cfg(feature = "time")]
+    #[cfg(feature = "std")]
     #[test]
     fn bit_flip_trial_time() {
         let cycles = 100_000;
@@ -265,6 +272,7 @@ mod tests {
         assert!(false, "Cycle found after {power}:{lam} iterations.");
     }
 
+    #[cfg(feature = "rng")]
     #[test]
     #[ignore]
     fn find_cycle_slow() {
@@ -311,6 +319,7 @@ mod tests {
         assert!(false, "Cycle found after {power}:{lam} iterations.");
     }
 
+    #[cfg(feature = "rng")]
     #[test]
     fn test_construction() {
         let mut rng = RapidRng::default();

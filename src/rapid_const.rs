@@ -1,10 +1,25 @@
-#[allow(unused)]
-pub(crate) const RAPID_SEED: u64 = 0xbdd89aa982704029;
-#[allow(unused)]
+/// The rapidhash default seed.
+pub const RAPID_SEED: u64 = 0xbdd89aa982704029;
 pub(crate) const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc9, 0x4b33a62ed433d4a3];
 
+/// Rapidhash a single byte stream, matching the C++ implementation.
+#[inline]
+pub const fn rapidhash(data: &[u8]) -> u64 {
+    rapidhash_inline(data, RAPID_SEED)
+}
+
+/// Rapidhash a single byte stream, matching the C++ implementation, with a custom seed.
+#[inline]
+pub const fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
+    rapidhash_inline(data, seed)
+}
+
+/// Rapidhash a single byte stream, matching the C++ implementation.
+///
+/// Is marked with `#[inline(always)]` to force the compiler to inline and optimise the method.
+/// Can provide large performance uplifts for inputs where the length is known at compile time.
 #[inline(always)]
-pub const fn rapidhash_raw(data: &[u8], mut seed: u64) -> u64 {
+pub const fn rapidhash_inline(data: &[u8], mut seed: u64) -> u64 {
     seed = rapidhash_seed(seed, data.len() as u64);
     let (a, b, _) = rapidhash_core(0, 0, seed, data);
     rapidhash_finish(a, b, data.len() as u64)
@@ -220,7 +235,7 @@ mod tests {
         let outputs: std::vec::Vec<u64> = inputs.iter().map(|&x| formula(x)).collect();
         let expected = std::vec![0, 0, 0, 0, 4, 4, 4, 4, 4, 4, 4, 4, 4];
         assert_eq!(outputs, expected);
-        assert_eq!(outputs, inputs.iter().map(|&x| formula2(x)).collect());
+        assert_eq!(outputs, inputs.iter().map(|&x| formula2(x)).collect::<Vec<u64>>());
     }
 
     #[test]

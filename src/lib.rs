@@ -11,36 +11,22 @@
 mod rapid_const;
 mod rapid_hasher;
 mod rapid_hasher_inline;
-#[cfg(any(feature = "rng", docsrs))]
-mod rng;
 #[cfg(any(feature = "rand", docsrs))]
 mod random_state;
+mod rng;
 
+#[doc(inline)]
+pub use crate::rapid_const::{rapidhash, rapidhash_inline, rapidhash_seeded, RAPID_SEED};
 #[doc(inline)]
 pub use crate::rapid_hasher::*;
 #[doc(inline)]
 pub use crate::rapid_hasher_inline::*;
-
-use crate::rapid_const::{rapidhash_raw, RAPID_SEED};
-
 #[doc(inline)]
 #[cfg(any(feature = "rand", docsrs))]
 pub use crate::random_state::*;
 #[doc(inline)]
-#[cfg(any(feature = "rng", docsrs))]
 pub use crate::rng::*;
 
-/// Rapidhash a single byte stream, matching the C++ implementation.
-#[inline]
-pub const fn rapidhash(data: &[u8]) -> u64 {
-    rapidhash_raw(data, RAPID_SEED)
-}
-
-/// Rapidhash a single byte stream, matching the C++ implementation, with a custom seed.
-#[inline]
-pub const fn rapidhash_seeded(data: &[u8], seed: u64) -> u64 {
-    rapidhash_raw(data, seed)
-}
 
 #[cfg(test)]
 mod tests {

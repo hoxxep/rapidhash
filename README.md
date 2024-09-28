@@ -20,25 +20,29 @@ From the C++ implementation:
 
 ```rust
 use std::hash::Hasher;
-use rapidhash::{rapidhash, RapidHasher, RapidHashMap};
+use rapidhash::{rapidhash, RapidHasher, RapidHashMap, RapidInlineHashMap};
+
+// with the "std" feature, using the RapidHashMap helper type
+let mut map = RapidHashMap::default();
+map.insert("hello", "world");
+
+// a hash map type using the RapidHashInlineBuilder to force the compiler to inline the hash function for further optimisations (can be +30% faster)
+let mut map = RapidInlineHashMap::default();
+map.insert("hello", "world");
+
+// raw usage (also const)
+assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 
 // a std::hash::Hasher compatible hasher
 let mut hasher = RapidHasher::default();
 hasher.write(b"hello world");
 assert_eq!(hasher.finish(), 17498481775468162579);
 
-// a const hasher
+// a const API similar to std::hash::Hasher
 const HASH: u64 = RapidHasher::default_const()
     .write_const(b"hello world")
     .finish_const();
 assert_eq!(HASH, 17498481775468162579);
-
-// with the "std" feature, using the RapidHashMap helper type
-let mut map = RapidHashMap::default();
-map.insert("hello", "world");
-
-// raw usage (also const)
-assert_eq!(rapidhash(b"hello world"), 17498481775468162579);
 ```
 
 ## Features
@@ -191,8 +195,6 @@ hash/seahash/str_4096   time:   [472.41 ns 473.23 ns 474.11 ns]
 hash/seahash/u64        time:   [6.4829 ns 6.5186 ns 6.5536 ns]
 hash/seahash/object     time:   [47.885 ns 47.933 ns 47.983 ns]
 ```
-
-_Note: ahash is using the fallback algorithm on aarch64 targets and therefore these benchmarks. It's also not cross-platform nor stable, and the fallback algorithm is substantially weaker from the aes hashing algorithm._
 
 ## License
 This project is licensed under both the MIT and Apache-2.0 licenses. You are free to choose either license.

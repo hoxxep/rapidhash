@@ -1,4 +1,4 @@
-use std::hash::{BuildHasher, RandomState};
+use std::hash::BuildHasher;
 use crate::RapidHasher;
 
 /// An [std::collections::hash_map::RandomState] compatible hasher that uses the [RapidHasher]
