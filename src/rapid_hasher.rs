@@ -28,7 +28,7 @@ pub struct RapidHasher(RapidInlineHasher);
 /// See [RapidInlineHasher] for an `#[inline(always)]` version of this hasher, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
 ///
-/// See [crate::RapidRandomState] with the `rand` feature can be used instead for a
+/// See [crate::RapidRandomState] can be used instead for a
 /// [std::hash::BuildHasher] that initialises with a random seed.
 ///
 /// # Example
@@ -52,6 +52,10 @@ pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 /// use rapidhash::RapidHashMap;
 /// let mut map = RapidHashMap::default();
 /// map.insert(42, "the answer");
+///
+/// // with capacity
+/// let mut map = RapidHashMap::with_capacity_and_hasher(10, Default::default());
+/// map.insert(42, "the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
 pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
@@ -63,9 +67,13 @@ pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 ///
 /// # Example
 /// ```
-/// use rapidhash::RapidHashMap;
-/// let mut map = RapidHashMap::default();
-/// map.insert(42, "the answer");
+/// use rapidhash::RapidHashSet;
+/// let mut set = RapidHashSet::default();
+/// set.insert("the answer");
+///
+/// // with capacity
+/// let mut set = RapidHashSet::with_capacity_and_hasher(10, Default::default());
+/// set.insert("the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
 pub type RapidHashSet<K> = std::collections::HashSet<K, RapidHashBuilder>;

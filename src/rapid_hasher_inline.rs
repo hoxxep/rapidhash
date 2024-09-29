@@ -33,7 +33,7 @@ pub struct RapidInlineHasher {
 ///
 /// This is an alias for [`std::hash::BuildHasherDefault<RapidHasher>`] with a static seed.
 ///
-/// Note there that [crate::RapidRandomState] with the `rand` feature can be used instead for a
+/// Note there that [crate::RapidRandomState] with can be used instead for a
 /// [std::hash::BuildHasher] that initialises with a random seed.
 ///
 /// # Example
@@ -54,6 +54,10 @@ pub type RapidInlineHashBuilder = core::hash::BuildHasherDefault<RapidInlineHash
 /// use rapidhash::RapidInlineHashMap;
 /// let mut map = RapidInlineHashMap::default();
 /// map.insert(42, "the answer");
+///
+/// // with capacity
+/// let mut map = RapidInlineHashMap::with_capacity_and_hasher(10, Default::default());
+/// map.insert(42, "the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
 pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineHashBuilder>;
@@ -64,6 +68,10 @@ pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineH
 /// ```
 /// use rapidhash::RapidInlineHashSet;
 /// let mut set = RapidInlineHashSet::default();
+/// set.insert("the answer");
+///
+/// // with capacity
+/// let mut set = RapidInlineHashSet::with_capacity_and_hasher(10, Default::default());
 /// set.insert("the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
