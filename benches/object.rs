@@ -99,7 +99,7 @@ pub fn bench_xxhash() -> Box<dyn FnMut(&mut Bencher)> {
         b.iter_batched_ref(|| {
             Object::random()
         }, |o| {
-            let mut hasher = xxhash_rust::xxh3::Xxh3::default();
+            let mut hasher = twox_hash::XxHash::default();
             o.hash(&mut hasher);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);

@@ -4,6 +4,7 @@
 //! Repo: https://github.com/ogxd/gxhash/tree/main
 
 use std::{hash::{Hash, Hasher, BuildHasher}, collections::HashSet, slice};
+use std::hash::BuildHasherDefault;
 use criterion::black_box;
 use rand::Rng;
 
@@ -11,9 +12,10 @@ use rand::Rng;
 fn main() {
     bench_hasher_quality::<rapidhash::RapidRandomState>("RapidHash");
     bench_hasher_quality::<std::collections::hash_map::RandomState>("Default");
+    bench_hasher_quality::<BuildHasherDefault<wyhash::WyHash>>("WyHash");
     bench_hasher_quality::<gxhash::GxBuildHasher>("GxHash");
     bench_hasher_quality::<fxhash::FxBuildHasher>("FxHash");
-    bench_hasher_quality::<xxhash_rust::xxh3::Xxh3Builder>("XxHash (XXH3)");
+    bench_hasher_quality::<twox_hash::RandomXxHashBuilder>("XxHash (XXH3)");
     bench_hasher_quality::<ahash::RandomState>("AHash");
     bench_hasher_quality::<t1ha::T1haBuildHasher>("T1ha");
 }

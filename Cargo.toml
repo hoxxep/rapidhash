@@ -8,10 +8,11 @@ description = "A rust port of rapidhash: an extremely fast, high quality, platfo
 repository = "https://github.com/hoxxep/rapidhash"
 documentation = "https://docs.rs/rapidhash"
 license = "MIT OR Apache-2.0"
+license-file = "LICENSE-MIT"
 readme = "README.md"
 keywords = ["hash", "rapidhash"]
 categories = ["algorithms", "no-std"]
-exclude = ["Cargo.lock", ".github", "fuzz"]
+exclude = ["Cargo.lock", ".github", "fuzz", "doc"]
 
 [lib]
 
@@ -45,7 +46,7 @@ rand_core = { version = "0.6.4", default-features = false, optional = true }
 fxhash = "0.2.1"
 t1ha = "0.1.2"
 wyhash = "0.5.0"
-xxhash-rust = { version = "0.8.12", features = ["xxh3"] }
+twox-hash = "1.6.3"
 metrohash = "1.0.6"
 seahash = "4.1.0"
 ahash = "0.8.11"

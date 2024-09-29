@@ -107,7 +107,7 @@ pub fn bench_xxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
             OsRng.fill(slice.as_mut_slice());
             slice
         }, |bytes| {
-            let mut hasher = xxhash_rust::xxh3::Xxh3::default();
+            let mut hasher = twox_hash::XxHash::default();
             hasher.write(&bytes);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);

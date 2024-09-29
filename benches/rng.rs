@@ -16,7 +16,6 @@ macro_rules! bench_rng {
 pub fn bench(c: &mut Criterion) {
     bench_rng!(c, "rapidhash", bench_rapidhash);
     bench_rng!(c, "rapidhash_fast", bench_rapidhash_fast);
-    bench_rng!(c, "rapidhash_quality", bench_rapidhash_quality);
     bench_rng!(c, "rapidhash_time", bench_rapidhash_time);
     bench_rng!(c, "wyhash", bench_wyhash);
 }
@@ -44,20 +43,6 @@ pub fn bench_rapidhash_fast(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             let mut out = 0;
             for _ in 0..count {
                 out ^= rapidhash::rapidrng_fast(&mut i);
-            }
-            out
-        }, criterion::BatchSize::SmallInput);
-    })
-}
-
-pub fn bench_rapidhash_quality(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
-    Box::new(move |b: &mut Bencher| {
-        b.iter_batched(|| {
-            rand::random()
-        }, |mut i: [u64; 3]| {
-            let mut out: u64 = 0;
-            for _ in 0..=count {
-                out ^= rapidhash::rapidrng_quality(&mut i);
             }
             out
         }, criterion::BatchSize::SmallInput);
