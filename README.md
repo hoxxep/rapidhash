@@ -1,6 +1,6 @@
 # rapidhash - rust implementation
 
-A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, which itself is the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
+A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) function, the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
 - **High quality**, the fastest hash passing all tests in the SMHasher and SMHasher3 benchmark. Collision-based study showed a collision probability lower than wyhash and close to ideal.
 - **Very fast**, the fastest passing hash in SMHasher3. Significant throughput improvement over wyhash. Fastest memory-safe hash. Fastest platform-independent hash. Fastest const hash.
@@ -8,10 +8,10 @@ A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) 
 - **Memory safe**, when the `unsafe` feature is disabled (default). This implementation has also been fuzz-tested with `cargo fuzz`.
 - **No dependencies and no-std compatible** when disabling the `std` feature.
 - **Official successor to wyhash**, with improved speed, quality, and compatibility.
-- `const` hash implementation for both run-time and compile-time hashing.
-- `std::hash::Hasher` compatible hasher.
-- `#[inline(always)]` variants `RapidInlineHash` and `RapidInlineHashBuilder` for compiler optimisations on specific input types (can be in the over 30% faster when hashing numbers, structs, and fixed-size arrays).
-- Non-cryptographic hash function.
+- **Inline variants** that use `#[inline(always)]` on `RapidInlineHash` and `RapidInlineHashBuilder` to force compiler optimisations on specific input types (can double the hash performance depending on the hashed type).
+- **Run-time and compile-time hashing** as the hash implementation is fully `const`.
+- **Idiomatic** `std::hash::Hasher` compatible hasher for `HashMap` and `HashSet` usage.
+- **Non-cryptographic** hash function.
 
 ## Usage
 ### Hashing
@@ -60,21 +60,27 @@ map.insert("hello", "world");
 ## TODO
 This repo is an active work in progress.
 
-- [x] Implement the basic `rapidhash` function.
-- [x] Build a `RapidHasher` for the `std::hash::Hasher` trait.
-- [x] Add more tests, benchmark comparisons, and further docs.
-- [x] Review assembly output, and review code for small input sizes.
-- [ ] Benchmark against the C++ implementation and confirm outputs match exactly.
+- [ ] Make `RapidInline` the default?
+- [ ] Benchmark against the C++ implementation via FFI.
 - [ ] Benchmark graphs, and benchmark on x86_64 server platforms.
 - [ ] Add rapidhash protected variant.
-- [x] `const` implementation for compile-time hashing.
-- [x] License the code under a permissive license.
 - [ ] A rapidhash-based random number generator (currently WIP).
 - [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name.)
 
-## Benchmarks
-Initial benchmarks on M1 Max (aarch64) for various input sizes.
+## When to use each hash function
 
+Hash functions are not a one-size fits all. Benchmark your use case to find the best hash function for your needs, but here are some general guidelines on choosing a hash function:
+
+- `default`: Use the std lib hasher when hashing is not in the critical path or you need strong HashDoS resistance.
+- `rapidhash`: You are hashing complex objects or byte streams, need compile-time hashing, or a low-collision hash. Default to using the `RapidInline` variants unless binary size is a concern (such as for WASM targets).
+- `fxhash`: You are hashing integers, or structs of only integers.
+- `gxhash`: You are hashing long byte streams on platforms with the necessary instruction sets and only care about performance. You don't need memory safety, proven HashDoS resistance, or platform independence (for example, gxhash doesn't currently compile on Github Actions workflows).
+
+## Benchmarks
+
+Initial benchmarks on M1 Max (aarch64) for various input sizes. Proper benchmark graphs coming soon.
+
+### Hashing Benchmarks
 There are three types of benchmarks over the different algorithms to cover various forms of compiler optimisation that Rust can achieve:
 - `str_len`: hashing bytes (a string) of the given length, where the length is not known at compile time.
 - `u64`: hashing a u64, 8 bytes of known size, where the compiler can slightly optimise the path.
@@ -92,21 +98,23 @@ struct Object {
 ```text
 hash/crate/input_bytes  time:   [5%        median    95%      ]
 
-hash/rapidhash/str_2    time:   [2.3380 ns 2.3569 ns 2.3777 ns]
-hash/rapidhash/str_8    time:   [2.6797 ns 2.7040 ns 2.7321 ns]
-hash/rapidhash/str_16   time:   [2.6820 ns 2.6977 ns 2.7144 ns]
-hash/rapidhash/str_64   time:   [3.5143 ns 3.5366 ns 3.5610 ns]
-hash/rapidhash/str_256  time:   [8.4032 ns 8.4816 ns 8.5853 ns]
-hash/rapidhash/str_1024 time:   [33.956 ns 34.275 ns 34.798 ns]
-hash/rapidhash/str_4096 time:   [145.49 ns 145.78 ns 146.11 ns]
-hash/rapidhash/u8       time:   [1.1307 ns 1.1646 ns 1.1917 ns]
-hash/rapidhash/u16      time:   [1.4622 ns 1.4795 ns 1.4977 ns]
-hash/rapidhash/u32      time:   [1.2956 ns 1.3173 ns 1.3398 ns]
-hash/rapidhash/u64      time:   [1.2970 ns 1.3162 ns 1.3353 ns]
-hash/rapidhash/u128     time:   [1.8301 ns 1.8758 ns 1.9172 ns]
+hash/rapidhash/str_2    time:   [2.3102 ns 2.3287 ns 2.3504 ns]
+hash/rapidhash/str_8    time:   [2.1325 ns 2.1458 ns 2.1615 ns]
+hash/rapidhash/str_16   time:   [2.1480 ns 2.1635 ns 2.1829 ns]
+hash/rapidhash/str_64   time:   [3.3223 ns 3.3386 ns 3.3569 ns]
+hash/rapidhash/str_100  time:   [4.4559 ns 4.4822 ns 4.5099 ns]
+hash/rapidhash/str_177  time:   [6.6407 ns 6.6815 ns 6.7287 ns]
+hash/rapidhash/str_256  time:   [8.1413 ns 8.2287 ns 8.3607 ns]
+hash/rapidhash/str_1024 time:   [33.072 ns 33.138 ns 33.213 ns]
+hash/rapidhash/str_4096 time:   [143.04 ns 143.57 ns 144.36 ns]
+hash/rapidhash/u8       time:   [1.1161 ns 1.1491 ns 1.1760 ns]
+hash/rapidhash/u16      time:   [1.4396 ns 1.4495 ns 1.4600 ns]
+hash/rapidhash/u32      time:   [1.2767 ns 1.2921 ns 1.3077 ns]
+hash/rapidhash/u64      time:   [1.2664 ns 1.2766 ns 1.2868 ns]
+hash/rapidhash/u128     time:   [1.7484 ns 1.7803 ns 1.8119 ns]
 hash/rapidhash/object   time:   [17.255 ns 17.344 ns 17.441 ns]
 hash/rapidhash/object_inline
-                        time:   [7.8873 ns 7.9179 ns 7.9479 ns]
+                        time:   [7.6355 ns 7.6616 ns 7.6857 ns]
 
 hash/default/str_2      time:   [5.4913 ns 5.5070 ns 5.5248 ns]
 hash/default/str_8      time:   [6.4975 ns 6.5571 ns 6.6593 ns]
@@ -197,6 +205,46 @@ hash/seahash/str_1024   time:   [116.30 ns 118.19 ns 121.17 ns]
 hash/seahash/str_4096   time:   [472.41 ns 473.23 ns 474.11 ns]
 hash/seahash/u64        time:   [6.4829 ns 6.5186 ns 6.5536 ns]
 hash/seahash/object     time:   [47.885 ns 47.933 ns 47.983 ns]
+```
+
+### HashMap Insertion Benchmarks
+
+Hash throughput speed is great and all, but hash quality also affects hashmap insertion speed. More hash collisions cause slower hashmap insertion, and so hashmap insertion benchmarks can be a better measure of hash performance. As always, benchmark your use case.
+
+```text
+map/crate/elems_min_max time:   [5%        median    95%      ]
+
+map/rapidhash/1000_4_4  time:   [47.169 µs 47.258 µs 47.341 µs]
+map/rapidhash/1000_4_64 time:   [63.136 µs 64.934 µs 67.438 µs]
+map/rapidhash/100000_u64
+                        time:   [1.6945 ms 1.6980 ms 1.7016 ms]
+map/rapidhash/450000_words
+                        time:   [34.284 ms 34.504 ms 34.762 ms]
+
+map/rapidhash_inline/1000_4_4
+                        time:   [35.670 µs 35.877 µs 36.216 µs]
+map/rapidhash_inline/1000_4_64
+                        time:   [60.759 µs 61.423 µs 62.458 µs]
+map/rapidhash_inline/100000_u64
+                        time:   [1.6957 ms 1.6993 ms 1.7030 ms]
+map/rapidhash_inline/450000_words
+                        time:   [29.486 ms 29.680 ms 29.907 ms]
+
+map/default/1000_4_4    time:   [60.796 µs 61.633 µs 62.886 µs]
+map/default/1000_4_64   time:   [95.880 µs 96.251 µs 96.828 µs]
+map/default/100000_u64  time:   [4.2298 ms 4.2812 ms 4.3507 ms]
+map/default/450000_words
+                        time:   [47.657 ms 48.093 ms 48.670 ms]
+
+map/fxhash/1000_4_4     time:   [32.732 µs 33.111 µs 33.825 µs]
+map/fxhash/1000_4_64    time:   [70.490 µs 71.751 µs 74.139 µs]
+map/fxhash/100000_u64   time:   [1.5145 ms 1.5183 ms 1.5224 ms]
+map/fxhash/450000_words time:   [34.351 ms 34.565 ms 34.804 ms]
+
+map/gxhash/1000_4_4     time:   [36.205 µs 37.533 µs 39.467 µs]
+map/gxhash/1000_4_64    time:   [59.843 µs 60.174 µs 60.662 µs]
+map/gxhash/100000_u64   time:   [1.8243 ms 1.8500 ms 1.8888 ms]
+map/gxhash/450000_words time:   [27.190 ms 27.326 ms 27.481 ms]
 ```
 
 ## Versioning

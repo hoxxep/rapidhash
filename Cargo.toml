@@ -36,9 +36,7 @@ rand = { version = "0.8.5", optional = true }
 rand_core = { version = "0.6.4", default-features = false, optional = true }
 
 [dev-dependencies]
-criterion = { version = "0.5.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
-rand = "0.8.5"
-const-random = "0.1.18"
+# hash functions to benchmark/compare
 fxhash = "0.2.1"
 t1ha = "0.1.2"
 wyhash = "0.5.0"
@@ -47,6 +45,13 @@ metrohash = "1.0.6"
 seahash = "4.1.0"
 ahash = "0.8.11"
 fastrand = "2.1.1"
+
+# benchmarking helpers
+criterion = { version = "0.5.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
+rand = "0.8.5"
+const-random = "0.1.18"
+lazy_static = "1.5.0"
+reqwest = { version = "0.12.7", features = ["blocking"] }
 
 # for the charts example to generate README plots
 plotters = { version = "0.3.7", default-features = false, features = ["chrono", "image", "svg_backend", "bitmap_backend", "bitmap_encoder", "line_series"] }

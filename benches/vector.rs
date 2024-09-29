@@ -2,6 +2,7 @@ use std::hash::Hasher;
 use criterion::Bencher;
 use rand::Rng;
 use rand::rngs::OsRng;
+use rapidhash::RAPID_SEED;
 
 /// Use .iter_batched_ref to avoid paying the Vec destruction cost, as it's 10x
 /// more expensive than our small benchmarks!!
@@ -26,7 +27,7 @@ pub fn bench_rapidhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
             OsRng.fill(slice.as_mut_slice());
             slice
         }, |bytes| {
-            rapidhash::rapidhash(&bytes)
+            rapidhash::rapidhash_inline(&bytes, RAPID_SEED)
         }, criterion::BatchSize::SmallInput);
     })
 }

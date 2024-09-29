@@ -1,5 +1,6 @@
 use std::hash::Hasher;
 use criterion::Bencher;
+use rapidhash::RAPID_SEED;
 
 pub fn bench_rapidhash() -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
@@ -66,7 +67,7 @@ pub fn bench_rapidhash_raw() -> Box<dyn FnMut(&mut Bencher)> {
         b.iter_batched(|| {
             rand::random::<u64>()
         }, |i: u64| {
-            rapidhash::rapidhash(i.to_le_bytes().as_slice())
+            rapidhash::rapidhash_inline(&i.to_le_bytes(), RAPID_SEED)
         }, criterion::BatchSize::SmallInput);
     })
 }
