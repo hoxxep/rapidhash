@@ -2,7 +2,7 @@ use std::cell::Cell;
 use std::hash::BuildHasher;
 use crate::{rapidrng_fast, RapidHasher};
 
-/// A [std::collections::hash_map::RandomState] compatible hasher that uses the [RapidHasher]
+/// A [std::collections::hash_map::RandomState] compatible hasher that initializes the [RapidHasher]
 /// algorithm with a random seed.
 ///
 /// Note this is not sufficient to prevent HashDoS attacks. The rapidhash algorithm is not proven to

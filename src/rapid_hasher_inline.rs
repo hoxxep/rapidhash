@@ -134,6 +134,9 @@ impl RapidInlineHasher {
 
 impl Default for RapidInlineHasher {
     /// Create a new [RapidInlineHasher] with the default seed.
+    ///
+    /// See [crate::RapidRandomState] for a [std::hash::BuildHasher] that initialises with a random
+    /// seed.
     #[inline(always)]
     fn default() -> Self {
         Self::new(RAPID_SEED)
