@@ -1,11 +1,12 @@
+use std::cell::Cell;
 use std::hash::BuildHasher;
-use crate::RapidHasher;
+use crate::{rapidrng_fast, RapidHasher};
 
-/// An [std::collections::hash_map::RandomState] compatible hasher that uses the [RapidHasher]
-/// algorithm.
+/// A [std::collections::hash_map::RandomState] compatible hasher that uses the [RapidHasher]
+/// algorithm with a random seed.
 ///
-/// This randomly initialises the [RapidHasher] seed for a small improvement against hash collision
-/// attacks.
+/// Note this is not sufficient to prevent HashDoS attacks. The rapidhash algorithm is not proven to
+/// be resistant, and the seed used is not wide enough.
 ///
 /// # Example
 /// ```rust
@@ -16,19 +17,42 @@ use crate::RapidHasher;
 /// let mut map = HashMap::with_hasher(RapidRandomState::default());
 /// map.insert(42, "the answer");
 /// ```
-#[cfg(any(feature = "rand", docsrs))]
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct RapidRandomState {
     seed: u64,
 }
 
 impl RapidRandomState {
+    /// Create a new random state with a random seed.
+    ///
+    /// With the `rand` feature enabled, this will use [rand::random] to initialise the seed.
+    ///
+    /// Without `rand` but with the `std` feature enabled, this will use [rapidrng_time] to
+    /// initialise the seed.
     pub fn new() -> Self {
-        // TODO: check whether we should randomly init (a, b) too.
-        let seed: u64 = rand::random();
+        #[cfg(feature = "rand")]
+        thread_local! {
+            static RANDOM_SEED: Cell<u64> = {
+                Cell::new(rand::random())
+            }
+        }
+
+        #[cfg(all(feature = "std", not(feature = "rand")))]
+        thread_local! {
+            static RANDOM_SEED: Cell<u64> = {
+                let mut seed = crate::RAPID_SEED;
+                Cell::new(crate::rapidrng_time(&mut seed))
+            }
+        }
+
+        let mut seed = RANDOM_SEED.with(|cell| {
+            let seed = cell.get();
+            cell.set(seed.wrapping_add(1));
+            seed
+        });
 
         Self {
-            seed,
+            seed: rapidrng_fast(&mut seed),
         }
     }
 }

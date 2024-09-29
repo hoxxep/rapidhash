@@ -1,42 +1,30 @@
 #[cfg(feature = "rng")]
 use rand_core::{RngCore, SeedableRng, Error, impls};
-use crate::rapid_const::{rapid_mix, rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SECRET};
+use crate::rapid_const::{rapid_mix, RAPID_SECRET};
+use crate::RAPID_SEED;
 
-/// Generate the next random number in a sequence using the rapidhash mixing algorithm.
+/// Generate a random number using rapidhash mixing.
 ///
-/// This is a weaker RNG than the full RapidRng implementation, as it is a single chain through the
-/// u64 space, but is 1000x faster. It's equivalent in logic and performance to
+/// This RNG is deterministic and optimised for throughput. It is not a cryptographic random number
+/// generator.
+///
+/// This implementation is equivalent in logic and performance to
 /// [wyhash::wyrng](https://docs.rs/wyhash/latest/wyhash/fn.wyrng.html) and
-/// [fasthash::u64](https://docs.rs/fastrand/latest/fastrand/) but uses rapidhash
+/// [fasthash::u64](https://docs.rs/fastrand/latest/fastrand/), but uses rapidhash
 /// constants/secrets.
 ///
 /// The weakness with this RNG is that at best it's a single cycle over the u64 space, as the seed
-/// is simple a position in a constant sequence. Use the [rapidrng_quality] method for a higher
-/// entropy RNG with multiple dimensions.
+/// is simple a position in a constant sequence. Future work could involve using a wider state to
+/// ensure we can generate many different sequences.
 #[inline]
 pub fn rapidrng_fast(seed: &mut u64) -> u64 {
     *seed = seed.wrapping_add(RAPID_SECRET[0]);
     rapid_mix(*seed, *seed ^ RAPID_SECRET[1])
 }
 
-/// A higher quality random number generator that uses the full rapidhash algorithm.
-///
-/// The state is a `[u64; 3]` for generating the next random number, allowing different seeds to
-/// produce different _sequences_.
-///
-/// This can be up to 10x slower than `rapidrng_fast` for a higher entropy non-cryptographic RNG.
-#[inline]
-pub fn rapidrng_quality(state: &mut [u64; 3]) -> u64 {
-    state[0] = state[0].wrapping_add(RAPID_SECRET[0]);
-    state[1] ^= RAPID_SECRET[1];
-    state[2] ^= state[0];
-    let (a, b) = crate::rapid_const::rapid_mum(state[1], state[2]);
-    state[1] = a;
-    state[2] = b;
-    state[1] ^ state[2]
-}
-
 /// Generate a random number non-deterministically by re-seeding with the current time.
+///
+/// This is not a cryptographic random number generator.
 ///
 /// Note fetching system time requires a syscall and is therefore much slower than [rapidrng_fast].
 /// It can also be used to seed [rapidrng_fast].
@@ -69,47 +57,78 @@ pub fn rapidrng_time(seed: &mut u64) -> u64 {
 }
 
 /// A random number generator that uses the rapidhash mixing algorithm.
-#[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+///
+/// This deterministic RNG is optimised for speed and throughput. This is not a cryptographic random
+/// number generator.
+///
+/// This RNG is compatible with [RngCore] and [SeedableRng].
+///
+/// # Example
+/// ```rust
+/// use rapidhash::RapidRng;
+///
+/// let mut rng = RapidRng::default();
+/// println!("{}", rng.next());
+/// ```
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub struct RapidRng {
     seed: u64,
-    a: u64,
-    b: u64,
+}
+
+#[cfg(feature = "std")]
+impl Default for RapidRng {
+    /// Create a new random number generator.
+    ///
+    /// With `std` enabled, the seed is generated using the current system time via [rapidrng_time].
+    ///
+    /// Without `std`, the seed is set to [RAPID_SEED].
+    #[inline]
+    fn default() -> Self {
+        let mut seed = RAPID_SEED;
+        Self {
+            seed: rapidrng_time(&mut seed),
+        }
+    }
+}
+
+#[cfg(not(feature = "std"))]
+impl Default for RapidRng {
+    /// Create a new random number generator.
+    ///
+    /// With `std` enabled, the seed is generated using the current system time via [rapidrng_time].
+    ///
+    /// Without `std`, the seed is set to [RAPID_SEED].
+    #[inline]
+    fn default() -> Self {
+        Self {
+            seed: RAPID_SEED,
+        }
+    }
 }
 
 impl RapidRng {
-    /// Create a new random number generator from a seed.
+    /// Create a new random number generator from a specified seed.
+    ///
+    /// Also see [RapidRng::default()] with the `std` feature enabled for seed randomisation based
+    /// on the current time.
     #[inline]
     pub fn new(seed: u64) -> Self {
         Self {
             seed,
-            a: 0,
-            b: 0,
         }
     }
 
     /// Export the current state of the random number generator.
     #[inline]
-    pub fn state(&self) -> [u8; 24] {
-        let mut state = [0; 24];
+    pub fn state(&self) -> [u8; 8] {
+        let mut state = [0; 8];
         state[0..8].copy_from_slice(&self.seed.to_le_bytes());
-        state[8..16].copy_from_slice(&self.a.to_le_bytes());
-        state[16..24].copy_from_slice(&self.b.to_le_bytes());
         state
     }
 
     #[inline]
     pub fn next(&mut self) -> u64 {
-        // mix a new seed
-        let seed = rapidhash_seed(self.seed, self.a);
-
-        // mix a and b, using the old and new seed
-        let (a, b, _) = rapidhash_core(self.a, self.b, seed, &self.seed.to_le_bytes());
-        self.a = a;
-        self.b = b;
-        self.seed = seed;
-
-        // mix a, b, and seed to get the next random number
-        rapidhash_finish(a, b, seed)
+        rapidrng_fast(&mut self.seed)
     }
 }
 
@@ -145,8 +164,6 @@ impl SeedableRng for RapidRng {
     fn from_seed(seed: Self::Seed) -> Self {
         Self {
             seed: u64::from_le_bytes(seed[0..8].try_into().unwrap()),
-            a: u64::from_le_bytes(seed[8..16].try_into().unwrap()),
-            b: u64::from_le_bytes(seed[16..24].try_into().unwrap()),
         }
     }
 
