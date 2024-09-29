@@ -29,3 +29,20 @@ jobs:
         uses: Swatinem/rust-cache@v2
       - name: Compile and run tests
         run: cargo test --no-fail-fast --lib --no-default-features
+
+  test-msrv:
+    name: "Test (MSRV)"
+    runs-on: ubuntu-latest
+    env:
+      RUST_VERSION: 1.77.0
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rust dependency cache
+        uses: Swatinem/rust-cache@v2
+      - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
+        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }} && cargo -V && rustc -V
+        shell: bash
+      - name: Compile and run tests (std)
+        run: cargo test --no-fail-fast --all-features
+      - name: Compile and run tests (no_std)
+        run: cargo test --no-fail-fast --lib --no-default-features

@@ -226,8 +226,8 @@ mod tests {
 
         fn formula2(len: u64) -> u64 {
             match len {
-                ..8 => 0,
                 8.. => 4,
+                _ => 0,
             }
         }
 

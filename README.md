@@ -199,6 +199,14 @@ hash/seahash/u64        time:   [6.4829 ns 6.5186 ns 6.5536 ns]
 hash/seahash/object     time:   [47.885 ns 47.933 ns 47.983 ns]
 ```
 
+## Versioning
+The minimum supported Rust version (MSRV) is 1.77.0.
+
+The rapidhash crate follows the following versioning scheme:
+- Major for breaking changes, such as hash output changes, breaking API changes, MSRV version bumps. When the RNG code is stabilised, major version bumps to `rand_core` will also trigger a major version bump of rapidhash due to the re-exported trait implementations.
+- Minor for significant API additions/deprecations.
+- Patch for bug fixes and performance improvements.
+
 ## License
 This project is licensed under both the MIT and Apache-2.0 licenses. You are free to choose either license.
 
