@@ -1,4 +1,3 @@
-use std::hash::Hasher;
 use crate::rapid_const::{rapid_mix, rapid_mum, read_u32, read_u64, RAPID_SECRET};
 
 /// A hybrid fxhash and [rapidhash] hasher.
@@ -25,6 +24,7 @@ pub struct FxRapidHasher {
 ///
 /// let mut map = HashMap::with_hasher(FxRapidHashBuilder::default());
 /// map.insert(42, "the answer");
+#[cfg(feature = "std")]
 pub type FxRapidHashBuilder = std::hash::BuildHasherDefault<FxRapidHasher>;
 
 /// A [std::collections::HashMap] type that uses the [FxRapidHashBuilder].
@@ -39,6 +39,7 @@ pub type FxRapidHashBuilder = std::hash::BuildHasherDefault<FxRapidHasher>;
 /// let mut map = FxRapidHashMap::with_capacity_and_hasher(10, Default::default());
 /// map.insert(42, "the answer");
 /// ```
+#[cfg(feature = "std")]
 pub type FxRapidHashMap<K, V> = std::collections::HashMap<K, V, FxRapidHashBuilder>;
 
 /// A [std::collections::HashSet] type that uses the [FxRapidHashBuilder].
@@ -53,6 +54,7 @@ pub type FxRapidHashMap<K, V> = std::collections::HashMap<K, V, FxRapidHashBuild
 /// let mut set = FxRapidHashSet::with_capacity_and_hasher(10, Default::default());
 /// set.insert("the answer");
 /// ```
+#[cfg(feature = "std")]
 pub type FxRapidHashSet<K> = std::collections::HashSet<K, FxRapidHashBuilder>;
 
 /// Helper function to hash a single word, as part of [fxrapidhash].
@@ -154,6 +156,12 @@ impl FxRapidHasher {
     pub fn new(seed: u64) -> Self {
         Self { hash: seed }
     }
+
+    /// Write bytes to the hasher and always inline.
+    #[inline(always)]
+    pub fn write_inline(&mut self, bytes: &[u8]) {
+        self.hash = fxrapidhash(bytes, self.hash);
+    }
 }
 
 impl Default for FxRapidHasher {
@@ -163,13 +171,14 @@ impl Default for FxRapidHasher {
     }
 }
 
-impl Hasher for FxRapidHasher {
+#[cfg(feature = "std")]
+impl std::hash::Hasher for FxRapidHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
         self.hash
     }
 
-    #[inline(always)]
+    #[inline]
     fn write(&mut self, bytes: &[u8]) {
         self.hash = fxrapidhash(bytes, self.hash);
     }
@@ -239,6 +248,7 @@ impl Hasher for FxRapidHasher {
 #[cfg(test)]
 mod tests {
     use super::*;
+    extern crate std;
 
     /// A quick test to check hash outputs differ.
     ///
