@@ -42,7 +42,7 @@ pub struct RapidHasher(RapidInlineHasher);
 /// ```
 pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 
-/// A [std::collections::HashMap] type that uses the [RapidHashBuilder] hasher.
+/// A [std::collections::HashMap] type that uses the [RapidHashBuilder].
 ///
 /// See [crate::RapidInlineHashMap] for an `#[inline(always)]` version of this type, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
@@ -60,7 +60,7 @@ pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 #[cfg(any(feature = "std", docsrs))]
 pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 
-/// A [std::collections::HashSet] type that uses the [RapidHashBuilder] hasher.
+/// A [std::collections::HashSet] type that uses the [RapidHashBuilder].
 ///
 /// See [crate::RapidInlineHashSet] for an `#[inline(always)]` version of this type, which can
 /// deliver speed improvements of around 30% when hashing complex objects.

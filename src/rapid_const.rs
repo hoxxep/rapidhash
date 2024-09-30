@@ -121,7 +121,7 @@ pub(crate) const fn rapidhash_finish(a: u64, b: u64, len: u64) -> u64 {
 /// bounds check, and so we have an unsafe version behind the `unsafe` feature flag.
 #[cfg(not(feature = "unsafe"))]
 #[inline(always)]
-const fn read_u64(slice: &[u8], offset: usize) -> u64 {
+pub(crate) const fn read_u64(slice: &[u8], offset: usize) -> u64 {
     // equivalent to slice[offset..offset+8].try_into().unwrap(), but const-friendly
     let maybe_buf = slice.split_at(offset).1.first_chunk::<8>();
     let buf = match maybe_buf {
@@ -135,7 +135,7 @@ const fn read_u64(slice: &[u8], offset: usize) -> u64 {
 /// bounds check, and so we have an unsafe version behind the `unsafe` feature flag.
 #[cfg(not(feature = "unsafe"))]
 #[inline(always)]
-const fn read_u32(slice: &[u8], offset: usize) -> u32 {
+pub(crate) const fn read_u32(slice: &[u8], offset: usize) -> u32 {
     // equivalent to slice[offset..offset+4].try_into().unwrap(), but const-friendly
     let maybe_buf = slice.split_at(offset).1.first_chunk::<4>();
     let buf = match maybe_buf {
@@ -152,7 +152,7 @@ const fn read_u32(slice: &[u8], offset: usize) -> u32 {
 /// implementation.
 #[cfg(feature = "unsafe")]
 #[inline(always)]
-const fn read_u64(slice: &[u8], offset: usize) -> u64 {
+pub(crate) const fn read_u64(slice: &[u8], offset: usize) -> u64 {
     debug_assert!(offset as isize >= 0);
     debug_assert!(slice.len() >= 8 + offset);
     let val = unsafe { std::ptr::read_unaligned(slice.as_ptr().offset(offset as isize) as *const u64) };
@@ -166,7 +166,7 @@ const fn read_u64(slice: &[u8], offset: usize) -> u64 {
 /// implementation.
 #[cfg(feature = "unsafe")]
 #[inline(always)]
-const fn read_u32(slice: &[u8], offset: usize) -> u32 {
+pub(crate) const fn read_u32(slice: &[u8], offset: usize) -> u32 {
     debug_assert!(offset as isize >= 0);
     debug_assert!(slice.len() >= 4 + offset);
     let val = unsafe { std::ptr::read_unaligned(slice.as_ptr().offset(offset as isize) as *const u32) };

@@ -17,6 +17,7 @@ pub fn bench(c: &mut Criterion) {
     )] = &[
         ("hash/rapidhash", Box::new(vector::bench_rapidhash), Box::new(int::bench_rapidhash), Box::new(object::bench_rapidhash)),
         ("hash/rapidhash_raw", Box::new(vector::bench_rapidhash_raw), Box::new(int::bench_rapidhash_raw), Box::new(object::bench_rapidhash)),
+        ("hash/fxrapidhash", Box::new(vector::bench_fxrapidhash), Box::new(int::bench_fxrapidhash), Box::new(object::bench_fxrapidhash)),
         ("hash/default", Box::new(vector::bench_default), Box::new(int::bench_default), Box::new(object::bench_default)),
         ("hash/fxhash", Box::new(vector::bench_fxhash), Box::new(int::bench_fxhash), Box::new(object::bench_fxhash)),
         ("hash/gxhash", Box::new(vector::bench_gxhash), Box::new(int::bench_gxhash), Box::new(object::bench_gxhash)),
@@ -29,7 +30,7 @@ pub fn bench(c: &mut Criterion) {
         ("hash/seahash", Box::new(vector::bench_seahash), Box::new(int::bench_seahash), Box::new(object::bench_seahash)),
     ];
 
-    let sizes = [2usize, 8, 16, 64, 100, 177, 256, 1024, 4096];
+    let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];
 
     for (name, string_fn, int_fn, object_fn) in groups.into_iter() {
         let mut group = c.benchmark_group(name.to_string());

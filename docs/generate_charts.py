@@ -14,6 +14,7 @@ def main():
 def draw_hash():
     hash_settings = [
         ("rapidhash", "b"),
+        ("fxrapidhash", "g"),
         ("default", "k"),
         ("fxhash", "r"),
         ("gxhash", "m"),
@@ -100,6 +101,7 @@ def draw_hash():
 def draw_map():
     hash_settings = [
         ("rapidhash_inline", "b"),
+        ("fxrapidhash", "g"),
         ("default", "k"),
         ("fxhash", "r"),
         ("gxhash", "m"),
