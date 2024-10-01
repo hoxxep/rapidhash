@@ -103,10 +103,8 @@ pub fn fxrapidhash(mut bytes: &[u8], mut hash: u64) -> u64 {
 /// Rapidhash function only for `data.len() > 16` bytes.
 ///
 /// We keep this method cold so that the hot path for small inputs is faster, while the function
-/// call and single if statement are fairly insignificant for larger inputs.
-///
-/// Inlining this method seems to cause the fxrapidhash function to be slower overall for small
-/// inputs.
+/// call and single if statement are fairly insignificant for larger inputs. Inlining this method
+/// seems to cause the fxrapidhash function to be slower overall for small inputs.
 #[cold]
 #[inline(never)]
 const fn rapidhash_cold(data: &[u8], mut seed: u64) -> u64 {
