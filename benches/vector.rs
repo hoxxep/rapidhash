@@ -169,3 +169,45 @@ pub fn bench_gxhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
         }, criterion::BatchSize::SmallInput);
     })
 }
+
+pub fn bench_farmhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes| {
+            let mut hasher = farmhash::FarmHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_highwayhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes| {
+            let mut hasher = highway::HighwayHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_rustchash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes| {
+            let mut hasher = rustc_hash::FxHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
