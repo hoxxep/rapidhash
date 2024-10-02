@@ -1,4 +1,4 @@
-name: crates.yaml
+name: Publish to crates.io
 on:
   push:
     # Pattern matched against refs/tags
