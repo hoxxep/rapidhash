@@ -14,10 +14,12 @@ pub fn bench(c: &mut Criterion) {
     )] = &[
         ("map/rapidhash", Box::new(bench_rapidhash), Box::new(bench_rapidhash_u64), Box::new(bench_rapidhash_object)),
         ("map/rapidhash_inline", Box::new(bench_rapidhash_inline), Box::new(bench_rapidhash_inline_u64), Box::new(bench_rapidhash_inline_object)),
+        ("map/fxrapidhash", Box::new(bench_fxrapidhash), Box::new(bench_fxrapidhash_u64), Box::new(bench_fxrapidhash_object)),
         ("map/default", Box::new(bench_default), Box::new(bench_default_u64), Box::new(bench_default_object)),
         ("map/fxhash", Box::new(bench_fxhash), Box::new(bench_fxhash_u64), Box::new(bench_fxhash_object)),
         ("map/gxhash", Box::new(bench_gxhash), Box::new(bench_gxhash_u64), Box::new(bench_gxhash_object)),
         ("map/wyhash", Box::new(bench_wyhash), Box::new(bench_wyhash_u64), Box::new(bench_wyhash_object)),
+        ("map/rustc-hash", Box::new(bench_rustchash), Box::new(bench_rustchash_u64), Box::new(bench_rustchash_object)),
     ];
 
     let string_sizes = [
@@ -42,6 +44,11 @@ pub fn bench(c: &mut Criterion) {
             group.throughput(Throughput::Elements(name_size as u64));
             group.bench_function(name, strings(size, min, max));
         }
+
+        // if name == &"map/fxrapidhash" {
+        //     group.bench_function("direct", strings(10000, 19, 19));
+        // }
+
         for size in int_sizes {
             let name = format!("{}_u64", size);
             group.throughput(Throughput::Elements(size as u64));
@@ -236,6 +243,44 @@ fn bench_rapidhash_inline_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
+fn bench_fxrapidhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rapidhash::FxRapidHashMap::default(), sample_string(count, min, max))
+        }, |(map, strings)| {
+            for string in strings {
+                let len = string.len();
+                map.insert(string.clone(), len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_fxrapidhash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rapidhash::FxRapidHashMap::default(), sample_u64(count))
+        }, |(map, ints)| {
+            for int in ints {
+                let len = *int >> 3;
+                map.insert(*int, len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_fxrapidhash_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rapidhash::FxRapidHashSet::default(), sample_object(count))
+        }, |(set, objs)| {
+            for obj in objs {
+                set.insert(obj.clone());
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
 fn bench_default(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
@@ -381,6 +426,44 @@ fn bench_wyhash_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
             (std::collections::HashSet::with_hasher(BuildHasherDefault::<WyHash>::default()), sample_object(count))
+        }, |(set, objs)| {
+            for obj in objs {
+                set.insert(obj.clone());
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_rustchash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rustc_hash::FxHashMap::default(), sample_string(count, min, max))
+        }, |(map, strings)| {
+            for string in strings {
+                let len = string.len();
+                map.insert(string.clone(), len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_rustchash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rustc_hash::FxHashMap::default(), sample_u64(count))
+        }, |(map, ints)| {
+            for int in ints {
+                let len = *int >> 3;
+                map.insert(*int, len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_rustchash_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (rustc_hash::FxHashSet::default(), sample_object(count))
         }, |(set, objs)| {
             for obj in objs {
                 set.insert(obj.clone());

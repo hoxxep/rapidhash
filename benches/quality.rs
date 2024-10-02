@@ -11,6 +11,7 @@ use rand::Rng;
 /// cargo bench --bench quality --all-features
 fn main() {
     bench_hasher_quality::<rapidhash::RapidRandomState>("RapidHash");
+    bench_hasher_quality::<BuildHasherDefault<rapidhash::FxRapidHasher>>("FxRapidHash");
     bench_hasher_quality::<std::collections::hash_map::RandomState>("Default");
     bench_hasher_quality::<BuildHasherDefault<wyhash::WyHash>>("WyHash");
     bench_hasher_quality::<gxhash::GxBuildHasher>("GxHash");
@@ -18,6 +19,7 @@ fn main() {
     bench_hasher_quality::<twox_hash::RandomXxHashBuilder>("XxHash (XXH3)");
     bench_hasher_quality::<ahash::RandomState>("AHash");
     bench_hasher_quality::<t1ha::T1haBuildHasher>("T1ha");
+    bench_hasher_quality::<rustc_hash::FxBuildHasher>("RustcHash");
 }
 
 macro_rules! check {

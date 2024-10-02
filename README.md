@@ -12,6 +12,7 @@ A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) 
 - **Run-time and compile-time hashing** as the hash implementation is fully `const`.
 - **Idiomatic** `std::hash::Hasher` compatible hasher for `HashMap` and `HashSet` usage.
 - **Non-cryptographic** hash function.
+- **Hybrid variant** `FxRapidHasher` that uses [fxhash](https://crates.io/crates/fxhash) on small inputs where `len <= 16`, and rapidhash for larger inputs, to supersede fxhash in most cases.
 
 ## Usage
 ### Hashing
@@ -43,7 +44,7 @@ assert_eq!(HASH, 17498481775468162579);
 ### Helper Types
 ```rust
 // also includes HashSet equivalents
-use rapidhash::{RapidHashMap, RapidInlineHashMap};
+use rapidhash::{RapidHashMap, RapidInlineHashMap, FxRapidHashMap};
 
 // std HashMap with the RapidHashBuilder hasher.
 let mut map = RapidHashMap::default();
@@ -52,6 +53,10 @@ map.insert("hello", "world");
 // a hash map type using the RapidInlineHashBuilder to force the compiler to
 // inline the hash function for further optimisations (can be over 30% faster).
 let mut map = RapidInlineHashMap::default();
+map.insert("hello", "world");
+
+/// hybrid fxhash and rapidhash algorithm
+let mut map = FxRapidHashMap::default();
 map.insert("hello", "world");
 ```
 
@@ -67,9 +72,9 @@ map.insert("hello", "world");
 
 Hash functions are not a one-size fits all. Benchmark your use case to find the best hash function for your needs, but here are some general guidelines on choosing a hash function:
 
-- `default`: Use the std lib hasher when hashing is not in the critical path, or if you need strong HashDoS resistance.
-- `rapidhash`: You are hashing complex objects or byte streams, need compile-time hashing, or a performant high-quality hash. Benchmark the `RapidInline` variants if you need the utmost performance.
-- `fxhash`: You are hashing integers, or structs of only integers, and the lower quality hash doesn't affect your use case.
+- `default`: The stdlib hasher. Use when hashing is not in the critical path, or if you need strong HashDoS resistance.
+- `rapidhash`: You are hashing complex objects or byte streams, need compile-time hashing, or a performant hash with collision resistance. Benchmark the `RapidInline` variants if you need the utmost performance.
+- `fxrapidhash`: You are hashing varied objects or byte streams and need a platform-independent hash with high throughput where the lower quality hash on small inputs doesn't affect your use case.
 - `gxhash`: You are hashing long byte streams on platforms with the necessary instruction sets and only care about throughput. You don't need memory safety, HashDoS resistance, or platform independence (for example, gxhash doesn't currently compile on Github Actions workflows).
 
 ## Benchmarks

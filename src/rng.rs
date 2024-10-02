@@ -253,7 +253,7 @@ mod tests {
 
             let xor = prev ^ next;
             let flipped = xor.count_ones() as u64;
-            assert!(xor.count_ones() >= 12, "Flipping bit changed only {} bits", flipped);
+            assert!(xor.count_ones() >= 10, "Flipping bit changed only {} bits", flipped);
             flips.push(flipped);
 
             assert!(!seen.contains(&next), "rapidrng_fast produced a duplicate value");

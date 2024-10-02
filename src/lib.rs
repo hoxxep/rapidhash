@@ -14,6 +14,7 @@ mod rapid_hasher_inline;
 #[cfg(any(feature = "std", feature = "rand", docsrs))]
 mod random_state;
 mod rng;
+mod rapid_hybrid;
 
 #[doc(inline)]
 pub use crate::rapid_const::{rapidhash, rapidhash_inline, rapidhash_seeded, RAPID_SEED};
@@ -27,6 +28,7 @@ pub use crate::random_state::*;
 #[doc(inline)]
 pub use crate::rng::*;
 
+pub use rapid_hybrid::*;
 
 #[cfg(test)]
 mod tests {

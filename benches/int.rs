@@ -72,6 +72,18 @@ pub fn bench_rapidhash_raw() -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
+pub fn bench_fxrapidhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random::<u64>()
+        }, |i: u64| {
+            let mut hasher = rapidhash::FxRapidHasher::default();
+            hasher.write_u64(i);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
 pub fn bench_default() -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched(|| {

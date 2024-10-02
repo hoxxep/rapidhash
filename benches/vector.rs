@@ -32,6 +32,20 @@ pub fn bench_rapidhash_raw(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
     })
 }
 
+pub fn bench_fxrapidhash(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            let mut slice = vec![0u8; size];
+            OsRng.fill(slice.as_mut_slice());
+            slice
+        }, |bytes| {
+            let mut hasher = rapidhash::FxRapidHasher::default();
+            hasher.write(&bytes);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
 pub fn bench_default(size: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
