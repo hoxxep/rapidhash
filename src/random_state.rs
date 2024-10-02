@@ -27,7 +27,7 @@ impl RapidRandomState {
     ///
     /// With the `rand` feature enabled, this will use [rand::random] to initialise the seed.
     ///
-    /// Without `rand` but with the `std` feature enabled, this will use [rapidrng_time] to
+    /// Without `rand` but with the `std` feature enabled, this will use [crate::rapidrng_time] to
     /// initialise the seed.
     pub fn new() -> Self {
         #[cfg(feature = "rand")]

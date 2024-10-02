@@ -61,7 +61,7 @@ pub fn rapidrng_time(seed: &mut u64) -> u64 {
 /// This deterministic RNG is optimised for speed and throughput. This is not a cryptographic random
 /// number generator.
 ///
-/// This RNG is compatible with [RngCore] and [SeedableRng].
+/// This RNG is compatible with [rand_core::RngCore] and [rand_core::SeedableRng].
 ///
 /// # Example
 /// ```rust

@@ -63,14 +63,6 @@ map.insert("hello", "world");
 - `rng`: Enables `RapidRng`, a fast, non-cryptographic random number generator based on rapidhash. Includes the `rand_core` crate dependency.
 - `unsafe`: Uses unsafe pointer arithmetic to skip some unnecessary bounds checks for a small 3-4% performance improvement.
 
-## TODO
-This repo is an active work in progress.
-
-- [ ] Benchmark against the C++ implementation via FFI.
-- [ ] Benchmark on x86_64 server platforms.
-- [ ] Add rapidhash protected variant.
-- [ ] Publish to crates.io. (Currently in the process of requesting the rapidhash crate name.)
-
 ## How to choose your hash function
 
 Hash functions are not a one-size fits all. Benchmark your use case to find the best hash function for your needs, but here are some general guidelines on choosing a hash function:

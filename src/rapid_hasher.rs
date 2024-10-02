@@ -40,9 +40,14 @@ pub struct RapidHasher(RapidInlineHasher);
 /// let mut map = HashMap::with_hasher(RapidHashBuilder::default());
 /// map.insert(42, "the answer");
 /// ```
+pub type RapidBuildHasher = core::hash::BuildHasherDefault<RapidHasher>;
+
+/// Deprecated and renamed to [RapidBuildHasher].
+#[deprecated(since = "1.1.0", note = "Renamed to `RapidBuildHasher`")]
+#[doc(hidden)]
 pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 
-/// A [std::collections::HashMap] type that uses the [RapidHashBuilder] hasher.
+/// A [std::collections::HashMap] type that uses the [RapidBuildHasher] hasher.
 ///
 /// See [crate::RapidInlineHashMap] for an `#[inline(always)]` version of this type, which can deliver
 /// speed improvements of around 30% when hashing complex objects.
@@ -58,9 +63,9 @@ pub type RapidHashBuilder = core::hash::BuildHasherDefault<RapidHasher>;
 /// map.insert(42, "the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
+pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidBuildHasher>;
 
-/// A [std::collections::HashSet] type that uses the [RapidHashBuilder] hasher.
+/// A [std::collections::HashSet] type that uses the [RapidBuildHasher] hasher.
 ///
 /// See [crate::RapidInlineHashSet] for an `#[inline(always)]` version of this type, which can
 /// deliver speed improvements of around 30% when hashing complex objects.
@@ -76,7 +81,7 @@ pub type RapidHashMap<K, V> = std::collections::HashMap<K, V, RapidHashBuilder>;
 /// set.insert("the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidHashSet<K> = std::collections::HashSet<K, RapidHashBuilder>;
+pub type RapidHashSet<K> = std::collections::HashSet<K, RapidBuildHasher>;
 
 impl RapidHasher {
     /// Default `RapidHasher` seed.
