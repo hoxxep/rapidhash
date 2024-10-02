@@ -165,3 +165,39 @@ pub fn bench_gxhash() -> Box<dyn FnMut(&mut Bencher)> {
         }, criterion::BatchSize::SmallInput);
     })
 }
+
+pub fn bench_farmhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = farmhash::FarmHasher::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_highwayhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = highway::HighwayHasher::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_rustchash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            Object::random()
+        }, |o| {
+            let mut hasher = rustc_hash::FxHasher::default();
+            o.hash(&mut hasher);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
