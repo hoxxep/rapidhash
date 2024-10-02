@@ -11,7 +11,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["hash", "rapidhash"]
 categories = ["algorithms", "no-std"]
-exclude = ["Cargo.lock", ".github", "fuzz", "doc"]
+exclude = ["Cargo.lock", ".github", "fuzz", "docs"]
 
 [lib]
 
