@@ -1,12 +1,6 @@
 name: Publish to crates.io
 on:
-  push:
-    # Pattern matched against refs/tags
-    tags:
-      - '*'           # Push events to every tag not containing /
-      # Allow manual triggering
-  workflow_dispatch:
-    # Allow manual triggering
+  workflow_dispatch: # only on manual triggering
 
 jobs:
   publish:
@@ -15,13 +9,7 @@ jobs:
     environment: crates.io
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
+        uses: actions/checkout@v4
       - run: cargo publish --token ${CRATES_TOKEN}
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
