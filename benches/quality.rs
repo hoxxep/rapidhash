@@ -19,6 +19,7 @@ fn main() {
     bench_hasher_quality::<twox_hash::RandomXxHashBuilder>("XxHash (XXH3)");
     bench_hasher_quality::<ahash::RandomState>("AHash");
     bench_hasher_quality::<t1ha::T1haBuildHasher>("T1ha");
+    bench_hasher_quality::<rustc_hash::FxBuildHasher>("RustcHash");
 }
 
 macro_rules! check {

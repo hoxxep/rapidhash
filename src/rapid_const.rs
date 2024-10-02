@@ -174,7 +174,7 @@ pub(crate) const fn read_u32(slice: &[u8], offset: usize) -> u32 {
 }
 
 #[inline(always)]
-const fn read_u32_combined(slice: &[u8], offset_top: usize, offset_bot: usize) -> u64 {
+pub(crate) const fn read_u32_combined(slice: &[u8], offset_top: usize, offset_bot: usize) -> u64 {
     debug_assert!(slice.len() >= 4 + offset_top && slice.len() >= 4 + offset_bot);
     let top = read_u32(slice, offset_top) as u64;
     let bot = read_u32(slice, offset_bot) as u64;

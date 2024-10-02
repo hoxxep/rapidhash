@@ -24,6 +24,9 @@ def draw_hash():
         ("metrohash", "0.8"),
         ("seahash", "0.8"),
         ("xxhash", "0.8"),
+        ("farmhash", "0.8"),
+        ("highwayhash", "0.8"),
+        ("rustc-hash", "y"),
     ]
 
     hash_names = [hash_function for hash_function, _ in hash_settings]
@@ -106,6 +109,7 @@ def draw_map():
         ("fxhash", "r"),
         ("gxhash", "m"),
         ("wyhash", "c"),
+        ("rustc-hash", "y"),
     ]
 
     hash_names = [hash_function.replace("_inline", "") for hash_function, _ in hash_settings]
