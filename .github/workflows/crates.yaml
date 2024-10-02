@@ -1,0 +1,27 @@
+name: crates.yaml
+on:
+  push:
+    # Pattern matched against refs/tags
+    tags:
+      - '*'           # Push events to every tag not containing /
+      # Allow manual triggering
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    environment: crates.io
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: cargo publish --token ${CRATES_TOKEN}
+        env:
+          CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
