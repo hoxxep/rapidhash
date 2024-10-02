@@ -1,6 +1,6 @@
 [package]
 name = "rapidhash"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 rust-version = "1.77.0"
 authors = ["Liam Gray <gmail@liamg.me>"]
@@ -8,7 +8,6 @@ description = "A rust port of rapidhash: an extremely fast, high quality, platfo
 repository = "https://github.com/hoxxep/rapidhash"
 documentation = "https://docs.rs/rapidhash"
 license = "MIT OR Apache-2.0"
-license-file = "LICENSE-MIT"
 readme = "README.md"
 keywords = ["hash", "rapidhash"]
 categories = ["algorithms", "no-std"]
