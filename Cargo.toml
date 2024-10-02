@@ -1,6 +1,6 @@
 [package]
 name = "rapidhash"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 rust-version = "1.77.0"
 authors = ["Liam Gray <gmail@liamg.me>"]
@@ -11,7 +11,7 @@ license = "MIT OR Apache-2.0"
 readme = "README.md"
 keywords = ["hash", "rapidhash"]
 categories = ["algorithms", "no-std"]
-exclude = ["Cargo.lock", ".github", "fuzz", "doc"]
+exclude = ["Cargo.lock", ".github", "fuzz", "docs"]
 
 [lib]
 

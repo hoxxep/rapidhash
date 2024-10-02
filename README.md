@@ -112,7 +112,9 @@ The rapidhash crate follows the following versioning scheme:
 - Minor for significant API additions/deprecations.
 - Patch for bug fixes and performance improvements.
 
-## License
+## License and Acknowledgements
 This project is licensed under both the MIT and Apache-2.0 licenses. You are free to choose either license.
 
-With thanks to the original [rapidhash](https://github.com/Nicoshev/rapidhash) C++ implementation, which is licensed under the [BSD 2-Clause license](https://github.com/Nicoshev/rapidhash/blob/master/LICENSE).
+With thanks to [Nicolas De Carli](https://github.com/Nicoshev) for the original [rapidhash](https://github.com/Nicoshev/rapidhash) C++ implementation, which is licensed under the [BSD 2-Clause license](https://github.com/Nicoshev/rapidhash/blob/master/LICENSE).
+
+With thanks to [Justin Bradford](https://github.com/jabr) for letting us use the rapidhash crate name 🍻
