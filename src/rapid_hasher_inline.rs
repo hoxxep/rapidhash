@@ -45,9 +45,14 @@ pub struct RapidInlineHasher {
 /// let mut map = HashMap::with_hasher(RapidInlineHashBuilder::default());
 /// map.insert(42, "the answer");
 /// ```
+pub type RapidInlineBuildHasher = core::hash::BuildHasherDefault<RapidInlineHasher>;
+
+/// Deprecated and renamed to [RapidInlineBuildHasher].
+#[deprecated(since = "1.1.0", note = "Renamed to `RapidInlineBuildHasher`")]
+#[doc(hidden)]
 pub type RapidInlineHashBuilder = core::hash::BuildHasherDefault<RapidInlineHasher>;
 
-/// A [std::collections::HashMap] type that uses the [RapidInlineHashBuilder] hasher.
+/// A [std::collections::HashMap] type that uses the [RapidInlineBuildHasher] hasher.
 ///
 /// # Example
 /// ```
@@ -60,9 +65,9 @@ pub type RapidInlineHashBuilder = core::hash::BuildHasherDefault<RapidInlineHash
 /// map.insert(42, "the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineHashBuilder>;
+pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineBuildHasher>;
 
-/// A [std::collections::HashSet] type that uses the [RapidInlineHashBuilder] hasher.
+/// A [std::collections::HashSet] type that uses the [RapidInlineBuildHasher] hasher.
 ///
 /// # Example
 /// ```
@@ -75,7 +80,7 @@ pub type RapidInlineHashMap<K, V> = std::collections::HashMap<K, V, RapidInlineH
 /// set.insert("the answer");
 /// ```
 #[cfg(any(feature = "std", docsrs))]
-pub type RapidInlineHashSet<K> = std::collections::HashSet<K, RapidInlineHashBuilder>;
+pub type RapidInlineHashSet<K> = std::collections::HashSet<K, RapidInlineBuildHasher>;
 
 impl RapidInlineHasher {
     /// Default `RapidHasher` seed.

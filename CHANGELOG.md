@@ -1,6 +1,11 @@
 # Changelog
 
-## 1.0.0
+## 1.1.0 (20241003)
+
+- Deprecated `RapidHashBuilder`.
+- Added `RapidBuildHasher` to replace `RapidHashBuilder`.
+
+## 1.0.0 (20241002)
 
 Ownership kindly transferred by Justin Bradford to [Liam Gray](https://github.com/hoxxep) and this repository.
 
