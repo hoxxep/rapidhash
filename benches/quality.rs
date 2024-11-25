@@ -14,6 +14,7 @@ fn main() {
     bench_hasher_quality::<BuildHasherDefault<rapidhash::FxRapidHasher>>("FxRapidHash");
     bench_hasher_quality::<std::collections::hash_map::RandomState>("Default");
     bench_hasher_quality::<BuildHasherDefault<wyhash::WyHash>>("WyHash");
+    bench_hasher_quality::<foldhash::fast::RandomState>("FoldHash");
     bench_hasher_quality::<gxhash::GxBuildHasher>("GxHash");
     bench_hasher_quality::<fxhash::FxBuildHasher>("FxHash");
     bench_hasher_quality::<twox_hash::RandomXxHashBuilder>("XxHash (XXH3)");

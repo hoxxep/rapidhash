@@ -1,4 +1,4 @@
-use std::hash::Hasher;
+use std::hash::{BuildHasher, Hasher};
 use criterion::Bencher;
 use rapidhash::RAPID_SEED;
 
@@ -232,6 +232,18 @@ pub fn bench_rustchash() -> Box<dyn FnMut(&mut Bencher)> {
             rand::random::<u64>()
         }, |i: u64| {
             let mut hasher = rustc_hash::FxHasher::default();
+            hasher.write_u64(i);
+            hasher.finish()
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_foldhash() -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random::<u64>()
+        }, |i: u64| {
+            let mut hasher = foldhash::fast::FixedState::default().build_hasher();
             hasher.write_u64(i);
             hasher.finish()
         }, criterion::BatchSize::SmallInput);

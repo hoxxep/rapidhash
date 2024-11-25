@@ -31,6 +31,7 @@ pub fn bench(c: &mut Criterion) {
         ("hash/farmhash", Box::new(vector::bench_farmhash), Box::new(int::bench_farmhash), Box::new(object::bench_farmhash)),
         ("hash/highwayhash", Box::new(vector::bench_highwayhash), Box::new(int::bench_highwayhash), Box::new(object::bench_highwayhash)),
         ("hash/rustc-hash", Box::new(vector::bench_rustchash), Box::new(int::bench_rustchash), Box::new(object::bench_rustchash)),
+        ("hash/foldhash", Box::new(vector::bench_foldhash), Box::new(int::bench_foldhash), Box::new(object::bench_foldhash)),
     ];
 
     let sizes = [2usize, 8, 16, 64, 256, 1024, 4096];

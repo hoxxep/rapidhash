@@ -1,4 +1,6 @@
-use crate::rapid_const::{rapid_mix, rapid_mum, read_u32, read_u64, RAPID_SECRET};
+use std::ops::BitXor;
+use crate::rapid_const::{rapid_mix, rapid_mum, rapidhash_seed, read_u32, read_u64, RAPID_SECRET};
+use crate::RAPID_SEED;
 
 /// A hybrid fxhash and [rapidhash] hasher.
 ///
@@ -56,6 +58,9 @@ pub type FxRapidHashMap<K, V> = std::collections::HashMap<K, V, FxRapidHashBuild
 /// ```
 #[cfg(feature = "std")]
 pub type FxRapidHashSet<K> = std::collections::HashSet<K, FxRapidHashBuilder>;
+
+/// Borrowed from rustc-hash.
+const K: u64 = 0xf1357aea2e62a9c5;
 
 /// Helper function to hash a single word, as part of [fxrapidhash].
 #[inline(always)]
@@ -148,6 +153,128 @@ const fn rapidhash_cold(data: &[u8], mut seed: u64) -> u64 {
     rapid_mix(a ^ RAPID_SECRET[0] ^ data.len() as u64, b ^ RAPID_SECRET[1])
 }
 
+#[inline(always)]
+pub(crate) fn fxrapidhash2(data: &[u8]) -> u64 {
+    let mut a = RAPID_SECRET[0];
+    let mut b = RAPID_SECRET[1];
+
+    match (data.len() - 1) >> 4 {
+    // match data.len() < 16 {
+        0 => {  // len <= 16
+            // deviation from the C++ impl computes delta as follows
+            // let delta = (data.len() & 24) >> (data.len() >> 3);
+            // this is equivalent to "match {..8=>0, 8..=>4}"
+            // and so using the extra if-else statement is equivalent and allows the compiler to skip
+            // some unnecessary bounds checks while still being safe rust.
+            // if data.len() >= 8 {
+            //     // len is 4..=16
+            //     let plast = data.len() - 4;
+            //     let delta = 4;
+            //     a ^= crate::rapid_const::read_u32_combined(data, 0, plast);
+            //     b ^= crate::rapid_const::read_u32_combined(data, delta, plast - delta);
+            // } else if data.len() >= 4 {
+            //     let plast = data.len() - 4;
+            //     let delta = 0;
+            //     a ^= crate::rapid_const::read_u32_combined(data, 0, plast);
+            //     b ^= crate::rapid_const::read_u32_combined(data, delta, plast - delta);
+            // } else if data.len() > 0 {
+            //     // len is 1..=3
+            //     let len = data.len();
+            //     a ^= ((data[0] as u64) << 56) | ((data[len >> 1] as u64) << 32) | data[len - 1] as u64;
+            //     // b = 0;
+            // }
+
+            let len = data.len();
+            if len >= 8 {
+                a ^= u64::from_le_bytes(data[0..8].try_into().unwrap());
+                b ^= u64::from_le_bytes(data[len - 8..].try_into().unwrap());
+            } else if len >= 4 {
+                a ^= u32::from_le_bytes(data[0..4].try_into().unwrap()) as u64;
+                b ^= u32::from_le_bytes(data[len - 4..].try_into().unwrap()) as u64;
+            } else if len > 0 {
+                let lo = data[0];
+                let mid = data[len / 2];
+                let hi = data[len - 1];
+                a ^= lo as u64;
+                b ^= ((hi as u64) << 8) | mid as u64;
+            }
+        },
+        1 => {  // len <= 32
+            let slice = data;
+
+            // cover the first 16 without an if
+            a = rapid_mix(read_u64(slice, 0) ^ RAPID_SEED, read_u64(slice, 8) ^ a);
+
+            // and the final 16 without an if
+            let slice = &data[data.len() - 16..];
+            a ^= read_u64(slice, 0);
+            b ^= read_u64(slice, 8);
+        }
+        2 => {  // len <= 48
+            let slice = data;
+            a = rapid_mix(read_u64(slice, 0) ^ RAPID_SEED, read_u64(slice, 8) ^ a);
+            b = rapid_mix(read_u64(slice, 16) ^ RAPID_SEED, read_u64(slice, 24) ^ b);
+
+            let slice = &data[data.len() - 16..];
+            a ^= read_u64(slice, 0);
+            b ^= read_u64(slice, 8);
+        }
+        3 => {
+            // 48 < len <= 64
+            let slice = data;
+            let mut seed = RAPID_SEED;
+            let mut see1 = seed;
+            let mut see2 = seed;
+            seed = rapid_mix(read_u64(slice, 0) ^ RAPID_SECRET[0], read_u64(slice, 8) ^ seed);
+            see1 = rapid_mix(read_u64(slice, 16) ^ RAPID_SECRET[1], read_u64(slice, 24) ^ see1);
+            see2 = rapid_mix(read_u64(slice, 32) ^ RAPID_SECRET[2], read_u64(slice, 40) ^ see2);
+            seed ^= see1 ^ see2;
+
+            let slice = &data[data.len() - 16..];
+            a ^= read_u64(slice, 0) ^ RAPID_SECRET[1];
+            b ^= read_u64(slice, 8) ^ seed;
+        }
+        _ => {  // len > 48
+            let mut slice = data;
+
+            // most CPUs appear to benefit from this unrolled loop
+            let mut seed = RAPID_SEED;
+            let mut see1 = seed;
+            let mut see2 = seed;
+            while slice.len() >= 96 {
+                seed = rapid_mix(read_u64(slice, 0) ^ RAPID_SECRET[0], read_u64(slice, 8) ^ seed);
+                see1 = rapid_mix(read_u64(slice, 16) ^ RAPID_SECRET[1], read_u64(slice, 24) ^ see1);
+                see2 = rapid_mix(read_u64(slice, 32) ^ RAPID_SECRET[2], read_u64(slice, 40) ^ see2);
+                seed = rapid_mix(read_u64(slice , 48) ^ RAPID_SECRET[0], read_u64(slice, 56) ^ seed);
+                see1 = rapid_mix(read_u64(slice, 64) ^ RAPID_SECRET[1], read_u64(slice, 72) ^ see1);
+                see2 = rapid_mix(read_u64(slice, 80) ^ RAPID_SECRET[2], read_u64(slice, 88) ^ see2);
+                let (_, split) = slice.split_at(96);
+                slice = split;
+            }
+            if slice.len() >= 48 {
+                seed = rapid_mix(read_u64(slice, 0) ^ RAPID_SECRET[0], read_u64(slice, 8) ^ seed);
+                see1 = rapid_mix(read_u64(slice, 16) ^ RAPID_SECRET[1], read_u64(slice, 24) ^ see1);
+                see2 = rapid_mix(read_u64(slice, 32) ^ RAPID_SECRET[2], read_u64(slice, 40) ^ see2);
+                let (_, split) = slice.split_at(48);
+                slice = split;
+            }
+            seed ^= see1 ^ see2;
+
+            if slice.len() > 16 {
+                seed = rapid_mix(read_u64(slice, 0) ^ RAPID_SECRET[2], read_u64(slice, 8) ^ seed);
+                if slice.len() > 32 {
+                    seed = rapid_mix(read_u64(slice, 16) ^ RAPID_SECRET[2], read_u64(slice, 24) ^ seed);
+                }
+            }
+
+            a ^= read_u64(data, data.len() - 16) ^ RAPID_SECRET[1];
+            b ^= read_u64(data, data.len() - 8) ^ seed;
+        }
+    }
+
+    rapid_mix(a, b) ^ data.len() as u64
+}
+
 impl FxRapidHasher {
     /// Create a new [FxRapidHasher] with a custom seed.
     #[inline]
@@ -159,6 +286,12 @@ impl FxRapidHasher {
     #[inline(always)]
     pub fn write_inline(&mut self, bytes: &[u8]) {
         self.hash = fxrapidhash(bytes, self.hash);
+    }
+
+    /// Write a single value to the hasher.
+    #[inline(always)]
+    pub fn add_to_hash(&mut self, i: u64) {
+        self.hash = self.hash.bitxor(i).wrapping_mul(K);
     }
 }
 
@@ -173,73 +306,43 @@ impl Default for FxRapidHasher {
 impl std::hash::Hasher for FxRapidHasher {
     #[inline(always)]
     fn finish(&self) -> u64 {
-        self.hash
+        self.hash.rotate_left(20)
     }
 
     #[inline]
     fn write(&mut self, bytes: &[u8]) {
-        self.hash = fxrapidhash(bytes, self.hash);
+        self.write_u64(fxrapidhash2(bytes));
     }
 
     #[inline]
     fn write_u8(&mut self, i: u8) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
     }
 
     #[inline]
     fn write_u16(&mut self, i: u16) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
     }
 
     #[inline]
     fn write_u32(&mut self, i: u32) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
     }
 
     #[inline]
     fn write_u64(&mut self, i: u64) {
-        hash_word(&mut self.hash, i);
-        // self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
     }
 
     #[inline]
     fn write_u128(&mut self, i: u128) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
+        self.add_to_hash((i >> 64) as u64);
     }
 
     #[inline]
     fn write_usize(&mut self, i: usize) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_i8(&mut self, i: i8) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_i16(&mut self, i: i16) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_i32(&mut self, i: i32) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_i64(&mut self, i: i64) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_i128(&mut self, i: i128) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
-    }
-
-    #[inline]
-    fn write_isize(&mut self, i: isize) {
-        self.hash = fxrapidhash(&i.to_ne_bytes(), self.hash);
+        self.add_to_hash(i as u64);
     }
 }
 

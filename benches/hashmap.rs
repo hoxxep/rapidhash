@@ -20,6 +20,7 @@ pub fn bench(c: &mut Criterion) {
         ("map/gxhash", Box::new(bench_gxhash), Box::new(bench_gxhash_u64), Box::new(bench_gxhash_object)),
         ("map/wyhash", Box::new(bench_wyhash), Box::new(bench_wyhash_u64), Box::new(bench_wyhash_object)),
         ("map/rustc-hash", Box::new(bench_rustchash), Box::new(bench_rustchash_u64), Box::new(bench_rustchash_object)),
+        ("map/foldhash", Box::new(bench_foldhash), Box::new(bench_foldhash_u64), Box::new(bench_foldhash_object)),
     ];
 
     let string_sizes = [
@@ -464,6 +465,44 @@ fn bench_rustchash_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
             (rustc_hash::FxHashSet::default(), sample_object(count))
+        }, |(set, objs)| {
+            for obj in objs {
+                set.insert(obj.clone());
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_foldhash(count: usize, min: usize, max: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (foldhash::HashMap::default(), sample_string(count, min, max))
+        }, |(map, strings)| {
+            for string in strings {
+                let len = string.len();
+                map.insert(string.clone(), len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_foldhash_u64(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (foldhash::HashMap::default(), sample_u64(count))
+        }, |(map, ints)| {
+            for int in ints {
+                let len = *int >> 3;
+                map.insert(*int, len);
+            }
+        }, criterion::BatchSize::LargeInput);
+    })
+}
+
+fn bench_foldhash_object(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched_ref(|| {
+            (foldhash::HashSet::default(), sample_object(count))
         }, |(set, objs)| {
             for obj in objs {
                 set.insert(obj.clone());
