@@ -38,7 +38,7 @@ unsafe = []  # enable unsafe pointer arithmetic to skip unnecessary bounds check
 
 [dependencies]
 rand = { version = "0.8.5", optional = true }
-rand_core = { version = "0.6.4", default-features = false, optional = true }
+rand_core = { version = "0.9.0", default-features = false, optional = true }
 
 [dev-dependencies]
 # hash functions to benchmark/compare
