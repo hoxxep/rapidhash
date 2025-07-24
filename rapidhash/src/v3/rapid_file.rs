@@ -39,7 +39,7 @@ pub fn rapidhash_v3_file_inline<R: Read, const PROTECTED: bool>(data: R, mut see
     seed = rapidhash_seed(seed);
     let mut reader = ChunkedStreamReader::new(data, 16);
     let (a, b, _, remainder) = rapidhash_file_core::<R, PROTECTED>(0, 0, seed, &mut reader)?;
-    Ok(rapidhash_finish::<PROTECTED>(a, b, remainder))
+    Ok(rapidhash_finish::<PROTECTED>(a, b, &RAPID_SECRET, remainder))
 }
 
 #[inline(always)]
@@ -153,5 +153,5 @@ mod tests {
     use crate::v3::rapidhash_v3_inline;
     use super::*;
 
-    compare_rapidhash_file!(compare_rapidhash_v1_file, rapidhash_v3_inline::<false, false>, rapidhash_v3_file_inline::<_, false>);
+    compare_rapidhash_file!(compare_rapidhash_v1_file, rapidhash_v3_inline::<false, false>, rapidhash_v3_file_inline::<_, false>, &super::RAPID_SECRET);
 }

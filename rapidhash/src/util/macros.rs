@@ -67,18 +67,41 @@ macro_rules! compare_rapidhash_file {
         #[test]
         fn $test() {
             use rand::RngCore;
-    
+
             const LENGTH: usize = 1024;
             for len in 1..=LENGTH {
                 let mut data = vec![0u8; len];
                 rand::rng().fill_bytes(&mut data);
-    
+
                 let mut file = tempfile::tempfile().unwrap();
                 file.write_all(&data).unwrap();
                 file.seek(SeekFrom::Start(0)).unwrap();
-    
+
                 assert_eq!(
                     $hash(&data, crate::v1::RAPID_SEED),
+                    $file(&mut file, crate::v1::RAPID_SEED).unwrap(),
+                    "Mismatch for input len: {}", &data.len()
+                );
+            }
+        }
+    };
+
+    ($test:ident, $hash:path, $file:path, $secrets:expr) => {
+        #[test]
+        fn $test() {
+            use rand::RngCore;
+
+            const LENGTH: usize = 1024;
+            for len in 1..=LENGTH {
+                let mut data = vec![0u8; len];
+                rand::rng().fill_bytes(&mut data);
+
+                let mut file = tempfile::tempfile().unwrap();
+                file.write_all(&data).unwrap();
+                file.seek(SeekFrom::Start(0)).unwrap();
+
+                assert_eq!(
+                    $hash(&data, crate::v1::RAPID_SEED, $secrets),
                     $file(&mut file, crate::v1::RAPID_SEED).unwrap(),
                     "Mismatch for input len: {}", &data.len()
                 );
