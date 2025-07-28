@@ -95,7 +95,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
         Self::PortableHasher: PortableHasher,
     {
         let mut hasher = self.build_hasher();
-        x.hash(&mut hasher);  // <-- trying hard to inline this
+        x.portable_hash(&mut hasher);  // <-- trying hard to inline this
         hasher.finish()
     }
 }
@@ -358,7 +358,33 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
 #[cfg(test)]
 mod tests {
     extern crate std;
+
+    use portable_hash::PortableHash;
     use super::*;
+
+    #[derive(PortableHash)]
+    struct Example {
+        a: u64,
+        b: String,
+        c: (u8, u16),
+        d: Vec<u8>,
+    }
+
+    #[test]
+    fn test_portable_hasher() {
+        let example = Example {
+            a: 123456789,
+            b: "Hello, world!".to_string(),
+            c: (42, 65535),
+            d: vec![1, 2, 3, 4, 5],
+        };
+
+        let mut hasher = RapidHasher::<true, false>::default();
+        example.portable_hash(&mut hasher);
+        let hash = hasher.finish();
+
+        assert_eq!(hash, 15708527322534804157); // Example hash value
+    }
 
     /// Test that writing a single u64 outputs the same as writing the equivalent bytes.
     ///
