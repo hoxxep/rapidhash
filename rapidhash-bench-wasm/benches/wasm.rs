@@ -16,30 +16,41 @@ const HASHES: &[&str] = &[
     "fxhash",
 ];
 
+const BENCHMARKS: &[&str] = &[
+    "tuple",
+    "4kb",
+];
+
 pub fn wasm_bench(c: &mut Criterion) {
     compile_wasm();
 
-    let mut group = c.benchmark_group("wasmtime");
-    group.sampling_mode(criterion::SamplingMode::Flat);
 
     for &hash in HASHES.iter() {
-        group.bench_function(hash, profile_hash(hash));
+        let group_name = format!("wasm/{}", hash);
+        let mut group = c.benchmark_group(&group_name);
+        group.sampling_mode(criterion::SamplingMode::Flat);
+
+        group.bench_function("tuple", profile_hash(hash, "tuple"));
+        group.bench_function("4kb", profile_hash(hash, "4kb"));
     }
 }
 
-fn profile_hash(hash: &str) -> impl Fn(&mut Bencher) + use<'_> {
-    |b| {
+fn profile_hash(hash: &str, benchmark: &str) -> impl Fn(&mut Bencher) {
+    let hash = hash.to_string();
+    let benchmark = benchmark.to_string();
+    move |b| {
         let mut env = WasmEnv::new();
         let hash = hash.to_string();
+        let benchmark = benchmark.to_string();
         b.iter(move || {
-            black_box(env.profile(&hash))
+            black_box(env.profile(&hash, &benchmark))
         });
     }
 }
 
 struct WasmEnv {
     store: Store<()>,
-    hashes: HashMap<&'static str, TypedFunc<(), u64>>,
+    hashes: HashMap<String, TypedFunc<(), u64>>,
 }
 
 impl WasmEnv {
@@ -55,8 +66,11 @@ impl WasmEnv {
 
         let mut hashes = HashMap::new();
         for &hash in HASHES.iter() {
-            let func = instance.get_typed_func::<(), u64>(&mut store, &format!("bench_wasm_{hash}")).unwrap();
-            hashes.insert(hash, func);
+            for &benchmark in BENCHMARKS.iter() {
+                let key = format!("bench_wasm_{}_{}", hash, benchmark);
+                let func = instance.get_typed_func::<(), u64>(&mut store, &key).unwrap();
+                hashes.insert(key, func);
+            }
         }
 
         Self {
@@ -65,8 +79,9 @@ impl WasmEnv {
         }
     }
 
-    fn profile(&mut self, hash: &str) -> u64 {
-        let hash_fn = self.hashes.get(hash).unwrap();
+    fn profile(&mut self, hash: &str, benchmark: &str) -> u64 {
+        let key = format!("bench_wasm_{}_{}", hash, benchmark);
+        let hash_fn = self.hashes.get(key.as_str()).unwrap();
         hash_fn.call(&mut self.store, ()).unwrap()
     }
 }

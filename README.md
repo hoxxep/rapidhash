@@ -12,17 +12,32 @@ A rust implementation of the [rapidhash](https://github.com/Nicoshev/rapidhash) 
 - **Idiomatic** `std::hash::Hasher` compatible hasher for `HashMap` and `HashSet` usage.
 - **Non-cryptographic** hash function that's "minimally DoS resistant" in the same manner as foldhash.
 
+**Sponsored by [Upon](https://uponvault.com?utm_source=github&utm_campaign=rapidhash)**, inheritance vaults for your digital life. Ensure your family can access your devices, accounts, and assets when the unexpected happens.
+
 ## Usage
 ### Portable Hashing
 Full compatibility with C++ rapidhash algorithms, methods are provided for all rapidhash V1, V2, and V3 (with micro/nano) variants. These are stable functions whose output will not change between crate versions.
 
 ```rust
 use std::hash::{BuildHasher, Hasher};
+use rapidhash::v3::{rapidhash_v3_seeded, RapidSecrets};
 
-// rapidhash V3 algorithm, for fast, high-quality, portable hashing
-use rapidhash::v3::rapidhash_v3;
-assert_eq!(rapidhash_v3(b"hello world"), 3397907815814400320);
+/// Set your global hashing secrets.
+///
+/// - For HashDoS resistance, choose a randomised secret.
+/// - For C++ compatibility, use the `seed_cpp` method or default secrets.
+const RAPID_SECRETS: RapidSecrets = RapidSecrets::seed(0x123456);
+
+/// Make a helper function that sets your rapidhash version and secrets.
+#[inline]
+pub fn rapidhash(data: &[u8]) -> u64 {
+    rapidhash_v3_seeded(data, &RAPID_SECRETS)
+}
+
+assert_eq!(rapidhash(b"hello world"), 11653223729569656151);
 ```
+
+Please see the [`portable-hash` crate](https://github.com/hoxxep/portable-hash) using the standard library hashing traits is not recommended for portable hashing. Rapidhash is planning to implement the `PortableHash` and `PortableHasher` traits in a future release.
 
 ### In-Memory Hashing
 Following rust's `std::hash` traits, the underlying hash function may change between minor versions, and is only suitable for in-memory hashing. These types are optimised for speed and minimal DoS resistance, available in the `rapidhash::fast` and `rapidhash::quality` flavours.
@@ -188,7 +203,7 @@ Fixed versioning with C++ compatibility is presented in `rapidhash::v1`, `rapidh
 Rapidhash V3 is the recommended, fastest, and most recent version of the hash. Others are provided for backwards compatibility.
 
 ### In-Memory Hashing
-Rust hasing traits (`RapidHasher`, `RapidBuildHasher`, etc.) are implemented in `rapidhash::fast`, `rapidhash::quality`, and `rapidhash::inner` modules. These are not guaranteed to give a consistent hash output between crate versions as the rust `Hasher` trait is not designed for this.
+Rust hasing traits (`RapidHasher`, `RapidBuildHasher`, etc.) are implemented in `rapidhash::fast`, `rapidhash::quality`, and `rapidhash::inner` modules. These are not guaranteed to give a consistent hash output between platforms, compiler versions, or crate versions as the rust `Hasher` trait [is not suitable](https://github.com/hoxxep/portable-hash/?tab=readme-ov-file#whats-wrong-with-the-stdhash-traits) for portable hashing.
 
 - Use `rapidhash::fast` for optimal hashing speed with a slightly lower hash quality. Best for most datastructures such as HashMap and HashSet usage.
 - Use `rapidhash::quality` where statistical hash quality is the priority, such as HyperLogLog or MinHash algorithms.

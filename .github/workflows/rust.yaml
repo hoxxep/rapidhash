@@ -64,8 +64,8 @@ jobs:
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
       - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
-        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }} && cargo -V && rustc -V
         shell: bash
+        run: rustup update ${{ env.RUST_VERSION }} --no-self-update && rustup default ${{ env.RUST_VERSION }} && cargo -V && rustc -V
       - name: Compile and run tests (std)
         run: cargo test -p rapidhash --no-fail-fast --all-features
       - name: Compile and run tests (no_std)

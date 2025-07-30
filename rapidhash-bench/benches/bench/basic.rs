@@ -91,7 +91,7 @@ fn profile_bytes_raw<H: Fn(&[u8], u64) -> u64>(
             rand::rng().fill(slice.as_mut_slice());
             slice
         }, |bytes| {
-            black_box(hash(black_box(bytes), rapidhash::v1::RAPID_SEED))
+            black_box(hash(black_box(bytes), 0xbdd89aa982704029))  // using rapidhash V1 seed
         }, criterion::BatchSize::SmallInput);
     });
 }
@@ -125,7 +125,7 @@ pub fn bench(c: &mut Criterion) {
     bench_group::<highway::HighwayBuildHasher>(c, "hash/highwayhash");
     bench_group::<rustc_hash::FxBuildHasher>(c, "hash/rustc-hash");
 
-    bench_group_raw(c, "hash/rapidhash_raw", &rapidhash::v3::rapidhash_v3_seeded);
+    bench_group_raw(c, "hash/rapidhash_raw", &v3_bench);
     bench_group_raw(c, "hash/rapidhash_cc_v1", &rapidhash_c::rapidhashcc_v1);
     bench_group_raw(c, "hash/rapidhash_cc_v2", &rapidhash_c::rapidhashcc_v2);
     bench_group_raw(c, "hash/rapidhash_cc_v2_1", &rapidhash_c::rapidhashcc_v2_1);
@@ -133,4 +133,9 @@ pub fn bench(c: &mut Criterion) {
     bench_group_raw(c, "hash/rapidhash_cc_v3", &rapidhash_c::rapidhashcc_v3);
     bench_group_raw(c, "hash/rapidhash_cc_rs", &rapidhash_c::rapidhashcc_rs);
     bench_group_raw(c, "hash/wyhash_raw", &wyhash::wyhash);
+}
+
+fn v3_bench(data: &[u8], seed: u64) -> u64 {
+    let secrets = rapidhash::v3::RapidSecrets::seed_cpp(seed);
+    rapidhash::v3::rapidhash_v3_seeded(data, &secrets)
 }

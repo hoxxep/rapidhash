@@ -48,7 +48,7 @@ rustc-hash = "2.0.0"
 foldhash = "0.1.5"
 
 # benchmarking helpers
-criterion = { version = "0.6.0", default-features = false, features = ["rayon", "cargo_bench_support"] }
+criterion = { version = "0.7.0", default-features = false, features = ["rayon"] }
 iai-callgrind = "0.16.0"
 rand = "0.9.0"
 rand_core = "0.9.0"

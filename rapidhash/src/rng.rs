@@ -29,6 +29,66 @@ pub fn rapidrng_fast(seed: &mut u64) -> u64 {
     rapid_mix::<false>(*seed, *seed ^ RAPID_SECRET[1])
 }
 
+/// A lower quality version of [`rapidrng_fast`] with that's slightly faster, with optimisations for
+/// u32 platforms and those without wide-arithmetic support.
+///
+/// This is not a portable RNG, as it will produce different results on different platforms. Use
+/// [`rapidrng_fast`] if stable outputs are required.
+///
+/// Used in the rapidhash WASM benchmarks.
+#[inline]
+pub fn rapidrng_fast_not_portable(seed: &mut u64) -> u64 {
+    *seed = seed.wrapping_add(RAPID_SECRET[0]);
+    rapid_mix_np_low_quality(*seed, RAPID_SECRET[1])
+}
+
+/// A very fast low-quality mixing function used only for the ultra-fast PRNG.
+///
+/// Uses the standard `rapid_mix` for 64-bit architectures, and otherwise uses a very cheap
+/// u32-mix for platforms without wide-arithmetic support. This is even cheaper/lower quality than
+/// `rapid_mix_np`.
+#[inline(always)]
+fn rapid_mix_np_low_quality(x: u64, y: u64) -> u64 {
+    #[cfg(any(
+        all(
+            target_pointer_width = "64",
+            not(any(target_arch = "sparc64", target_arch = "wasm64")),
+        ),
+        target_arch = "aarch64",
+        target_arch = "x86_64",
+        all(target_family = "wasm", target_feature = "wide-arithmetic"),
+    ))]
+    {
+        rapid_mix::<false>(x, y)
+    }
+
+    #[cfg(not(any(
+        all(
+            target_pointer_width = "64",
+            not(any(target_arch = "sparc64", target_arch = "wasm64")),
+        ),
+        target_arch = "aarch64",
+        target_arch = "x86_64",
+        all(target_family = "wasm", target_feature = "wide-arithmetic"),
+    )))]
+    {
+        // u64 x u64 -> u128 product is prohibitively expensive on 32-bit.
+        // Decompose into 32-bit parts.
+        let lx = x as u32;
+        let ly = y as u32;
+        let hx = (x >> 32) as u32;
+        let hy = (y >> 32) as u32;
+
+        // u32 x u32 -> u64 the low bits of one with the high bits of the other.
+        let afull = (lx as u64) * (hy as u64);
+        let bfull = (hx as u64) * (ly as u64);
+
+        // Combine, swapping low/high of one of them so the upper bits of the
+        // product of one combine with the lower bits of the other.
+        afull ^ bfull.rotate_right(32)
+    }
+}
+
 /// Generate a random number non-deterministically by re-seeding with the current time.
 ///
 /// This is not a cryptographic random number generator.
@@ -161,7 +221,7 @@ impl RapidRng {
         self.seed.to_le_bytes()
     }
 
-    /// Get the next random number from this PRNG.
+    /// Get the next random number from this PRNG and iterate the state.
     #[inline]
     #[allow(clippy::should_implement_trait)]
     pub fn next(&mut self) -> u64 {

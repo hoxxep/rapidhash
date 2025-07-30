@@ -16,10 +16,11 @@ macro_rules! bench_rng {
 }
 
 pub fn bench(c: &mut Criterion) {
-    bench_rng!(c, "rapidhash", bench_rapidhash);
-    bench_rng!(c, "rapidhash_fast", bench_rapidhash_fast);
-    bench_rng!(c, "rapidhash_time", bench_rapidhash_time);
-    bench_rng!(c, "wyhash", bench_wyhash);
+    bench_rng!(c, "rapidrng", bench_rapidhash);
+    bench_rng!(c, "rapidrng_fast", bench_rapidhash_fast);
+    bench_rng!(c, "rapidrng_fast_not_portable", bench_rapidhash_ultra_fast);
+    bench_rng!(c, "rapidrng_time", bench_rapidhash_time);
+    bench_rng!(c, "wyrng", bench_wyhash);
 
     let mut group = c.benchmark_group("random_state");
     group.bench_function("random_state", bench_state::<rapidhash::quality::RandomState>);
@@ -36,7 +37,7 @@ pub fn bench_rapidhash(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             for _ in 0..count {
                 out ^= rng.next_u64();
             }
-            (out, rng.next_u64())
+            out
         }, criterion::BatchSize::SmallInput);
     })
 }
@@ -49,6 +50,20 @@ pub fn bench_rapidhash_fast(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             let mut out = 0;
             for _ in 0..count {
                 out ^= rapidhash::rng::rapidrng_fast(&mut i);
+            }
+            out
+        }, criterion::BatchSize::SmallInput);
+    })
+}
+
+pub fn bench_rapidhash_ultra_fast(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
+    Box::new(move |b: &mut Bencher| {
+        b.iter_batched(|| {
+            rand::random::<u64>()
+        }, |mut i: u64| {
+            let mut out = 0;
+            for _ in 0..count {
+                out ^= rapidhash::rng::rapidrng_fast_not_portable(&mut i);
             }
             out
         }, criterion::BatchSize::SmallInput);
@@ -79,7 +94,7 @@ pub fn bench_wyhash(count: usize) -> Box<dyn FnMut(&mut Bencher)> {
             for _ in 0..count {
                 out ^= rng.next_u64();
             }
-            (out, rng.next_u64())
+            out
         }, criterion::BatchSize::SmallInput);
     })
 }

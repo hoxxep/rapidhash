@@ -32,11 +32,10 @@ mod collections;
 mod rapid_const;
 mod rapid_hasher;
 mod state;
-mod seeding;
+pub(crate) mod seeding;
 mod mix;
+mod seed;
 
-#[doc(inline)]
-pub use rapid_const::*;
 #[doc(inline)]
 pub use rapid_hasher::*;
 #[doc(inline)]
@@ -44,6 +43,8 @@ pub use rapid_hasher::*;
 pub use collections::*;
 #[doc(inline)]
 pub use state::*;
+#[doc(inline)]
+use seed::*;
 
 #[cfg(test)]
 mod tests {
@@ -52,7 +53,8 @@ mod tests {
     use std::hash::{BuildHasher, Hash, Hasher};
     use std::collections::BTreeSet;
     use rand::Rng;
-    use super::{rapidhash_rs, rapidhash_rs_seeded, RAPID_SEED};
+    use super::seed::{DEFAULT_RAPID_SECRETS, DEFAULT_SEED};
+    use super::rapid_const::{rapidhash_rs, rapidhash_rs_seeded};
 
     type RapidHasher = super::RapidHasher<true, true, true>;
     type RapidBuildHasher = super::RapidBuildHasher<true, true, true>;
@@ -197,8 +199,8 @@ mod tests {
                     let mut data = data.clone();
                     data[byte] ^= 1 << bit;
 
-                    let rust_hash = rapidhash_rs_seeded(&data, RAPID_SEED);
-                    let c_hash = rapidhashcc_rs(&data, RAPID_SEED);
+                    let rust_hash = rapidhash_rs_seeded(&data, &DEFAULT_RAPID_SECRETS);
+                    let c_hash = rapidhashcc_rs(&data, DEFAULT_SEED);
                     assert_eq!(rust_hash, c_hash, "Mismatch with input {} byte {} bit {}", len, byte, bit);
 
                     let mut rust_hasher = RapidBuildHasher::default().build_hasher();

@@ -47,7 +47,7 @@ fn sample_emails(count: usize) -> Vec<String> {
     (0..count)
         .map(|_| {
             let length = index.sample(&mut rng);
-            
+
             Alphanumeric.sample_string(&mut rng, length)
         })
         .collect()
@@ -89,11 +89,16 @@ macro_rules! bench_hash_emails_raw {
     };
 }
 
+fn v3_bench(data: &[u8], seed: u64) -> u64 {
+    let secrets = rapidhash::v3::RapidSecrets::seed_cpp(seed);
+    rapidhash::v3::rapidhash_v3_seeded(data, &secrets)
+}
+
 bench_hash_emails!(bench_rapidhash, rapidhash::quality::RapidBuildHasher::default());
 bench_hash_emails_raw!(bench_rapidhash_cc_v1, rapidhash_c::rapidhashcc_v1);
 bench_hash_emails_raw!(bench_rapidhash_cc_v2, rapidhash_c::rapidhashcc_v2);
 bench_hash_emails_raw!(bench_rapidhash_cc_v3, rapidhash_c::rapidhashcc_v3);
-bench_hash_emails_raw!(bench_rapidhash_raw, rapidhash::v3::rapidhash_v3_seeded);
+bench_hash_emails_raw!(bench_rapidhash_raw, v3_bench);
 bench_hash_emails!(bench_default, std::hash::RandomState::default());
 bench_hash_emails!(bench_fxhash, fxhash::FxBuildHasher::default());
 bench_hash_emails!(bench_gxhash, gxhash::GxBuildHasher::default());

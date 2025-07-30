@@ -1,6 +1,6 @@
 [package]
 name = "rapidhash"
-version = "2.0.2"
+version = "3.0.0"
 edition = "2021"
 publish = true
 rust-version = "1.77.0"  # &mut const would bump us to 1.83.0

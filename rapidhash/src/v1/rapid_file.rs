@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::{BufReader, Read};
 use crate::util::mix::{rapid_mix, rapid_mum};
 use crate::util::read::{read_u32_combined, read_u64};
-use crate::v1::rapid_const::{RAPID_SEED, RAPID_SECRET, rapidhash_finish, rapidhash_seed};
+use super::{DEFAULT_RAPID_SECRETS, RapidSecrets, rapidhash_finish};
 
 /// Rapidhash a file, matching the C++ implementation.
 ///
@@ -10,7 +10,7 @@ use crate::v1::rapid_const::{RAPID_SEED, RAPID_SECRET, rapidhash_finish, rapidha
 /// [BufReader] to compute the hash. This avoids loading the entire file into memory.
 #[inline]
 pub fn rapidhash_v1_file(data: &mut File) -> std::io::Result<u64> {
-    rapidhash_v1_file_inline::<false>(data, RAPID_SEED)
+    rapidhash_v1_file_inline::<false>(data, &DEFAULT_RAPID_SECRETS)
 }
 
 /// Rapidhash a file, matching the C++ implementation, with a custom seed.
@@ -18,8 +18,8 @@ pub fn rapidhash_v1_file(data: &mut File) -> std::io::Result<u64> {
 /// This method will check the metadata for a file length, and then stream the file with a
 /// [BufReader] to compute the hash. This avoids loading the entire file into memory.
 #[inline]
-pub fn rapidhash_v1_file_seeded(data: &mut File, seed: u64) -> std::io::Result<u64> {
-    rapidhash_v1_file_inline::<false>(data, seed)
+pub fn rapidhash_v1_file_seeded(data: &mut File, secrets: &RapidSecrets) -> std::io::Result<u64> {
+    rapidhash_v1_file_inline::<false>(data, secrets)
 }
 
 /// Rapidhash a file, matching the C++ implementation.
@@ -35,16 +35,18 @@ pub fn rapidhash_v1_file_seeded(data: &mut File, seed: u64) -> std::io::Result<u
 /// Is marked with `#[inline(always)]` to force the compiler to inline and optimise the method.
 /// Can provide large performance uplifts for inputs where the length is known at compile time.
 #[inline(always)]
-pub fn rapidhash_v1_file_inline<const PROTECTED: bool>(data: &mut File, mut seed: u64) -> std::io::Result<u64> {
+pub fn rapidhash_v1_file_inline<const PROTECTED: bool>(data: &mut File, secrets: &RapidSecrets) -> std::io::Result<u64> {
     let len = data.metadata()?.len();
     let mut reader = BufReader::new(data);
-    seed = rapidhash_seed(seed) ^ len;
-    let (a, b, _) = rapidhash_file_core::<PROTECTED>(0, 0, seed, len as usize, &mut reader)?;
-    Ok(rapidhash_finish::<PROTECTED>(a, b, len))
+    let (a, b, _) = rapidhash_file_core::<PROTECTED>(0, 0, secrets, len as usize, &mut reader)?;
+    Ok(rapidhash_finish::<PROTECTED>(a, b, len, secrets))
 }
 
 #[inline(always)]
-fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, mut seed: u64, len: usize, iter: &mut BufReader<&mut File>) -> std::io::Result<(u64, u64, u64)> {
+fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, rapid_secrets: &RapidSecrets, len: usize, iter: &mut BufReader<&mut File>) -> std::io::Result<(u64, u64, u64)> {
+    let mut seed = rapid_secrets.seed ^ len as u64;
+    let secrets = &rapid_secrets.secrets;
+
     if len <= 16 {
         let mut data = [0u8; 16];
         iter.read_exact(&mut data[0..len])?;
@@ -87,12 +89,12 @@ fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, mut seed: 
             while remaining >= 96 {
                 // read into and process using the first half of the buffer
                 iter.read_exact(slice)?;
-                seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ RAPID_SECRET[0], read_u64(slice, 8) ^ seed);
-                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ RAPID_SECRET[1], read_u64(slice, 24) ^ see1);
-                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 32) ^ RAPID_SECRET[2], read_u64(slice, 40) ^ see2);
-                seed = rapid_mix::<PROTECTED>(read_u64(slice, 48) ^ RAPID_SECRET[0], read_u64(slice, 56) ^ seed);
-                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 64) ^ RAPID_SECRET[1], read_u64(slice, 72) ^ see1);
-                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 80) ^ RAPID_SECRET[2], read_u64(slice, 88) ^ see2);
+                seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ secrets[0], read_u64(slice, 8) ^ seed);
+                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ secrets[1], read_u64(slice, 24) ^ see1);
+                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 32) ^ secrets[2], read_u64(slice, 40) ^ see2);
+                seed = rapid_mix::<PROTECTED>(read_u64(slice, 48) ^ secrets[0], read_u64(slice, 56) ^ seed);
+                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 64) ^ secrets[1], read_u64(slice, 72) ^ see1);
+                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 80) ^ secrets[2], read_u64(slice, 88) ^ see2);
                 remaining -= 96;
             }
 
@@ -103,9 +105,9 @@ fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, mut seed: 
             end = 96 + remaining;
 
             if remaining >= 48 {
-                seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ RAPID_SECRET[0], read_u64(slice, 8) ^ seed);
-                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ RAPID_SECRET[1], read_u64(slice, 24) ^ see1);
-                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 32) ^ RAPID_SECRET[2], read_u64(slice, 40) ^ see2);
+                seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ secrets[0], read_u64(slice, 8) ^ seed);
+                see1 = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ secrets[1], read_u64(slice, 24) ^ see1);
+                see2 = rapid_mix::<PROTECTED>(read_u64(slice, 32) ^ secrets[2], read_u64(slice, 40) ^ see2);
                 slice = &mut buf[96 + 48..96 + remaining];
                 remaining -= 48;
             }
@@ -118,9 +120,9 @@ fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, mut seed: 
         }
 
         if remaining > 16 {
-            seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ RAPID_SECRET[2], read_u64(slice, 8) ^ seed ^ RAPID_SECRET[1]);
+            seed = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ secrets[2], read_u64(slice, 8) ^ seed ^ secrets[1]);
             if remaining > 32 {
-                seed = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ RAPID_SECRET[2], read_u64(slice, 24) ^ seed);
+                seed = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ secrets[2], read_u64(slice, 24) ^ seed);
             }
         }
 
@@ -128,7 +130,7 @@ fn rapidhash_file_core<const PROTECTED: bool>(mut a: u64, mut b: u64, mut seed: 
         b ^= read_u64(&buf, end - 8);
     }
 
-    a ^= RAPID_SECRET[1];
+    a ^= secrets[1];
     b ^= seed;
 
     (a, b) = rapid_mum::<PROTECTED>(a, b);

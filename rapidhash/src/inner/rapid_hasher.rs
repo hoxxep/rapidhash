@@ -1,6 +1,8 @@
 use core::hash::{BuildHasher, Hash, Hasher};
+use super::DEFAULT_RAPID_SECRETS;
 use super::mix::rapid_mix_np;
-use super::rapid_const::{rapidhash_core, rapidhash_seed, RAPID_SECRET, RAPID_SEED};
+use super::rapid_const::rapidhash_core;
+use super::seed::rapidhash_seed;
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash)
 /// algorithm, and uses `#[inline(always)]` for all methods.
@@ -60,7 +62,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     #[inline]
     pub const fn new(mut seed: u64) -> Self {
         seed = rapidhash_seed(seed);
-        Self { seed, secrets: &RAPID_SECRET }
+        Self { seed, secrets: &DEFAULT_RAPID_SECRETS.secrets }
     }
 }
 
@@ -88,7 +90,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     /// `write(bytes)` as they can optimise away the sponge flushing/if logic. Write bytes is
     /// simply incurring a single function call, unless the bytes are of compile-time known length,
     /// in which case there are large gains again.
-    #[inline]  // TODO: choose what to set here
+    #[inline]
     fn hash_one<T: Hash>(&self, x: T) -> u64
     where
         Self: Sized,
@@ -109,7 +111,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
 
 impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> RapidHasher<AVALANCHE, SPONGE, COMPACT, PROTECTED> {
     /// Default `RapidHasher` seed.
-    pub const DEFAULT_SEED: u64 = RAPID_SEED;
+    pub const DEFAULT_SEED: u64 = super::seed::DEFAULT_SEED;
 
     /// Create a new [RapidHasher] with a custom seed.
     ///
@@ -120,7 +122,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     pub const fn new(mut seed: u64) -> Self {
         // do most of the rapidhash_seed initialisation here to avoid doing it on each int
         seed = rapidhash_seed(seed);
-        Self::new_precomputed_seed(seed, &RAPID_SECRET)
+        Self::new_precomputed_seed(seed, &DEFAULT_RAPID_SECRETS.secrets)
     }
 
     #[inline(always)]
@@ -241,7 +243,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     /// seed.
     #[inline(always)]
     fn default() -> Self {
-        Self::new(RAPID_SEED)
+        Self::new(super::seed::DEFAULT_SEED)
     }
 }
 

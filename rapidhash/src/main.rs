@@ -44,7 +44,6 @@ pub fn main() {
 
     #[cfg(feature = "std")] {
         let args: Vec<String> = std::env::args().collect();
-        // TODO: --version arg
         // TODO: multiple output types (hex, decimal)
         // TODO: --seed arg, with hex input support
         if args.iter().any(|a| a == "--help" || a == "-h") || args.is_empty() {
@@ -143,9 +142,9 @@ impl RapidhashVersion {
                 std::io::stdin().read_to_end(&mut buffer).expect("Could not read from stdin.");
 
                 if *protected {
-                    rapidhash::v1::rapidhash_v1_inline::<false, true, false>(&buffer, rapidhash::v1::RAPID_SEED)
+                    rapidhash::v1::rapidhash_v1_inline::<false, true, false>(&buffer, &rapidhash::v1::DEFAULT_RAPID_SECRETS)
                 } else {
-                    rapidhash::v1::rapidhash_v1_inline::<false, false, false>(&buffer, rapidhash::v1::RAPID_SEED)
+                    rapidhash::v1::rapidhash_v1_inline::<false, false, false>(&buffer, &rapidhash::v1::DEFAULT_RAPID_SECRETS)
                 }
             },
             RapidhashVersion::V2 { protected, version } => {
@@ -155,23 +154,23 @@ impl RapidhashVersion {
                 match version {
                     0 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_inline::<0, false, true>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<0, false, true>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         } else {
-                            rapidhash::v2::rapidhash_v2_inline::<0, false, false>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<0, false, false>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         }
                     }
                     1 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_inline::<1, false, true>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<1, false, true>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         } else {
-                            rapidhash::v2::rapidhash_v2_inline::<1, false, false>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<1, false, false>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         }
                     }
                     2 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_inline::<2, false, true>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<2, false, true>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         } else {
-                            rapidhash::v2::rapidhash_v2_inline::<2, false, false>(&buffer, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_inline::<2, false, false>(&buffer, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                         }
                     }
                     _ => {
@@ -181,10 +180,10 @@ impl RapidhashVersion {
             },
             RapidhashVersion::V3 { protected } => {
                 if *protected {
-                    rapidhash::v3::rapidhash_v3_file_inline::<_, true>(std::io::stdin(), rapidhash::v3::RAPID_SEED)
+                    rapidhash::v3::rapidhash_v3_file_inline::<_, true>(std::io::stdin(), &rapidhash::v3::DEFAULT_RAPID_SECRETS)
                         .expect("Could not read from stdin.")
                 } else {
-                    rapidhash::v3::rapidhash_v3_file_inline::<_, false>(std::io::stdin(), rapidhash::v3::RAPID_SEED)
+                    rapidhash::v3::rapidhash_v3_file_inline::<_, false>(std::io::stdin(), &rapidhash::v3::DEFAULT_RAPID_SECRETS)
                         .expect("Could not read from stdin.")
                 }
             },
@@ -195,10 +194,10 @@ impl RapidhashVersion {
         match self {
             RapidhashVersion::V1 { protected } => {
                 if *protected {
-                    rapidhash::v1::rapidhash_v1_file_inline::<true>(reader, rapidhash::v1::RAPID_SEED)
+                    rapidhash::v1::rapidhash_v1_file_inline::<true>(reader, &rapidhash::v1::DEFAULT_RAPID_SECRETS)
                         .expect("Failed to hash file.")
                 } else {
-                    rapidhash::v1::rapidhash_v1_file_inline::<false>(reader, rapidhash::v1::RAPID_SEED)
+                    rapidhash::v1::rapidhash_v1_file_inline::<false>(reader, &rapidhash::v1::DEFAULT_RAPID_SECRETS)
                         .expect("Failed to hash file.")
                 }
             },
@@ -206,28 +205,28 @@ impl RapidhashVersion {
                 match version {
                     0 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_file_inline::<0, true>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<0, true>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         } else {
-                            rapidhash::v2::rapidhash_v2_file_inline::<0, false>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<0, false>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         }
                     }
                     1 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_file_inline::<1, true>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<1, true>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         } else {
-                            rapidhash::v2::rapidhash_v2_file_inline::<1, false>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<1, false>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         }
                     }
                     2 => {
                         if *protected {
-                            rapidhash::v2::rapidhash_v2_file_inline::<2, true>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<2, true>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         } else {
-                            rapidhash::v2::rapidhash_v2_file_inline::<2, false>(reader, rapidhash::v2::RAPID_SEED)
+                            rapidhash::v2::rapidhash_v2_file_inline::<2, false>(reader, &rapidhash::v2::DEFAULT_RAPID_SECRETS)
                                 .expect("Failed to hash file.")
                         }
                     }
@@ -238,10 +237,10 @@ impl RapidhashVersion {
             },
             RapidhashVersion::V3 { protected} => {
                 if *protected {
-                    rapidhash::v3::rapidhash_v3_file_inline::<_, true>(reader, rapidhash::v3::RAPID_SEED)
+                    rapidhash::v3::rapidhash_v3_file_inline::<_, true>(reader, &rapidhash::v3::DEFAULT_RAPID_SECRETS)
                         .expect("Failed to hash file.")
                 } else {
-                    rapidhash::v3::rapidhash_v3_file_inline::<_, false>(reader, rapidhash::v3::RAPID_SEED)
+                    rapidhash::v3::rapidhash_v3_file_inline::<_, false>(reader, &rapidhash::v3::DEFAULT_RAPID_SECRETS)
                         .expect("Failed to hash file.")
                 }
             },

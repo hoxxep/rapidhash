@@ -1,6 +1,6 @@
 use core::hash::{BuildHasher, Hash, Hasher};
-use crate::inner::rapid_const::rapidhash_seed;
 use crate::inner::RapidHasher;
+use crate::inner::seed::rapidhash_seed;
 
 /// A [std::collections::hash_map::RandomState] compatible hasher that initializes the [RapidHasher]
 /// algorithm with a random seed.
@@ -76,7 +76,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
         RapidHasher::new_precomputed_seed(self.seed, self.secrets)
     }
 
-    #[inline]  // TODO: revisit this inlining level
+    #[inline]
     fn hash_one<T: Hash>(&self, x: T) -> u64
     where
         Self: Sized,

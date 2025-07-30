@@ -56,9 +56,9 @@ fn cli_versions() {
 
     let versions = [
         ("--v1", rapidhash_v1(input).to_string()),
-        ("--v2.0", rapidhash_v2_inline::<0, false, false>(input, 0).to_string()),
-        ("--v2.1", rapidhash_v2_inline::<1, false, false>(input, 0).to_string()),
-        ("--v2.2", rapidhash_v2_inline::<2, false, false>(input, 0).to_string()),
+        ("--v2.0", rapidhash_v2_inline::<0, false, false>(input, &rapidhash::v2::DEFAULT_RAPID_SECRETS).to_string()),
+        ("--v2.1", rapidhash_v2_inline::<1, false, false>(input, &rapidhash::v2::DEFAULT_RAPID_SECRETS).to_string()),
+        ("--v2.2", rapidhash_v2_inline::<2, false, false>(input, &rapidhash::v2::DEFAULT_RAPID_SECRETS).to_string()),
         ("--v3", rapidhash_v3(input).to_string()),
     ];
 

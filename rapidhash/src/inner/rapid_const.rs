@@ -1,23 +1,8 @@
 use crate::util::read::{read_u32, read_u64};
 use super::mix::{rapid_mix_np, rapid_mum_np};
 
-/// The rapidhash default seed.
-pub const RAPID_SEED: u64 = 0;
-
-/// The rapidhash default secret parameters.
-pub(super) const RAPID_SECRET: [u64; 7] = [
-    0x2d358dccaa6c78a5,
-    0x8bb84b93962eacc9,
-    0x4b33a62ed433d4a3,
-    0x4d5a2da51de1aa47,
-    0xa0761d6478bd642f,
-    0xe7037ed1a0b428db,
-    0x90ed1765281c388c,
-];
-
-/// A fixed constant used in the rapidhash algorithm that in some instruction sets can be in the
-/// assembly as a single instruction.
-pub(super) const RAPID_CONST: u64 = 0xaaaaaaaaaaaaaaaa;
+#[cfg(test)]
+use super::{DEFAULT_RAPID_SECRETS, RapidSecrets};
 
 /// Rapidhash a single byte stream, matching the C++ implementation, with the default seed.
 ///
@@ -25,7 +10,7 @@ pub(super) const RAPID_CONST: u64 = 0xaaaaaaaaaaaaaaaa;
 #[inline]
 #[cfg(test)]
 pub(crate) const fn rapidhash_rs(data: &[u8]) -> u64 {
-    rapidhash_rs_inline::<false, false>(data, RAPID_SEED)
+    rapidhash_rs_inline::<false, false>(data, &DEFAULT_RAPID_SECRETS)
 }
 
 /// Rapidhash a single byte stream, matching the C++ implementation, with a custom seed.
@@ -33,8 +18,8 @@ pub(crate) const fn rapidhash_rs(data: &[u8]) -> u64 {
 /// Fixed length inputs will greatly benefit from inlining with [rapidhash_rs_inline] instead.
 #[inline]
 #[cfg(test)]
-pub(crate) const fn rapidhash_rs_seeded(data: &[u8], seed: u64) -> u64 {
-    rapidhash_rs_inline::<false, false>(data, seed)
+pub(crate) const fn rapidhash_rs_seeded(data: &[u8], secrets: &RapidSecrets) -> u64 {
+    rapidhash_rs_inline::<false, false>(data, secrets)
 }
 
 /// Rapidhash a single byte stream, matching the C++ implementation.
@@ -43,22 +28,15 @@ pub(crate) const fn rapidhash_rs_seeded(data: &[u8], seed: u64) -> u64 {
 /// Can provide large performance uplifts for fixed-length inputs at compile time.
 #[inline(always)]
 #[cfg(test)]
-pub(crate) const fn rapidhash_rs_inline<const COMPACT: bool, const PROTECTED: bool>(data: &[u8], mut seed: u64) -> u64 {
-    seed = rapidhash_seed(seed);
-    let secrets = &RAPID_SECRET;
+pub(crate) const fn rapidhash_rs_inline<const COMPACT: bool, const PROTECTED: bool>(data: &[u8], secrets: &RapidSecrets) -> u64 {
+    let seed = secrets.seed;
+    let secrets = &secrets.secrets;
     rapidhash_core::<true, COMPACT, PROTECTED>(seed, secrets, data)
 }
 
 #[inline(always)]
 #[must_use]
-pub(super) const fn rapidhash_seed(seed: u64) -> u64 {
-    seed ^ rapid_mix_np::<false>(seed ^ RAPID_SECRET[2], RAPID_SECRET[1])
-}
-
-#[inline(always)]
-#[must_use]
 pub(super) const fn rapidhash_core<const AVALANCHE: bool, const COMPACT: bool, const PROTECTED: bool>(mut seed: u64, secrets: &[u64; 7], data: &[u8]) -> u64 {
-    // TODO: benchmark without the a,b XOR -- eg. a oneshot
     if data.len() <= 16 {
         let mut a = 0;
         let mut b = 0;
@@ -254,7 +232,7 @@ const fn rapidhash_finish<const AVALANCHE: bool, const PROTECTED: bool>(mut a: u
     if AVALANCHE {
         // we keep RAPID_CONST constant as the XOR 0xaa can be done in a single instruction on some
         // platforms, whereas it would require an additional load for a random secret.
-        rapid_mix_np::<PROTECTED>(a ^ RAPID_CONST ^ seed, b ^ secrets[1])
+        rapid_mix_np::<PROTECTED>(a ^ 0xaaaaaaaaaaaaaaaa ^ seed, b ^ secrets[1])
     } else {
         a ^ b
     }

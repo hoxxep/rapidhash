@@ -6,6 +6,14 @@ macro_rules! compare_to_c {
             use rand::Rng;
             use rapidhash_c::$cc_fn;
 
+            // test zero-length input
+            let rust_hash = $rust_fn(&[], &DEFAULT_RAPID_SECRETS);
+            let compact_hash = $compact_fn(&[], &DEFAULT_RAPID_SECRETS);
+            let c_hash = $cc_fn(&[], DEFAULT_SEED);
+            assert_eq!(rust_hash, c_hash, "Mismatch with C on zero len input");
+            assert_eq!(rust_hash, compact_hash, "Mismatch with COMPACT on zero len input");
+
+            // test up to 512 bytes
             for len in 0..=512 {
                 let mut data = std::vec![0; len];
                 rand::rng().fill(&mut data[..]);
@@ -15,9 +23,9 @@ macro_rules! compare_to_c {
                         let mut data = data.clone();
                         data[byte] ^= 1 << bit;
 
-                        let rust_hash = $rust_fn(&data, RAPID_SEED);
-                        let compact_hash = $compact_fn(&data, RAPID_SEED);
-                        let c_hash = $cc_fn(&data, RAPID_SEED);
+                        let rust_hash = $rust_fn(&data, &DEFAULT_RAPID_SECRETS);
+                        let compact_hash = $compact_fn(&data, &DEFAULT_RAPID_SECRETS);
+                        let c_hash = $cc_fn(&data, DEFAULT_SEED);
                         assert_eq!(rust_hash, c_hash, "Mismatch with C on input {} byte {} bit {}", len, byte, bit);
                         assert_eq!(rust_hash, compact_hash, "Mismatch with COMPACT on input {} byte {} bit {}", len, byte, bit);
                     }
@@ -40,12 +48,12 @@ macro_rules! flip_bit_trial {
                 let mut data = std::vec![0; len];
                 rand::rng().fill(&mut data[..]);
 
-                let hash = $hash(&data, RAPID_SEED);
+                let hash = $hash(&data, &DEFAULT_RAPID_SECRETS);
                 for byte in 0..len {
                     for bit in 0..8 {
                         let mut data = data.clone();
                         data[byte] ^= 1 << bit;
-                        let new_hash = $hash(&data, RAPID_SEED);
+                        let new_hash = $hash(&data, &DEFAULT_RAPID_SECRETS);
                         assert_ne!(hash, new_hash, "Flipping byte {} bit {} did not change hash for input len {}", byte, bit, len);
                         let xor = hash ^ new_hash;
                         let flipped = xor.count_ones() as u64;
@@ -67,19 +75,19 @@ macro_rules! compare_rapidhash_file {
         #[test]
         fn $test() {
             use rand::RngCore;
-    
+
             const LENGTH: usize = 1024;
             for len in 1..=LENGTH {
                 let mut data = vec![0u8; len];
                 rand::rng().fill_bytes(&mut data);
-    
+
                 let mut file = tempfile::tempfile().unwrap();
                 file.write_all(&data).unwrap();
                 file.seek(SeekFrom::Start(0)).unwrap();
-    
+
                 assert_eq!(
-                    $hash(&data, crate::v1::RAPID_SEED),
-                    $file(&mut file, crate::v1::RAPID_SEED).unwrap(),
+                    $hash(&data, &DEFAULT_RAPID_SECRETS),
+                    $file(&mut file, &DEFAULT_RAPID_SECRETS).unwrap(),
                     "Mismatch for input len: {}", &data.len()
                 );
             }
