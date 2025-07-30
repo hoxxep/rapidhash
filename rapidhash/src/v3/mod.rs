@@ -3,6 +3,8 @@
 mod rapid_const;
 #[cfg(any(feature = "std", docsrs))]
 mod rapid_file;
+#[cfg(any(feature = "portable", docsrs))]
+mod rapid_hasher;
 mod seed;
 
 #[doc(inline)]
@@ -13,7 +15,12 @@ pub use rapid_const::*;
 pub use rapid_file::*;
 
 #[doc(inline)]
+#[cfg(any(feature = "portable", docsrs))]
+pub use rapid_hasher::*;
+
+#[doc(inline)]
 pub use seed::*;
+
 
 #[cfg(test)]
 mod tests {

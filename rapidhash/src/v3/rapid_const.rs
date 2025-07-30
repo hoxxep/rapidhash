@@ -31,7 +31,7 @@ pub const fn rapidhash_v3_seeded(data: &[u8], secrets: &RapidSecrets) -> u64 {
 #[inline(always)]
 pub const fn rapidhash_v3_inline<const COMPACT: bool, const PROTECTED: bool>(data: &[u8], secrets: &RapidSecrets) -> u64 {
     let (a, b, _, remainder) = rapidhash_core::<COMPACT, PROTECTED>(0, 0, secrets, data);
-    rapidhash_finish::<PROTECTED>(a, b, remainder, secrets)
+    rapidhash_finish::<PROTECTED>(a, b, remainder, &secrets.secrets)
 }
 
 /// Rapidhash V3 Micro, a very compact version of the rapidhash algorithm.
@@ -46,9 +46,9 @@ pub const fn rapidhash_v3_inline<const COMPACT: bool, const PROTECTED: bool>(dat
 /// - `PROTECTED`: Slightly stronger hash quality and DoS resistance by performing two extra XOR
 ///     instructions on every mix step. Disabled by default.
 #[inline(always)]
-pub const fn rapidhash_v3_micro_inline<const PROTECTED: bool>(data: &[u8], seed: &RapidSecrets) -> u64 {
-    let (a, b, _, remainder) = rapidhash_micro_core::<PROTECTED>(0, 0, seed, data);
-    rapidhash_finish::<PROTECTED>(a, b, remainder, seed)
+pub const fn rapidhash_v3_micro_inline<const PROTECTED: bool>(data: &[u8], secrets: &RapidSecrets) -> u64 {
+    let (a, b, _, remainder) = rapidhash_micro_core::<PROTECTED>(0, 0, secrets, data);
+    rapidhash_finish::<PROTECTED>(a, b, remainder, &secrets.secrets)
 }
 
 /// Rapidhash V3 Nano, a very compact version of the rapidhash algorithm.
@@ -64,9 +64,9 @@ pub const fn rapidhash_v3_micro_inline<const PROTECTED: bool>(data: &[u8], seed:
 /// - `PROTECTED`: Slightly stronger hash quality and DoS resistance by performing two extra XOR
 ///     instructions on every mix step. Disabled by default.
 #[inline(always)]
-pub const fn rapidhash_v3_nano_inline<const PROTECTED: bool>(data: &[u8], seed: &RapidSecrets) -> u64 {
-    let (a, b, _, remainder) = rapidhash_nano_core::<PROTECTED>(0, 0, seed, data);
-    rapidhash_finish::<PROTECTED>(a, b, remainder, seed)
+pub const fn rapidhash_v3_nano_inline<const PROTECTED: bool>(data: &[u8], secrets: &RapidSecrets) -> u64 {
+    let (a, b, _, remainder) = rapidhash_nano_core::<PROTECTED>(0, 0, secrets, data);
+    rapidhash_finish::<PROTECTED>(a, b, remainder, &secrets.secrets)
 }
 
 #[inline(always)]
@@ -329,6 +329,6 @@ const fn rapidhash_nano_core<const PROTECTED: bool>(mut a: u64, mut b: u64, rapi
 }
 
 #[inline(always)]
-pub(super) const fn rapidhash_finish<const PROTECTED: bool>(a: u64, b: u64, remainder: u64, secrets: &RapidSecrets) -> u64 {
-    rapid_mix::<PROTECTED>(a ^ 0xaaaaaaaaaaaaaaaa, b ^ secrets.secrets[1] ^ remainder)
+pub(super) const fn rapidhash_finish<const PROTECTED: bool>(a: u64, b: u64, remainder: u64, secrets: &[u64; 7]) -> u64 {
+    rapid_mix::<PROTECTED>(a ^ 0xaaaaaaaaaaaaaaaa, b ^ secrets[1] ^ remainder)
 }

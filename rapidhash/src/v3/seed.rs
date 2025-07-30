@@ -119,7 +119,7 @@ impl RapidSecrets {
 }
 
 #[inline(always)]
-const fn rapidhash_seed(seed: u64) -> u64 {
+pub(super) const fn rapidhash_seed(seed: u64) -> u64 {
     seed ^ rapid_mix::<false>(seed ^ DEFAULT_SECRETS[2], DEFAULT_SECRETS[1])
 }
 
