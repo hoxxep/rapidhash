@@ -38,7 +38,7 @@ pub fn rapidhash_v3_file_seeded<R: Read>(data: R, secrets: &RapidSecrets) -> std
 pub fn rapidhash_v3_file_inline<R: Read, const PROTECTED: bool>(data: R, secrets: &RapidSecrets) -> std::io::Result<u64> {
     let mut reader = ChunkedStreamReader::new(data, 16);
     let (a, b, _, remainder) = rapidhash_file_core::<R, PROTECTED>(0, 0, secrets, &mut reader)?;
-    Ok(rapidhash_finish::<PROTECTED>(a, b, remainder, secrets))
+    Ok(rapidhash_finish::<PROTECTED>(a, b, remainder, &secrets.secrets))
 }
 
 #[inline(always)]

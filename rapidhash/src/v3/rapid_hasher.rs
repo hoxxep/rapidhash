@@ -1,6 +1,8 @@
 use portable_hash::{BuildPortableHasher, PortableHash, PortableHasher};
 use crate::util::mix::rapid_mix;
-use super::rapid_const::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID_SECRET, RAPID_SEED};
+use crate::v3::{DEFAULT_RAPID_SECRETS, DEFAULT_SEED};
+use crate::v3::seed::rapidhash_seed;
+use super::rapid_const::{rapidhash_core, rapidhash_finish};
 
 /// A [Hasher] trait compatible hasher that uses the [rapidhash](https://github.com/Nicoshev/rapidhash)
 /// algorithm, and uses `#[inline(always)]` for all methods.
@@ -27,7 +29,7 @@ use super::rapid_const::{rapidhash_core, rapidhash_finish, rapidhash_seed, RAPID
 #[repr(C)]
 pub struct RapidHasher<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool = false, const PROTECTED: bool = false> {
     seed: u64,
-    secrets: &'static [u64; 8],  // FUTURE: non-static secrets?
+    secrets: &'static [u64; 7],  // FUTURE: non-static secrets?
     sponge: u128,
     sponge_len: u8,
 }
@@ -52,7 +54,7 @@ pub struct RapidHasher<const AVALANCHE: bool, const SPONGE: bool, const COMPACT:
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct RapidBuildHasher<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool = false, const PROTECTED: bool = false> {
     seed: u64,
-    secrets: &'static [u64; 8],
+    secrets: &'static [u64; 7],
 }
 
 impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> RapidBuildHasher<AVALANCHE, SPONGE, COMPACT, PROTECTED> {
@@ -60,7 +62,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     #[inline]
     pub const fn new(mut seed: u64) -> Self {
         seed = rapidhash_seed(seed);
-        Self { seed, secrets: &RAPID_SECRET }
+        Self { seed, secrets: &DEFAULT_RAPID_SECRETS.secrets }
     }
 }
 
@@ -109,7 +111,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
 
 impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> RapidHasher<AVALANCHE, SPONGE, COMPACT, PROTECTED> {
     /// Default `RapidHasher` seed.
-    pub const DEFAULT_SEED: u64 = RAPID_SEED;
+    pub const DEFAULT_SEED: u64 = DEFAULT_SEED;
 
     /// Create a new [RapidHasher] with a custom seed.
     ///
@@ -120,12 +122,12 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     pub const fn new(mut seed: u64) -> Self {
         // do most of the rapidhash_seed initialisation here to avoid doing it on each int
         seed = rapidhash_seed(seed);
-        Self::new_precomputed_seed(seed, &RAPID_SECRET)
+        Self::new_precomputed_seed(seed, &DEFAULT_RAPID_SECRETS.secrets)
     }
 
     #[inline(always)]
     #[must_use]
-    pub(super) const fn new_precomputed_seed(seed: u64, secrets: &'static [u64; 8]) -> Self {
+    pub(super) const fn new_precomputed_seed(seed: u64, secrets: &'static [u64; 7]) -> Self {
         Self {
             seed,
             secrets,
@@ -156,9 +158,9 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
         );
 
         let mut this = *self;
-        // TOOD: use secrets
-        let (a, b, _, remainder) = rapidhash_core::<COMPACT, PROTECTED>(0, 0, this.seed, bytes);
-        this.seed = rapidhash_finish::<PROTECTED>(a, b, remainder);
+        // TODO: use secrets
+        let (a, b, _, remainder) = rapidhash_core::<COMPACT, PROTECTED>(0, 0, this.secrets, bytes);
+        this.seed = rapidhash_finish::<PROTECTED>(a, b, remainder, self.secrets);
         this
     }
 
@@ -243,7 +245,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     /// seed.
     #[inline(always)]
     fn default() -> Self {
-        Self::new(RAPID_SEED)
+        Self::new(Self::DEFAULT_SEED)
     }
 }
 
