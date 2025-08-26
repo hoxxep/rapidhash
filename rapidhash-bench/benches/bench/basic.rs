@@ -12,6 +12,7 @@ fn profile_bytes<H: BuildHasher + Default>(
     prefix: &str,
     group: &mut BenchmarkGroup<'_, WallTime>,
 ) {
+    let mut rng = rand::rng();  // rapidhash::rng::RapidRng::default();
     let name = format!("{prefix}_{bytes_len}");
     let build_hasher = H::default();
 
@@ -31,7 +32,7 @@ fn profile_bytes<H: BuildHasher + Default>(
     group.bench_function(&name, |b| {
         b.iter_batched_ref(|| {
             let mut slice = vec![0u8; bytes_len];
-            rand::rng().fill(slice.as_mut_slice());
+            rng.fill(slice.as_mut_slice());
             slice
         }, |bytes| {
             // hash_one seems to cause significant overhead for some hashers, likely related to
@@ -52,6 +53,7 @@ fn profile_int<H: BuildHasher + Default, I: Hash>(
 where
     StandardUniform: Distribution<I>,
 {
+    let mut rng = rapidhash::rng::RapidRng::default();
     let name = format!("{int_name}");
     let build_hasher = H::default();
 
@@ -59,7 +61,7 @@ where
     group.throughput(Throughput::Elements(1));
     group.bench_function(&name, |b| {
         b.iter_batched(
-            || rand::random::<I>(),
+            || rng.random::<I>(),
             |value| {
                 black_box(build_hasher.hash_one(black_box(value)))
             },
@@ -107,6 +109,7 @@ fn profile_bytes_raw<H: Fn(&[u8], u64) -> u64>(
     prefix: &str,
     group: &mut BenchmarkGroup<'_, WallTime>,
 ) {
+    let mut rng = rapidhash::rng::RapidRng::default();
     let name = format!("{prefix}_{bytes_len}");
     group.warm_up_time(std::time::Duration::from_millis(250));
     group.measurement_time(std::time::Duration::from_millis(2000));
@@ -127,7 +130,7 @@ fn profile_bytes_raw<H: Fn(&[u8], u64) -> u64>(
     group.bench_function(&name, |b| {
         b.iter_batched_ref(|| {
             let mut slice = vec![0u8; bytes_len];
-            rand::rng().fill(slice.as_mut_slice());
+            rng.fill(slice.as_mut_slice());
             slice
         }, |bytes| {
             black_box(hash(black_box(bytes), 0xbdd89aa982704029))  // using rapidhash V1 seed

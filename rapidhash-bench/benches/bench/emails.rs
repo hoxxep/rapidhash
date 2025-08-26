@@ -4,6 +4,7 @@ use rand::distr::{Alphanumeric, SampleString};
 use rand::distr::weighted::WeightedIndex;
 use rand::prelude::Distribution;
 use wyhash::WyHash;
+use rapidhash::rng::RapidRng;
 
 pub fn bench(c: &mut Criterion) {
     let groups: &[(
@@ -34,7 +35,7 @@ pub fn bench(c: &mut Criterion) {
 }
 
 fn sample_emails(count: usize) -> Vec<String> {
-    let mut rng = rand::rng();
+    let mut rng = RapidRng::default();
 
     // weights roughly estimated from https://atdata.com/blog/long-email-addresses/
     let weights = [

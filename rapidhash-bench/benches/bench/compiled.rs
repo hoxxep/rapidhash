@@ -2,6 +2,7 @@ use const_random::const_random;
 use criterion::{Bencher, Criterion};
 use rand::prelude::*;
 use rapidhash::RapidHashMap;
+use rapidhash::rng::RapidRng;
 use rapidhash::v3::rapidhash_v3;
 
 /// Benchmark approaches for matching bytes against compile-time known values.
@@ -113,21 +114,22 @@ const HASHES: [u64; INPUT_COUNT] = {
 };
 
 const MISMATCH_PCT: u8 = 20;
-fn random_input() -> [u8; INPUT_LEN] {
+fn random_input(rng: &mut impl Rng) -> [u8; INPUT_LEN] {
     let mismatch_branch = rand::rng().random_range(0..100);
     if mismatch_branch < MISMATCH_PCT {
         let mut buffer = [0u8; INPUT_LEN];
-        rand::rng().fill(&mut buffer);
+        rng.fill(&mut buffer);
         buffer
     } else {
-        *INPUTS.choose(&mut rand::rng()).unwrap()
+        *INPUTS.choose(rng).unwrap()
     }
 }
 
 pub fn bench_match_hash() -> Box<dyn FnMut(&mut Bencher)> {
+    let mut rng = RapidRng::default();
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
-            random_input().to_vec()
+            random_input(&mut rng).to_vec()
         }, |i: &mut Vec<u8>| {
             let hash = rapidhash_v3(i.as_slice());
             match hash {
@@ -179,9 +181,10 @@ pub fn bench_match_hash() -> Box<dyn FnMut(&mut Bencher)> {
 }
 
 pub fn bench_match_slice() -> Box<dyn FnMut(&mut Bencher)> {
+    let mut rng = RapidRng::default();
     Box::new(move |b: &mut Bencher| {
         b.iter_batched_ref(|| {
-            random_input().to_vec()
+            random_input(&mut rng).to_vec()
         }, |i: &mut Vec<u8>| {
             match i.as_slice() {
                 h if h == &INPUTS[0] => const_random!(u64),
@@ -233,6 +236,7 @@ pub fn bench_match_slice() -> Box<dyn FnMut(&mut Bencher)> {
 
 /// This is equivalent to using lazy_static to initialize a hashmap at runtime.
 pub fn bench_hashmap_get() -> Box<dyn FnMut(&mut Bencher)> {
+    let mut rng = RapidRng::default();
     Box::new(move |b: &mut Bencher| {
         let hashmap: RapidHashMap<Vec<u8>, u64> = INPUTS
             .into_iter()
@@ -241,7 +245,7 @@ pub fn bench_hashmap_get() -> Box<dyn FnMut(&mut Bencher)> {
             .collect();
 
         b.iter_batched_ref(|| {
-            random_input().to_vec()
+            random_input(&mut rng).to_vec()
         }, |i: &mut Vec<u8>| {
             *hashmap.get(i.as_slice()).unwrap_or(&const_random!(u64))
         }, criterion::BatchSize::SmallInput);

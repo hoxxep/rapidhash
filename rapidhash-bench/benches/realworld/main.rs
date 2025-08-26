@@ -14,6 +14,7 @@ const NUM_PRECOMPUTED_KEYS: usize = 1024;
 mod distribution;
 
 use distribution::Distribution;
+use rapidhash::rng::RapidRng;
 
 fn profile_hashonly<S: BuildHasher + Default, D: Distribution>(
     hash_name: &str,
@@ -21,7 +22,7 @@ fn profile_hashonly<S: BuildHasher + Default, D: Distribution>(
     c: &mut BenchmarkGroup<'_, WallTime>,
 ) {
     let name = format!("hashonly-{}-{hash_name}", distr.name().to_lowercase());
-    let mut rng = StdRng::seed_from_u64(RNG_SEED);
+    let mut rng = RapidRng::seed_from_u64(RNG_SEED);
 
     let hasher = S::default();
 
@@ -48,7 +49,7 @@ fn profile_lookup_hit<S: BuildHasher + Default, D: Distribution>(
     c: &mut BenchmarkGroup<'_, WallTime>,
 ) {
     let name = format!("lookuphit-{}-{hash_name}", distr.name().to_lowercase());
-    let mut rng = StdRng::seed_from_u64(RNG_SEED);
+    let mut rng = RapidRng::seed_from_u64(RNG_SEED);
 
     c.bench_function(&name, |b| {
         b.iter_custom(|iters| {
@@ -84,7 +85,7 @@ fn profile_lookup_miss<S: BuildHasher + Default, D: Distribution>(
     c: &mut BenchmarkGroup<'_, WallTime>,
 ) {
     let name = format!("lookupmiss-{}-{hash_name}", distr.name().to_lowercase());
-    let mut rng = StdRng::seed_from_u64(RNG_SEED);
+    let mut rng = RapidRng::seed_from_u64(RNG_SEED);
 
     c.bench_function(&name, |b| {
         b.iter_custom(|iters| {
@@ -119,7 +120,7 @@ fn profile_set_build<S: BuildHasher + Default, D: Distribution>(
     c: &mut BenchmarkGroup<'_, WallTime>,
 ) {
     let name = format!("setbuild-{}-{hash_name}", distr.name().to_lowercase());
-    let mut rng = StdRng::seed_from_u64(RNG_SEED);
+    let mut rng = RapidRng::seed_from_u64(RNG_SEED);
 
     c.bench_function(&name, |b| {
         b.iter_custom(|iters| {
