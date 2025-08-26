@@ -12,7 +12,7 @@ harness = false
 
 [dependencies]
 rapidhash = { path = "../rapidhash", default-features = false }
-foldhash = "0.1.5"
+foldhash = "0.2.0"
 fxhash = "0.2.1"
 
 [dev-dependencies]
