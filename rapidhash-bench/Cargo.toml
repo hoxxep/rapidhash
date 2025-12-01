@@ -54,7 +54,7 @@ foldhash = "0.2.0"
 museair = "0.4.0"
 
 # benchmarking helpers
-criterion = { version = "0.7.0", default-features = false, features = ["rayon", "cargo_bench_support"] }
+criterion = { version = "0.8.0", default-features = false, features = ["rayon", "cargo_bench_support"] }
 iai-callgrind = "0.16.0"
 rand = "0.9.0"
 rand_core = "0.9.0"

@@ -19,7 +19,7 @@ foldhash = "0.2"
 fxhash = "0.2.1"
 
 [dev-dependencies]
-criterion = { version = "0.7.0", default-features = false, features = ["rayon", "cargo_bench_support"] }
+criterion = { version = "0.8.0", default-features = false, features = ["rayon", "cargo_bench_support"] }
 wasmtime = "39.0.1"
 
 [lints]
