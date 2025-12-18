@@ -2,7 +2,7 @@ use core::hash::BuildHasher;
 use crate::inner::RapidHasher;
 use crate::inner::seeding::secrets::GlobalSecrets;
 
-/// A `std::hash::BuildHasher` trait compatible hasher that uses the [RapidHasher] algorithm
+/// A `std::hash::BuildHasher` trait compatible hasher that uses the [`RapidHasher`] algorithm
 /// with a global seed and secrets.
 ///
 /// The global secrets are randomized on the first instantiation, and then every subsequent instance
@@ -10,18 +10,18 @@ use crate::inner::seeding::secrets::GlobalSecrets;
 /// duration of the program.
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub struct GlobalState<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> {
-    /// The global secrets is a zero-sized type to keep HashMap<K, V, RandomState> small.
+    /// The global secrets is a zero-sized type to keep `HashMap<K, V, RandomState>` small.
     secrets: GlobalSecrets,
 }
 
 impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> GlobalState<AVALANCHE, SPONGE, COMPACT, PROTECTED> {
     /// Create a new global state with a global seed and secrets.
     ///
-    /// The seed and secrets will be randomised on the first instantiation of `GlobalState`, but all
+    /// The seed and secrets will be randomized on the first instantiation of `GlobalState`, but all
     /// subsequent instances will share the same seed and secrets.
     ///
     /// On platforms that do not support atomic pointers, the secrets will be the default rapidhash
-    /// secrets, which are not randomised. Therefore, **targets without atomic pointer support will
+    /// secrets, which are not randomized. Therefore, **targets without atomic pointer support will
     /// not have minimal HashDoS resistance guarantees**.
     #[inline]
     pub fn new() -> Self {
@@ -31,7 +31,7 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     }
 }
 
-/// Warning that `GlobalState` only randomises the seed on platforms that support atomic pointers.
+/// Warning that `GlobalState` only randomizes the seed on platforms that support atomic pointers.
 impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> Default for GlobalState<AVALANCHE, SPONGE, COMPACT, PROTECTED> {
     #[inline]
     fn default() -> Self {
