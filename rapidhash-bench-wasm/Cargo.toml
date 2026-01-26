@@ -20,7 +20,7 @@ fxhash = "0.2.1"
 
 [dev-dependencies]
 criterion = { version = "0.8.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
-wasmtime = "40.0.0"
+wasmtime = "41.0.0"
 
 [lints]
 workspace = true
