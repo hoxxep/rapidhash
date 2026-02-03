@@ -33,7 +33,7 @@ unsafe = []  # enable unsafe pointer arithmetic; this is used to check for bound
 [dependencies]
 rustversion = "1.0"
 rand = { version = "0.9", optional = true }
-rand_core = { version = "0.9", default-features = false, optional = true }
+rand_core = { version = "0.10", default-features = false, optional = true }
 
 [dev-dependencies]
 rapidhash-c = { path = "../rapidhash-c" }
