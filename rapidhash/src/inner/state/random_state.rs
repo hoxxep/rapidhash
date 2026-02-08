@@ -29,7 +29,7 @@ use crate::inner::seeding::secrets::GlobalSecrets;
 /// let mut map = HashMap::with_hasher(RandomState::default());
 /// map.insert(42, "the answer");
 /// ```
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub struct RandomState<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTECTED: bool> {
     seed: u64,
 
