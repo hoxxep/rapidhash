@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.3.0 (20260208)
+
+### Additions
+- Implemented `Debug` on `RandomState`, `GlobalState`, and `SeedableState`. (@anp in #78 and @hoxxep in #79)
+
 ## 4.2.2 (20260205)
 
 ### Fixes
