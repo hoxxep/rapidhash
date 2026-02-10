@@ -8,7 +8,7 @@ publish = false
 libc = "1.0.0-alpha.1"
 
 [dev-dependencies]
-rand = "0.9.1"
+rand = "0.10.0"
 hex = "0.4.3"
 
 [build-dependencies]
