@@ -64,7 +64,7 @@ pub type RapidStreamHasherV3<'a> = RapidStreamHasherInlineV3<'a, true, false>;
 pub struct RapidStreamHasherInlineV3<'a, const AVALANCHE: bool, const PROTECTED: bool> {
     seed: u64,
     secrets: &'a [u64; 7],
-    state: RapidStreamChunkState,
+    state: RapidStreamChunkState<PROTECTED>,
 
     /// We treat this as an array with two parts, `[CHUNK_PREV] + [CHUNK]` where
     /// the `CHUNK_PREV` is the final 16 bytes of the preceding chunk, and
@@ -83,7 +83,7 @@ const CHUNK_PREV: usize = 16;
 /// The intermediate hasher state for any full 112-byte chunks that have been written.
 ///
 /// This is separated to allow mutably borrowing the state and buffer at the same time.
-struct RapidStreamChunkState {
+struct RapidStreamChunkState<const PROTECTED: bool> {
     seeds: [u64; 7],
     /// `buffer_len` **excludes** the `CHUNK_PREV` bytes
     buffer_len: usize,
@@ -118,15 +118,15 @@ impl<'a, const AVALANCHE: bool, const PROTECTED: bool> RapidStreamHasherInlineV3
         let end = start + data.len();
         self.buffer[start..end].copy_from_slice(data);
         self.state.buffer_len += data.len();
-        return;
     }
 
     /// Write cold path that we keep separate so the copy logic is fast.
     #[inline]
     fn write_inner(&mut self, data: &[u8]) {
         // set up arrays: chunk_prev as buffer[..16] and chunk_buffer as buffer[16..]
-        let (chunk_prev, chunk_curr) = self.buffer.split_first_chunk_mut::<CHUNK_PREV>().unwrap();
-        let chunk_buffer = chunk_curr.first_chunk_mut::<CHUNK_SIZE>().unwrap();
+        let (chunk_prev, chunk_curr) = self.buffer.split_at_mut(CHUNK_PREV);
+        let chunk_prev: &mut [u8; CHUNK_PREV] = chunk_prev.try_into().unwrap();
+        let chunk_buffer: &mut [u8; CHUNK_SIZE] = chunk_curr.try_into().unwrap();
 
         // write buffer up to 112 bytes
         let copy_bytes = CHUNK_SIZE - self.state.buffer_len;
@@ -169,7 +169,8 @@ impl<'a, const AVALANCHE: bool, const PROTECTED: bool> RapidStreamHasherInlineV3
 
     /// Finalize a hash from the hasher state.
     #[inline(always)]
-    pub fn finish(&mut self) -> u64 {
+    #[must_use]
+    pub fn finish(&self) -> u64 {
         let mut seed = self.seed;
         let mut a;
         let mut b;
@@ -261,7 +262,7 @@ impl<'a, const AVALANCHE: bool, const PROTECTED: bool> RapidStreamHasherInlineV3
     }
 }
 
-impl RapidStreamChunkState {
+impl<const PROTECTED: bool> RapidStreamChunkState<PROTECTED> {
     #[inline(always)]
     pub fn new(seed: u64) -> Self {
         Self {
@@ -275,13 +276,13 @@ impl RapidStreamChunkState {
     #[inline(always)]
     fn chunk_write(&mut self, secrets: &[u64; 7], chunk: &[u8; 112]) {
         let slice = chunk.as_slice();
-        self.seeds[0] = rapid_mix::<false>(read_u64(slice, 0) ^ secrets[0], read_u64(slice, 8) ^ self.seeds[0]);
-        self.seeds[1] = rapid_mix::<false>(read_u64(slice, 16) ^ secrets[1], read_u64(slice, 24) ^ self.seeds[1]);
-        self.seeds[2] = rapid_mix::<false>(read_u64(slice, 32) ^ secrets[2], read_u64(slice, 40) ^ self.seeds[2]);
-        self.seeds[3] = rapid_mix::<false>(read_u64(slice, 48) ^ secrets[3], read_u64(slice, 56) ^ self.seeds[3]);
-        self.seeds[4] = rapid_mix::<false>(read_u64(slice, 64) ^ secrets[4], read_u64(slice, 72) ^ self.seeds[4]);
-        self.seeds[5] = rapid_mix::<false>(read_u64(slice, 80) ^ secrets[5], read_u64(slice, 88) ^ self.seeds[5]);
-        self.seeds[6] = rapid_mix::<false>(read_u64(slice, 96) ^ secrets[6], read_u64(slice, 104) ^ self.seeds[6]);
+        self.seeds[0] = rapid_mix::<PROTECTED>(read_u64(slice, 0) ^ secrets[0], read_u64(slice, 8) ^ self.seeds[0]);
+        self.seeds[1] = rapid_mix::<PROTECTED>(read_u64(slice, 16) ^ secrets[1], read_u64(slice, 24) ^ self.seeds[1]);
+        self.seeds[2] = rapid_mix::<PROTECTED>(read_u64(slice, 32) ^ secrets[2], read_u64(slice, 40) ^ self.seeds[2]);
+        self.seeds[3] = rapid_mix::<PROTECTED>(read_u64(slice, 48) ^ secrets[3], read_u64(slice, 56) ^ self.seeds[3]);
+        self.seeds[4] = rapid_mix::<PROTECTED>(read_u64(slice, 64) ^ secrets[4], read_u64(slice, 72) ^ self.seeds[4]);
+        self.seeds[5] = rapid_mix::<PROTECTED>(read_u64(slice, 80) ^ secrets[5], read_u64(slice, 88) ^ self.seeds[5]);
+        self.seeds[6] = rapid_mix::<PROTECTED>(read_u64(slice, 96) ^ secrets[6], read_u64(slice, 104) ^ self.seeds[6]);
         self.processed = true;
     }
 
@@ -300,7 +301,9 @@ mod tests {
     use crate::v3::{rapidhash_v3_inline, DEFAULT_RAPID_SECRETS};
     use super::*;
 
-    compare_rapid_stream_hasher!(compare_stream_hasher_v3, rapidhash_v3_inline::<true, false, false>, RapidStreamHasherV3);
+    compare_rapid_stream_hasher!(compare_stream_hasher_v3, rapidhash_v3_inline::<true, false, false>, RapidStreamHasherV3<'a>);
+    compare_rapid_stream_hasher!(compare_stream_hasher_v3_protected, rapidhash_v3_inline::<true, false, true>, RapidStreamHasherInlineV3::<'a, true, true>);
+    compare_rapid_stream_hasher!(compare_stream_hasher_v3_no_avalanche, rapidhash_v3_inline::<false, false, false>, RapidStreamHasherInlineV3::<'a, false, false>);
 
     #[test]
     fn test_rapid_stream_hasher() {

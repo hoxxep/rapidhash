@@ -122,11 +122,13 @@ macro_rules! compare_rapidhash_file {
 }
 
 macro_rules! compare_rapid_stream_hasher {
-    ($test:ident, $hash:path, $hasher:ident) => {
+    ($test:ident, $hash:path, $hasher:path) => {
         #[test]
         fn $test() {
             extern crate alloc;
             use rand::RngCore;
+
+            type H<'a> = $hasher;
 
             // test every length and every chunking size for the stream hasher
             for len in 0..1024 {
@@ -135,7 +137,7 @@ macro_rules! compare_rapid_stream_hasher {
 
                 let expected_hash = $hash(&data, &DEFAULT_RAPID_SECRETS);
 
-                let mut hasher = $hasher::new(&DEFAULT_RAPID_SECRETS);
+                let mut hasher = H::new(&DEFAULT_RAPID_SECRETS);
 
                 for chunk_size in 1..512 {
                     for chunk in data.chunks(chunk_size) {
