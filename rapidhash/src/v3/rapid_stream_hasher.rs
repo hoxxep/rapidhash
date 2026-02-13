@@ -192,7 +192,7 @@ impl<'a, const AVALANCHE: bool, const PROTECTED: bool> RapidStreamHasherInlineV3
                     a = read_u32(data, 0) as u64;
                     b = read_u32(data, plast) as u64;
                 }
-            } else if data.len() > 0 {
+            } else if !data.is_empty() {
                 a = ((data[0] as u64) << 45) | data[data.len() - 1] as u64;
                 b = data[data.len() >> 1] as u64;
             } else {
