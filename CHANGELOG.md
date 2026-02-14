@@ -6,7 +6,7 @@
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
 - Upgrade `rand` and `rand_core` to v0.10.
 
-## Unreleased for 4.4.0 (20260213)
+## 4.4.0 (20260214)
 
 ### Additions
 - Added `v3::RapidStreamHasherV3`, an incremental streaming hasher with a `write`/`finish` API that mirrors `std::hash::Hasher`. It deliberately does not implement `Hasher` directly, ensuring hash output remains stable and portable across platforms and compiler versions. Multiple calls to `write` will produce the same hash as a single call to `rapidhash_v3` with the concatenated input.
