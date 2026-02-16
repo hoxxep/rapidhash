@@ -1,5 +1,19 @@
 # Changelog
 
+## Planned for 5.0.0
+- Add a lifetime to `RapidSecrets` and make the `secrets` field a reference to avoid the copy.
+- Remove `Copy` from State types (eg. `RandomState`) to match the `std` hasher API.
+- Make the `rapidhash_v3_file_inline` buffer size configurable.
+- Upgrade `rand` and `rand_core` to v0.10.
+
+## 4.4.0 (20260214)
+
+### Additions
+- Added `v3::RapidStreamHasherV3`, an incremental streaming hasher with a `write`/`finish` API that mirrors `std::hash::Hasher`. It deliberately does not implement `Hasher` directly, ensuring hash output remains stable and portable across platforms and compiler versions. Multiple calls to `write` will produce the same hash as a single call to `rapidhash_v3` with the concatenated input.
+
+### Performance
+- `rapidhash_v3_file` now uses `RapidStreamHasherV3` internally, replacing the old `ChunkedStreamReader` and significantly improving throughput by avoiding redundant buffer copies for large chunks.
+
 ## 4.3.0 (20260208)
 
 ### Additions

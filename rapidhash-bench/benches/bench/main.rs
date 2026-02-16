@@ -5,6 +5,7 @@ mod emails;
 mod rng;
 mod compiled;
 mod state;
+mod streaming;
 
 criterion_group!(
     benches,
@@ -13,5 +14,6 @@ criterion_group!(
     rng::bench,
     compiled::bench,
     state::bench,
+    streaming::bench,
 );
 criterion_main!(benches);
