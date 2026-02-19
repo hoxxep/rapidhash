@@ -1,9 +1,10 @@
 use criterion::{criterion_group, criterion_main};
 
 mod basic;
+mod compiled;
 mod emails;
 mod rng;
-mod compiled;
+mod seed_path;
 mod state;
 mod streaming;
 
@@ -13,6 +14,7 @@ criterion_group!(
     emails::bench,
     rng::bench,
     compiled::bench,
+    seed_path::bench,
     state::bench,
     streaming::bench,
 );

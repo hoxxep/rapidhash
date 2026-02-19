@@ -23,9 +23,9 @@ pub use seed::*;
 mod tests {
     extern crate std;
 
-    use rand::Rng;
-    use crate::util::macros::{compare_to_c, flip_bit_trial};
     use super::*;
+    use crate::util::macros::{compare_to_c, flip_bit_trial};
+    use rand::Rng;
 
     flip_bit_trial!(flip_bit_trial_v3, rapidhash_v3_inline::<true, false, false>);
     flip_bit_trial!(flip_bit_trial_v3_micro, rapidhash_v3_micro_inline::<true, false>);
@@ -33,6 +33,43 @@ mod tests {
     compare_to_c!(compare_to_c_v3, rapidhash_v3_inline::<true, false, false>, rapidhash_v3_inline::<true, true, false>, rapidhashcc_v3);
     compare_to_c!(compare_to_c_v3_micro, rapidhash_v3_micro_inline::<true, false>, rapidhash_v3_micro_inline::<true, false>, rapidhashcc_v3_micro);
     compare_to_c!(compare_to_c_v3_nano, rapidhash_v3_nano_inline::<true, false>, rapidhash_v3_nano_inline::<true, false>, rapidhashcc_v3_nano);
+
+    #[test]
+    fn with_seed_zero_matches_unseeded_v3() {
+        let mut rng = rand::rng();
+        for len in 0..=2048 {
+            let mut data = std::vec![0; len];
+            rng.fill(&mut data[..]);
+            assert_eq!(rapidhash_v3_with_seed(&data, 0), rapidhash_v3(&data), "Mismatch on len {len}");
+        }
+    }
+
+    #[test]
+    fn with_seed_matches_seed_cpp_path() {
+        let mut rng = rand::rng();
+        let mut seed_corpus = std::vec![
+            0,
+            1,
+            2,
+            3,
+            0x0123_4567_89ab_cdef,
+            0xfedc_ba98_7654_3210,
+            u64::MAX,
+        ];
+        for _ in 0..64 {
+            seed_corpus.push(rng.random());
+        }
+
+        for len in 0..=512 {
+            let mut data = std::vec![0; len];
+            rng.fill(&mut data[..]);
+            for seed in &seed_corpus {
+                let expected = rapidhash_v3_seeded(&data, &RapidSecrets::seed_cpp(*seed));
+                let actual = rapidhash_v3_with_seed(&data, *seed);
+                assert_eq!(actual, expected, "Mismatch on len {len} seed {seed}");
+            }
+        }
+    }
 
     /// Compare the main rapidhash version matches micro (80 btyes) and nano (48 bytes) up to
     /// the expected length.

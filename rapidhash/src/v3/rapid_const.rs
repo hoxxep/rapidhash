@@ -19,6 +19,20 @@ pub const fn rapidhash_v3_seeded(data: &[u8], secrets: &RapidSecrets) -> u64 {
     rapidhash_v3_inline::<true, false, false>(data, secrets)
 }
 
+/// Rapidhash V3 with a custom seed and default C++-compatible secrets.
+///
+/// This is equivalent to:
+/// `rapidhash_v3_seeded(data, &RapidSecrets::seed_cpp(seed))`.
+///
+/// For `seed = 0`, this outputs the same hash as [`rapidhash_v3`].
+///
+/// This API matches the C reference `rapidhash_withSeed(data, len, seed)` call pattern.
+#[inline(always)]
+pub const fn rapidhash_v3_with_seed(data: &[u8], seed: u64) -> u64 {
+    let premixed_seed = seed ^ rapid_mix::<false>(seed ^ DEFAULT_RAPID_SECRETS.secrets[2], DEFAULT_RAPID_SECRETS.secrets[1]);
+    rapidhash_core::<true, false, false>(premixed_seed, &DEFAULT_RAPID_SECRETS.secrets, data)
+}
+
 /// Rapidhash V3 a single byte stream, matching the C++ implementation.
 ///
 /// Is marked with `#[inline(always)]` to force the compiler to inline and optimize the method.

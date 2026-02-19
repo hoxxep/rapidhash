@@ -45,7 +45,7 @@ assert_eq!(hasher.hash_one(b"hello world"), 3348275917668072623);
 Fully compatible with the C++ rapidhash algorithms. Methods are provided for all rapidhash V1, V2, and V3 (with micro/nano) variants. These are stable functions whose output will not change between crate versions.
 
 ```rust
-use rapidhash::v3::{rapidhash_v3_seeded, rapidhash_v3_file_seeded, RapidSecrets, RapidStreamHasherV3};
+use rapidhash::v3::{rapidhash_v3_seeded, rapidhash_v3_with_seed, rapidhash_v3_file_seeded, RapidSecrets, RapidStreamHasherV3};
 
 /// Set your global hashing secrets.
 /// - For HashDoS resistance, choose a randomized secret.
@@ -54,6 +54,7 @@ const SECRETS: RapidSecrets = RapidSecrets::seed(0x123456);
 
 // Bulk: hash a complete byte slice.
 let bulk = rapidhash_v3_seeded(b"hello world", &SECRETS);
+let bulk_cpp_seed = rapidhash_v3_with_seed(b"hello world", 1234);
 
 // Stream: write chunks of any size, same output regardless of chunk boundaries.
 let mut hasher = RapidStreamHasherV3::new(&SECRETS);
