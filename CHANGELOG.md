@@ -1,10 +1,16 @@
 # Changelog
 
 ## Planned for 5.0.0
-- Add a lifetime to `RapidSecrets` and make the `secrets` field a reference to avoid the copy.
 - Remove `Copy` from State types (eg. `RandomState`) to match the `std` hasher API.
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
 - Upgrade `rand` and `rand_core` to v0.10.
+- Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
+
+## 4.4.1 (20260220)
+
+### Performance
+- Marked simple `RapidSecrets` constructors as `#[inline(always)]`.
+- Mark `get_secrets` as `#[inline(always)]` in `seeding.rs`.
 
 ## 4.4.0 (20260214)
 
