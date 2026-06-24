@@ -94,6 +94,9 @@ mod tests {
 
     #[test]
     fn test_hashmap_size() {
+        #[cfg(target_pointer_width = "64")]
         assert_eq!(core::mem::size_of::<RapidHashMap<u64, u64>>(), 40);
+        #[cfg(target_pointer_width = "32")]
+        assert_eq!(core::mem::size_of::<RapidHashMap<u64, u64>>(), 24);
     }
 }

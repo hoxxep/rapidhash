@@ -62,6 +62,19 @@ mod tests {
     }
 
     /// `#[derive(Hash)]` writes a length prefix first, check understanding.
+    ///
+    /// Cfg gated as this test's expected values are set correctly for platforms that:
+    /// - Use the 128-bit multiply path
+    /// - Are little endian
+    #[cfg(any(
+        all(
+            target_pointer_width = "64",
+            not(any(target_arch = "sparc64", target_arch = "wasm64")),
+        ),
+        target_arch = "aarch64",
+        target_arch = "x86_64",
+        all(target_family = "wasm", target_feature = "wide-arithmetic"),
+    ))]
     #[cfg(target_endian = "little")]
     #[test]
     fn derive_hash_works() {
@@ -226,6 +239,18 @@ mod tests {
     }
 
     /// Compare to the C rapidhash implementation to ensure we match perfectly.
+    ///
+    /// Only where the Rust code doesn't go through 32-bit fast paths, or on little-endian platforms
+    /// as we're not looking at a portable/stable hasher here.
+    #[cfg(any(
+        all(
+            target_pointer_width = "64",
+            not(any(target_arch = "sparc64", target_arch = "wasm64")),
+        ),
+        target_arch = "aarch64",
+        target_arch = "x86_64",
+        all(target_family = "wasm", target_feature = "wide-arithmetic"),
+    ))]
     #[cfg(target_endian = "little")]
     #[test]
     fn compare_to_c() {

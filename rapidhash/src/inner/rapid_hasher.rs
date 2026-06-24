@@ -214,7 +214,10 @@ mod tests {
 
     #[test]
     fn test_hasher_size() {
+        #[cfg(target_pointer_width = "64")]
         assert_eq!(core::mem::size_of::<RapidHasher::<true, true, false, false>>(), 48);
+        #[cfg(target_pointer_width = "32")]
+        assert_eq!(core::mem::size_of::<RapidHasher::<true, true, false, false>>(), 32);
     }
 
     /// Test that writing a single u64 outputs the same as writing the equivalent bytes.

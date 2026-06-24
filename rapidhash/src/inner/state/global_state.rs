@@ -64,9 +64,12 @@ mod tests {
     type GlobalState = super::GlobalState<false, true, false, false>;
 
     #[test]
-    fn test_global_state() {
+    fn test_global_state_size() {
         assert_eq!(core::mem::size_of::<GlobalState>(), 0);
+    }
 
+    #[test]
+    fn test_global_state() {
         let state1 = GlobalState::new();
         let state2 = GlobalState::new();
 
