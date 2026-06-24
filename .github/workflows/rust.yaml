@@ -77,6 +77,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: i686-unknown-linux-gnu
+      - name: Install 32-bit C/C++ toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib g++-multilib
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
       - name: Compile and run tests (no_std)
