@@ -9,7 +9,7 @@ jobs:
     environment: crates.io
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
       - name: Install cargo-get
         run: cargo install cargo-get
       - name: Check git tag and crate version match

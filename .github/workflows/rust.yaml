@@ -14,7 +14,7 @@ jobs:
     name: "Test (std)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -25,7 +25,7 @@ jobs:
     name: "Test (no-std)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -36,7 +36,7 @@ jobs:
     name: "Test (unsafe)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -47,7 +47,7 @@ jobs:
     name: "Test (nightly, all features)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
@@ -60,7 +60,7 @@ jobs:
     name: "Test (nightly, no-std)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: nightly
@@ -73,7 +73,7 @@ jobs:
     name: "Test (32-bit)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
         with:
           target: i686-unknown-linux-gnu
@@ -92,7 +92,7 @@ jobs:
     env:
       RUST_VERSION: 1.71.0
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
       - name: Install Rust (rustup, ${{ env.RUST_VERSION }})
@@ -109,7 +109,7 @@ jobs:
     name: "Test (C implementations)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -120,7 +120,7 @@ jobs:
     name: "Test (docs)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -132,7 +132,7 @@ jobs:
     name: "Build (wasm)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
@@ -146,7 +146,7 @@ jobs:
     name: "Build (no atomics)"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
