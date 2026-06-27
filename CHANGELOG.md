@@ -6,6 +6,12 @@
 - Upgrade `rand` and `rand_core` to v0.10.
 - Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
 
+## 4.4.2 (20260627)
+
+### Fixes
+- Fixed documentation errors across the codebase.
+- Fixed unit tests on 32-bit platforms. No library or CLI code changes were required.
+
 ## 4.4.1 (20260220)
 
 ### Performance
