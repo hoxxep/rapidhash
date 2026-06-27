@@ -1,6 +1,6 @@
 //! Reliable seeding and secrets generation for the hash functions.
 
-// Allow dead code as we don't export the unstable rapidhash_rs or the RapidSecrets asa they aren't
+// Allow dead code as we don't export the unstable rapidhash_rs or the RapidSecrets as they aren't
 // used in the RapidHasher API yet.
 #![allow(dead_code)]
 
@@ -37,8 +37,9 @@ pub const DEFAULT_RAPID_SECRETS: RapidSecrets = RapidSecrets::seed_cpp(DEFAULT_S
 /// `seed` method is marked `const` to also do so at compile time.
 ///
 /// # Minimal HashDoS Protection
-/// We recommend changing the default seed and secrets must be changed to avoid trivial collision
-/// attacks. For persistent hashing, you can hard code your own randomized seed at compile time.
+/// We recommend changing the default seed and secrets to avoid
+/// [trivial collision attacks](https://liams.website/articles/seed-independent-collisions-on-wyhash-and-rapidhash).
+/// For persistent hashing, you can hard code your own randomized seed at compile time.
 ///
 /// ```rust
 /// use rapidhash::v3::RapidSecrets;

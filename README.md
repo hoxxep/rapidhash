@@ -2,7 +2,7 @@
 
 A rust implementation of [rapidhash](https://github.com/Nicoshev/rapidhash), the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Used by Google's [Fuchshia OS](https://fuchsia.googlesource.com/fuchsia/+/master/third_party/rust_crates/Cargo.toml), [Turso DB](https://github.com/tursodatabase/turso/blob/main/core/Cargo.toml), [metrics](https://github.com/metrics-rs/metrics/blob/main/Cargo.toml), [alloy-primitives](https://github.com/alloy-rs/core/blob/main/Cargo.toml), [fixed-cache](https://github.com/DaniPopes/fixed-cache/blob/main/Cargo.toml), and others. 
+Used by Google's [Fuchshia OS](https://fuchsia.googlesource.com/fuchsia/+/master/third_party/rust_crates/Cargo.toml), [Turso DB](https://github.com/tursodatabase/turso/blob/main/core/Cargo.toml), [metrics](https://github.com/metrics-rs/metrics/blob/main/Cargo.toml), [alloy-primitives](https://github.com/alloy-rs/core/blob/main/Cargo.toml), [fixed-cache](https://github.com/DaniPopes/fixed-cache/blob/main/Cargo.toml), and others.
 
 - **High quality** – the fastest hash to pass all [SMHasher](https://github.com/rurban/smhasher) and [SMHasher3](https://gitlab.com/fwojcik/smhasher3) tests, with near-ideal collision probability.
 - **Very fast** – significant throughput improvement over wyhash and foldhash.
@@ -257,7 +257,7 @@ The benchmarks have been compiled with and without `-C target-cpu=native` on a v
 
 Rapidhash is a keyed hash function and the rust implementation deviates from its C++ counterpart by also randomising the secrets array. The algorithm primarily relies on the same 128-bit folded multiply mixing step used by foldhash and ahash's fallback algorithm. It aims to be immune to length extension and re-ordering attacks.
 
-We believe rapidhash is a minimally DoS resistant hash function, such that a non-interactive attacker cannot trivially create collisions if they do not know the seed or secrets. The adverb "minimally" is used to describe that rapidhash is not a cryptographic hash, it is possible to construct collisions if the seed or secrets are known, and it may be possible for an interactive attacker to learn the seed by observing hash outputs or application response times over a large number of inputs.
+We believe rapidhash is a minimally DoS resistant hash function, such that a non-interactive attacker cannot trivially create collisions if they do not know the seed or secrets. The adverb "minimally" is used to describe that rapidhash is not a cryptographic hash, it is possible to [construct collisions](https://liams.website/articles/seed-independent-collisions-on-wyhash-and-rapidhash) if the seed or secrets are known, and it may be possible for an interactive attacker to learn the seed by observing hash outputs or application response times over a large number of inputs.
 
 Provided rapidhash has been instantiated through `RandomState` or `RapidSecrets` using a randomized secret seed, we believe rapidhash is minimally resistant to hash DoS attacks.
 

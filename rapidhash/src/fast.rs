@@ -30,7 +30,7 @@ pub type RapidHasher<'s> = inner::RapidHasher<'s, AVALANCHE, SPONGE, COMPACT, PR
 /// A rapidhash equivalent to [`std::hash::RandomState`] that uses a random seed and secrets for
 /// minimal DoS resistance.
 ///
-/// This initializes a [`crate::quality::RapidHasher`] with the following settings:
+/// This initializes a [`RapidHasher`] with the following settings:
 /// - `AVALANCHE` is disabled.
 /// - `SPONGE` is enabled.
 /// - `COMPACT` is disabled.

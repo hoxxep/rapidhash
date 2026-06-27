@@ -31,13 +31,13 @@ pub(crate) const fn read_u64(slice: &[u8], offset: usize) -> u64 {
 /// Unsafe but const-friendly unaligned bytes to u32. The compiler can't seem to remove the bounds
 /// checks for small integers because we do some funky bit shifting in the indexing.
 ///
-/// SAFETY: `slice` must be at least `offset+8` bytes long, which we guarantee in this rapidhash
+/// SAFETY: `slice` must be at least `offset+4` bytes long, which we guarantee in this rapidhash
 /// implementation.
 #[inline(always)]
 pub(crate) const fn read_u32(slice: &[u8], offset: usize) -> u32 {
     unsafe_assert!(slice.len() >= 4 + offset);
     let val = unsafe { core::ptr::read_unaligned(slice.as_ptr().add(offset) as *const u32) };
-    val.to_le()  // swap bytes on big-endian systems to get the same u64 value
+    val.to_le()  // swap bytes on big-endian systems to get the same u32 value
 }
 
 /// Only used in rapidhash V1

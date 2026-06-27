@@ -82,7 +82,7 @@ impl<'s, const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const P
     /// produce the same hash outputs between different crate versions, compiler versions, or
     /// platforms.
     ///
-    /// Also see [`GlobalState`] for a faster zero-sized alternative that uses global secrets that
+    /// Also see [`crate::inner::GlobalState`] for a faster zero-sized alternative that uses global secrets that
     /// are fixed only for the lifetime of the program.
     #[inline]
     pub fn fixed() -> Self {
