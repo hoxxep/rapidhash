@@ -126,7 +126,7 @@ pub fn rapidrng_time(seed: &mut u64) -> u64 {
     let time = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap();
     // NOTE limited entropy: only a few of the time.as_secs bits will change between calls, and the
     // time.subsec_nanos may only have milli- or micro-second precision on some platforms.
-    // This is why we further stretch the teed with multiple rounds of rapid_mix.
+    // This is why we further stretch the seed with multiple rounds of rapid_mix.
     let mut  teed = (time.as_secs() << 32) | time.subsec_nanos() as u64;
     teed = rapid_mix::<false>(teed ^ RAPID_SECRET[0], *seed ^ RAPID_SECRET[1]);
     *seed = rapid_mix::<false>(teed ^ RAPID_SECRET[0], RAPID_SECRET[2]);

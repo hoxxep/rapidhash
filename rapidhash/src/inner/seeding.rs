@@ -259,7 +259,7 @@ pub(crate) mod secrets {
 
         #[cfg(not(feature = "rand"))]
         {
-            // trying out best to generate a good random number on all platforms
+            // trying our best to generate a good random number on all platforms
             let mut seed = DEFAULT_SECRETS[0];
             let stack_ptr = core::ptr::addr_of!(seed) as u64;
             let static_ptr = &DEFAULT_SECRETS as *const _ as usize as u64;

@@ -79,7 +79,7 @@ pub(super) const fn rapid_mum_np<const PROTECTED: bool>(a: u64, b: u64) -> (u64,
     }
 }
 
-/// NON-PORTABLE Folded 64-bit multiply. [rapid_mum] then XOR the results together.
+/// NON-PORTABLE Folded 64-bit multiply. [rapid_mum_np] then XOR the results together.
 ///
 /// # Non-portable version
 /// This version is not portable across all architectures and is intended for use only on the

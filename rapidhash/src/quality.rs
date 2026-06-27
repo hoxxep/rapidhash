@@ -43,7 +43,7 @@ pub type RandomState = inner::RandomState<AVALANCHE, SPONGE, COMPACT, PROTECTED>
 ///
 /// We recommend using [`RandomState`] or [`GlobalState`] instead for most use cases.
 ///
-/// This initializes a [RapidHasher] with the following settings:
+/// This initializes a [`RapidHasher`] with the following settings:
 /// - `AVALANCHE` is enabled.
 /// - `SPONGE` is enabled.
 /// - `COMPACT` is disabled.
@@ -59,10 +59,10 @@ pub type SeedableState<'secrets> = inner::SeedableState<'secrets, AVALANCHE, SPO
 /// application runs.
 ///
 /// This initializes a [`RapidHasher`] with the following settings:
-/// - `AVALANCHE` is disabled.
+/// - `AVALANCHE` is enabled.
 /// - `SPONGE` is enabled.
 /// - `COMPACT` is disabled.
 /// - `PROTECTED` is disabled.
 ///
-/// Use [`crate::fast::GlobalState`] for a higher quality but slower hash output where desirable.
+/// Use [`crate::fast::GlobalState`] for a lower quality but faster hash output where desirable.
 pub type GlobalState = inner::GlobalState<AVALANCHE, SPONGE, COMPACT, PROTECTED>;
