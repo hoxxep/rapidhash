@@ -2,7 +2,7 @@
 
 A rust implementation of [rapidhash](https://github.com/Nicoshev/rapidhash), the official successor to [wyhash](https://github.com/wangyi-fudan/wyhash).
 
-Used by Google's [Fuchshia OS](https://fuchsia.googlesource.com/fuchsia/+/master/third_party/rust_crates/Cargo.toml), [Turso DB](https://github.com/tursodatabase/turso/blob/main/core/Cargo.toml), [metrics](https://github.com/metrics-rs/metrics/blob/main/Cargo.toml), [alloy-primitives](https://github.com/alloy-rs/core/blob/main/Cargo.toml), [fixed-cache](https://github.com/DaniPopes/fixed-cache/blob/main/Cargo.toml), and others.
+Used by Google's [Fuchsia OS](https://fuchsia.googlesource.com/fuchsia/+/master/third_party/rust_crates/Cargo.toml), [Turso DB](https://github.com/tursodatabase/turso/blob/main/core/Cargo.toml), [metrics](https://github.com/metrics-rs/metrics/blob/main/Cargo.toml), [alloy-primitives](https://github.com/alloy-rs/core/blob/main/Cargo.toml), [fixed-cache](https://github.com/DaniPopes/fixed-cache/blob/main/Cargo.toml), and others.
 
 - **High quality** – the fastest hash to pass all [SMHasher](https://github.com/rurban/smhasher) and [SMHasher3](https://gitlab.com/fwojcik/smhasher3) tests, with near-ideal collision probability.
 - **Very fast** – significant throughput improvement over wyhash and foldhash.
