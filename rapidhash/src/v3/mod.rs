@@ -23,7 +23,7 @@ pub use seed::*;
 mod tests {
     extern crate std;
 
-    use rand::Rng;
+    use rand::RngExt;
     use crate::util::macros::{compare_to_c, flip_bit_trial};
     use super::*;
 

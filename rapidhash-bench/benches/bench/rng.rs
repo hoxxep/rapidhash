@@ -1,3 +1,7 @@
+//! This benchmark is now redundant since we have spun out the `rapidrand` crate.
+
+#![allow(deprecated)]
+
 use criterion::{Bencher, Criterion};
 use rand_core::{RngCore, SeedableRng};
 

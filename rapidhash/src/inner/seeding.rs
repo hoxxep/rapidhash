@@ -395,7 +395,6 @@ pub(crate) mod secrets {
     mod tests {
         extern crate std;
 
-        use std::arch::is_s390x_feature_detected;
         use std::collections::BTreeSet;
         use super::*;
 
