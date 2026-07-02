@@ -2,6 +2,14 @@ use crate::fast::RandomState;
 
 /// A [`std::collections::HashMap`] that uses the [`crate::fast::RandomState`] hasher.
 ///
+/// # Performance
+///
+/// `RapidHashMap` should be significantly faster than [`std::collections::HashMap`] when using the
+/// default hasher. When creating many `RapidHashMap`s in a tight loop, you may want to consider
+/// using [`crate::fast::GlobalState`] instead, which is faster to instantiate because it re-uses
+/// the same randomized seed and secrets between instantiations, but still randomizes them on
+/// program start.
+///
 /// # Example
 /// ```
 /// use rapidhash::{HashMapExt, RapidHashMap};

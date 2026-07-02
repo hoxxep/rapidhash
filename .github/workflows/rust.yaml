@@ -136,10 +136,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Rust dependency cache
         uses: Swatinem/rust-cache@v2
-      - name: Install wasm target
-        run: rustup target add wasm32-unknown-unknown
+      - name: Install wasm targets
+        run: rustup target add wasm32-unknown-unknown wasm32-wasip1
       - name: Compile and run tests
         run: cargo build -p rapidhash --target wasm32-unknown-unknown
+      - name: Run wasm behaviour tests (with and without getrandom)
+        run: cargo test -p rapidhash-bench-wasm --test wasm_behaviour --no-fail-fast
 
   test-no-atomics:
     # Check that a no-atomics target compiles, but it sadly can't run tests
@@ -154,3 +156,5 @@ jobs:
         run: rustup target add thumbv6m-none-eabi
       - name: Compile and run tests
         run: cargo build -p rapidhash --no-default-features --lib --target thumbv6m-none-eabi
+      - name: Compile with a getrandom custom backend
+        run: RUSTFLAGS='--cfg getrandom_backend="custom"' cargo build -p rapidhash --no-default-features --features getrandom_04 --lib --target thumbv6m-none-eabi

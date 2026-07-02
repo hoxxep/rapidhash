@@ -44,6 +44,20 @@ bench_wasm_4kb!(bench_wasm_foldhash_f_4kb, foldhash::fast::RandomState);
 bench_wasm_4kb!(bench_wasm_default_4kb, std::hash::RandomState);
 bench_wasm_4kb!(bench_wasm_fxhash_4kb, fxhash::FxBuildHasher);
 
+/// Hash a fixed value with a fresh `RandomState`, used to test per-map seed uniqueness and
+/// cross-instance determinism on wasm.
+#[unsafe(no_mangle)]
+pub extern "C" fn test_wasm_random_state() -> u64 {
+    rapidhash::fast::RandomState::default().hash_one(42u64)
+}
+
+/// Hash a fixed value with the process-wide `GlobalState`, used to test that the one-time
+/// global seed/secret initialization works on wasm.
+#[unsafe(no_mangle)]
+pub extern "C" fn test_wasm_global_state() -> u64 {
+    rapidhash::fast::GlobalState::default().hash_one(42u64)
+}
+
 /// Simulate hashing fictional (id, email) pairs, where email is len 6..60 bytes.
 fn profile_hash_tuple<B: BuildHasher + Default>() -> u64 {
     let builder = B::default();
