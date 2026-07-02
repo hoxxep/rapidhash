@@ -157,4 +157,4 @@ jobs:
       - name: Compile and run tests
         run: cargo build -p rapidhash --no-default-features --lib --target thumbv6m-none-eabi
       - name: Compile with a getrandom custom backend
-        run: RUSTFLAGS='--cfg getrandom_backend="custom"' cargo build -p rapidhash --no-default-features --features getrandom --lib --target thumbv6m-none-eabi
+        run: RUSTFLAGS='--cfg getrandom_backend="custom"' cargo build -p rapidhash --no-default-features --features getrandom_04 --lib --target thumbv6m-none-eabi
