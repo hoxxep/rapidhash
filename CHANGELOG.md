@@ -3,8 +3,31 @@
 ## Planned for 5.0.0
 - Remove `Copy` from State types (eg. `RandomState`) to match the `std` hasher API.
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
-- Upgrade `rand` and `rand_core` to v0.10.
+- Upgrade `rand_core` to v0.10.
 - Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
+
+## 4.5.0 (Unreleased)
+
+### Additions
+- **`getrandom` feature**: opt-in seeding of the hasher seeds and secrets from OS/platform entropy via the [getrandom](https://docs.rs/getrandom) crate, without requiring `std`. This replaces the `rand` feature and enables true HashDoS resistance on targets with no ambient entropy or ASLR:
+  - `wasm32-wasip1`/`wasm32-wasip2`: enabling the feature is sufficient; entropy comes from the WASI host.
+  - `wasm32-unknown-unknown` (browser/node): additionally requires getrandom's `wasm_js` backend, enabled by the top-level binary. Building without the backend is a compile error rather than a silent fallback to deterministic seeding.
+  - Embedded/`no_std` targets with a hardware RNG: register a getrandom [custom backend](https://docs.rs/getrandom/0.3/getrandom/#custom-backend). On targets without atomic pointer support (e.g. `thumbv6m-none-eabi`), each `RandomState` draws a fresh random seed per instance, restoring minimal HashDoS resistance where there previously was none.
+
+### Fixes
+- `RandomState` no longer produces duplicate seeds across threads whose stacks are recycled by the OS. Each thread's seed counter is now initialized from a global thread counter mixed with the process-wide random seed, instead of relying on the (frequently re-used) stack address alone.
+- The per-map seed on `no_std` targets without atomics now mixes in the stack pointer as intended; previously it compiled to a constant.
+- The seed counters now use wrapping addition, fixing a potential "attempt to add with overflow" panic in debug builds.
+- The global seed and global secrets are now derived from the shared process randomness with domain separation, so recovering one no longer trivially reveals the other. Each secret is also independently re-mixed from the process randomness, so a single leaked secret no longer derives the remaining secrets.
+
+### Changes
+- The `rand` feature is now a deprecated alias for `std` + `getrandom`, and the `rand` crate dependency has been removed. `RandomState` and `GlobalState` seed themselves from getrandom, the standard library's secure RNG, or ASLR-based entropy, in that order of preference. The `rand` feature will be removed in a future major version.
+- Per-map seeds on `no_std` targets with atomics now start from the process-wide random seed, so getrandom/ASLR entropy reaches every seed rather than only the secrets.
+- Documented how to achieve true seed randomization on wasm32 and embedded targets in the `RandomState` and `GlobalState` docs, and documented the one remaining gap: `GlobalState` on targets without atomic pointer support cannot be randomized, and `RandomState` with `getrandom` should be preferred there.
+
+### Testing
+- Added wasm32 behavioural tests, run through wasmtime in CI: without `getrandom` (`wasm32-unknown-unknown`) seeding is asserted to be fully deterministic across instances, and with `getrandom` (`wasm32-wasip1` + WASI entropy) seeds and secrets are asserted to differ between instances.
+- Added a 1024-thread seed uniqueness test covering OS thread-stack recycling.
 
 ## 4.4.2 (20260627)
 

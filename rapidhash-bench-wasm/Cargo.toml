@@ -12,6 +12,7 @@ harness = false
 
 [features]
 nightly = ["rapidhash/nightly", "foldhash/nightly"]
+getrandom = ["rapidhash/getrandom"]  # used by the wasm32-wasip1 behaviour tests
 
 [dependencies]
 rapidhash = { path = "../rapidhash", default-features = false }
@@ -21,6 +22,7 @@ fxhash = "0.2.1"
 [dev-dependencies]
 criterion = { version = "0.8.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
 wasmtime = "46.0.0"
+wasmtime-wasi = "46.0.0"
 
 [lints]
 workspace = true
