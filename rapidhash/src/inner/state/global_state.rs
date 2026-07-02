@@ -9,7 +9,7 @@ use crate::inner::seeding::secrets::GlobalSecrets;
 /// instance of GlobalState will re-use the same seed and secrets, ensuring consistent hash outputs
 /// for the duration of the program.
 ///
-/// The one-time randomization is derived from OS/platform entropy when the `getrandom` feature is
+/// The one-time randomization is derived from OS/platform entropy when the `getrandom_04` feature is
 /// enabled, or the standard library's secure RNG when the `std` feature is enabled, falling back
 /// to ASLR and weaker entropy sources otherwise. Because every
 /// instance shares a single seed and secret set, `GlobalState` only offers minimal HashDoS
@@ -57,8 +57,8 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     /// On platforms which do not support atomic pointers, the secrets will be the default rapidhash
     /// secrets, which are not randomized. Therefore, **`GlobalState` on targets without atomic
     /// pointer support has no HashDoS resistance guarantees**: there is nowhere to store a
-    /// randomized value, so even the `getrandom` feature cannot help. Prefer
-    /// [`RandomState`](crate::fast::RandomState) with the `getrandom` feature on these targets,
+    /// randomized value, so even the `getrandom_04` feature cannot help. Prefer
+    /// [`RandomState`](crate::fast::RandomState) with the `getrandom_04` feature on these targets,
     /// which draws a fresh random seed per instance instead.
     #[inline(always)]
     pub fn new() -> Self {

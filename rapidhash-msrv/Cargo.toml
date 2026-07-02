@@ -8,7 +8,7 @@ publish = false
 std = ["rapidhash/std"]
 rng = ["rapidhash/rng"]
 rand = ["rapidhash/rand"]
-getrandom = ["rapidhash/getrandom"]
+getrandom = ["rapidhash/getrandom_03"]
 
 [dependencies]
 rapidhash = { path = "../rapidhash", default-features = false }

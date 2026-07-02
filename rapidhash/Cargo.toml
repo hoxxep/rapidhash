@@ -25,16 +25,22 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 default = ["std"]
 std = []  # enable std library for RapidHashMap and RapidHashSet helpers
-rand = ["std", "getrandom"]  # deprecated: alias for std + getrandom (the old feature implied std), will be removed in a future major version
-getrandom = ["dep:getrandom"]  # seed hasher secrets from OS/platform entropy, incl. no_std and wasm (wasm32-unknown-unknown also needs getrandom's wasm_js backend enabled by the top-level binary)
+rand = ["std", "getrandom_03"]  # deprecated: alias for std + getrandom (the old feature implied std), will be removed in a future major version
+getrandom_04 = ["dep:getrandom_04"]  # seed hasher secrets from OS/platform entropy using getrandom v0.4, incl. no_std and wasm (wasm32-unknown-unknown also needs getrandom's wasm_js backend enabled by the top-level binary)
+getrandom_03 = ["dep:getrandom_03"]  # the same as getrandom_04, but using getrandom v0.3
 rng = ["dep:rand_core"]  # enable RapidRng, a rand Rng-compatible fast PRNG using rapidrng
 nightly = []  # enable nightly features, faster str hashing and likely/unlikely hints
 unsafe = []  # enable unsafe pointer arithmetic; this is used to check for bounds-check regressions
 
+# dev note: we separate our getrandom feature versions to avoid pinning the rapidhash crate version
+# to a specific getrandom version, otherwise we'd need to perform a major version bump for any
+# getrandom version bumps. It also lets us keep MSRV 1.71 while supporting newer getrandom versions.
+
 [dependencies]
 rustversion = "1.0"
 rand_core = { version = "0.9", default-features = false, optional = true }
-getrandom = { version = "0.4", default-features = false, optional = true }
+getrandom_04 = { version = "0.4", package = "getrandom", default-features = false, optional = true }
+getrandom_03 = { version = "0.3", package = "getrandom", default-features = false, optional = true }
 
 [dev-dependencies]
 rapidhash-c = { path = "../rapidhash-c" }

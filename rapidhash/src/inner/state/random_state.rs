@@ -24,31 +24,31 @@ use crate::inner::seeding::secrets::GlobalSecrets;
 /// # Portability
 ///
 /// On most target platforms, the secrets are randomly initialized once and cached globally for the
-/// lifetime of the program. With the `getrandom` feature this uses OS/platform entropy directly;
+/// lifetime of the program. With the `getrandom_04` feature this uses OS/platform entropy directly;
 /// with `std` it uses the standard library's secure RNG; with neither it falls back to ASLR-based
 /// entropy alone. A fresh seed is generated for each new instance of `RandomState` from a
 /// thread-local or global counter mixed with ASLR entropy.
 ///
 /// Some targets have no ambient entropy or ASLR at all, and seeding on them is otherwise fully
-/// deterministic between boots. Enable the `getrandom` feature to get true randomisation for
+/// deterministic between boots. Enable the `getrandom_04` feature to get true randomisation for
 /// HashDoS resistance on these targets:
 ///
-/// - **wasm32 with WASI** (`wasm32-wasip1`/`wasm32-wasip2`): enabling rapidhash's `getrandom`
+/// - **wasm32 with WASI** (`wasm32-wasip1`/`wasm32-wasip2`): enabling rapidhash's `getrandom_04`
 ///   feature is sufficient; entropy comes from the WASI host.
-/// - **wasm32 in the browser or node** (`wasm32-unknown-unknown`): enable rapidhash's `getrandom`
-///   feature, add `getrandom = { version = "0.3", features = ["wasm_js"] }` to the top-level
+/// - **wasm32 in the browser or node** (`wasm32-unknown-unknown`): enable rapidhash's `getrandom_04`
+///   feature, add `getrandom = { version = "0.4", features = ["wasm_js"] }` to the top-level
 ///   binary's dependencies, and build with `RUSTFLAGS='--cfg getrandom_backend="wasm_js"'`.
 ///   Without the backend flag the build fails with instructions, rather than silently
 ///   falling back to deterministic seeding.
-/// - **Embedded and other `no_std` targets with a hardware RNG**: enable rapidhash's `getrandom`
-///   feature and register a [custom backend](https://docs.rs/getrandom/0.3/getrandom/#custom-backend)
+/// - **Embedded and other `no_std` targets with a hardware RNG**: enable rapidhash's `getrandom_04`
+///   feature and register a [custom backend](https://docs.rs/getrandom/0.4/getrandom/#custom-backend)
 ///   that reads from the platform's RNG.
 ///
 /// Older or exotic platforms that getrandom does not support can also use the custom backend
 /// mechanism to supply their own entropy source.
 ///
 /// On targets without atomic pointer support (e.g. `thumbv6m-none-eabi`), the global secrets
-/// cannot be randomized and fall back to the default secrets. With the `getrandom` feature each
+/// cannot be randomized and fall back to the default secrets. With the `getrandom_04` feature each
 /// `RandomState` still draws a fresh random per-map seed directly from the entropy source,
 /// retaining minimal HashDoS resistance; without it these platforms have none. If stronger
 /// support for these platforms is important to your application, please raise a GitHub issue.
@@ -79,17 +79,17 @@ impl<const AVALANCHE: bool, const SPONGE: bool, const COMPACT: bool, const PROTE
     /// counter is initialized from the process-wide random seed and a global thread counter;
     /// without `std` it uses a global atomic counter initialized from the process-wide random
     /// seed. On targets with neither, each instance draws its seed from getrandom when the
-    /// `getrandom` feature is enabled, or falls back to ASLR alone.
+    /// `getrandom_04` feature is enabled, or falls back to ASLR alone.
     ///
     /// The secrets are randomized once and then cached globally for the lifetime of the program.
-    /// The one-time randomization is derived from OS/platform entropy with the `getrandom`
+    /// The one-time randomization is derived from OS/platform entropy with the `getrandom_04`
     /// feature, or the standard library's secure RNG with the `std` feature (the same source
     /// `std` uses to seed its own hashers); with neither it falls back to mixing ASLR and other
     /// weaker sources of entropy.
     ///
     /// On platforms that do not support atomic pointers, the secrets will be the default rapidhash
     /// secrets, which are not randomized. Therefore, **targets without atomic pointer support only
-    /// have minimal HashDoS resistance when the `getrandom` feature provides random seeds**.
+    /// have minimal HashDoS resistance when the `getrandom_04` feature provides random seeds**.
     #[inline]
     pub fn new() -> Self {
         Self {

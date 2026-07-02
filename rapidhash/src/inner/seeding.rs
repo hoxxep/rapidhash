@@ -81,8 +81,14 @@ pub(crate) mod seed {
         // the getrandom feature each RandomState can draw a fresh seed straight from the entropy
         // source (e.g. a custom getrandom backend over an embedded device's hardware RNG).
         // Slower than the counter paths above, but the only randomisation these targets have.
-        #[cfg(all(not(feature = "std"), not(target_has_atomic = "ptr"), feature = "getrandom"))] {
-            if let Ok(random) = getrandom::u64() {
+        #[cfg(all(not(feature = "std"), not(target_has_atomic = "ptr"), feature = "getrandom_04"))] {
+            if let Ok(random) = getrandom_04::u64() {
+                seed = random;
+            }
+        }
+
+        #[cfg(all(not(feature = "std"), not(target_has_atomic = "ptr"), not(feature = "getrandom_04"), feature = "getrandom_03"))] {
+            if let Ok(random) = getrandom_03::u64() {
                 seed = random;
             }
         }
@@ -339,8 +345,15 @@ pub(crate) mod secrets {
         // real entropy source on wasm32 (via getrandom's `wasm_js` backend) and many no_std
         // targets. It takes priority over std, as std's RandomState silently falls back to
         // fixed keys on targets without entropy (e.g. wasm32-unknown-unknown).
-        #[cfg(feature = "getrandom")] {
-            if let Ok(random) = getrandom::u64() {
+        #[cfg(feature = "getrandom_04")] {
+            if let Ok(random) = getrandom_04::u64() {
+                return random;
+            }
+            // otherwise fall through to the weaker sources below
+        }
+
+        #[cfg(all(feature = "getrandom_03", not(feature = "getrandom_04")))] {
+            if let Ok(random) = getrandom_03::u64() {
                 return random;
             }
             // otherwise fall through to the weaker sources below

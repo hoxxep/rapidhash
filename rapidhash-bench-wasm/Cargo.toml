@@ -12,7 +12,7 @@ harness = false
 
 [features]
 nightly = ["rapidhash/nightly", "foldhash/nightly"]
-getrandom = ["rapidhash/getrandom"]  # used by the wasm32-wasip1 behaviour tests
+getrandom = ["rapidhash/getrandom_04"]  # used by the wasm32-wasip1 behaviour tests
 
 [dependencies]
 rapidhash = { path = "../rapidhash", default-features = false }
