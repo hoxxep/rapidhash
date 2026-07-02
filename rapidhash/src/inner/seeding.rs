@@ -395,6 +395,7 @@ pub(crate) mod secrets {
     mod tests {
         extern crate std;
 
+        use std::arch::is_s390x_feature_detected;
         use std::collections::BTreeSet;
         use super::*;
 
@@ -446,7 +447,7 @@ pub(crate) mod secrets {
         }
 
         #[test]
-        #[cfg(any(feature = "std", feature = "getrandom"))]
+        #[cfg(any(feature = "std", feature = "getrandom_04", feature = "getrandom_03"))]
         fn test_generate_random() {
             let random1 = super::generate_random();
             let random2 = super::generate_random();
@@ -455,7 +456,7 @@ pub(crate) mod secrets {
 
         #[test]
         #[ignore]
-        #[cfg(not(any(feature = "std", feature = "getrandom")))]
+        #[cfg(not(any(feature = "std", feature = "getrandom_04", feature = "getrandom_03")))]
         fn test_generate_random_no_std_hardcoded() {
             // I use this to check we're getting random values between test runs by flipping this
             // to an "assert_eq" ...
