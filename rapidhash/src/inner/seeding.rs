@@ -138,8 +138,6 @@ pub(crate) mod seed {
                 .map(|_| std::thread::spawn(get_seed).join().unwrap())
                 .collect();
 
-            // If threads were properly independent this would be 8; the counter reset
-            // + stack reuse collapses them, so we expect duplicates.
             assert_eq!(seeds.len(), THREADS, "expected no seed collisions across threads, got {} unique", seeds.len());
         }
     }
