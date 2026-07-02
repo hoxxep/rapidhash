@@ -10,7 +10,8 @@
 
 use std::hash::BuildHasher;
 
-use rapidhash::rng::rapidrng_fast_not_portable;
+use rand::{Rng, RngExt, SeedableRng};
+use rapidrand::RapidRng;
 
 macro_rules! bench_wasm_tuple {
     ($name:ident, $hash:path) => {
@@ -61,21 +62,17 @@ pub extern "C" fn test_wasm_global_state() -> u64 {
 /// Simulate hashing fictional (id, email) pairs, where email is len 6..60 bytes.
 fn profile_hash_tuple<B: BuildHasher + Default>() -> u64 {
     let builder = B::default();
+    let mut rng = RapidRng::seed_from_u64(0);
 
-    let mut seed = 0;
     let mut total = 0;
-
-    let mut buffer = [0u64; 8];
+    let mut buffer = [0u8; 60];
 
     for _ in 0..1_000 {
-        let ratio = f64::from(rapidrng_fast_not_portable(&mut seed) as u32) / f64::from(u32::MAX);
-        let len = usize::max(6, (ratio * 60.0) as usize);
+        rng.fill_bytes(&mut buffer);
 
-        buffer.fill_with(|| rapidrng_fast_not_portable(&mut seed));
-
-        let username: &[u8] = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u8, 8 * buffer.len()) };
-        let num = rapidrng_fast_not_portable(&mut seed);
-        total ^= builder.hash_one((num, &username[..len]));
+        let len = rng.random_range(6..60);
+        let num: u64 = rng.random();
+        total ^= builder.hash_one((num, &buffer[..len]));
     }
 
     total
@@ -84,19 +81,35 @@ fn profile_hash_tuple<B: BuildHasher + Default>() -> u64 {
 /// Simulate hashing a 3kb-4kb file or byte array.
 fn profile_hash_4kb<B: BuildHasher + Default>() -> u64 {
     let builder = B::default();
+    let mut rng = RapidRng::seed_from_u64(0);
 
-    let mut seed = 0;
     let mut total = 0;
-
-    let mut buffer = [0u64; 512];
+    let mut buffer = [0u8; 4096];
 
     for _ in 0..1_000 {
-        let ratio = f64::from(rapidrng_fast_not_portable(&mut seed) as u32) / f64::from(u32::MAX);
-        let len = usize::min(usize::max(3 * 512, (ratio * 4.0 * 512.0) as usize), 512);
-        buffer[0..len].fill_with(|| rapidrng_fast_not_portable(&mut seed));
-        let file_bytes: &[u8] = unsafe { std::slice::from_raw_parts(buffer.as_ptr() as *const u8, 8 * buffer.len()) };
-        total ^= builder.hash_one(&file_bytes[..len * 8]);
+        rng.fill_bytes(&mut buffer);
+
+        let len = rng.random_range(3 * 1024..4 * 1024);
+        total ^= builder.hash_one(&buffer[..len]);
     }
 
     total
+}
+
+/// Basic validity test of this code for non-WASM builds
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_profile_hash_tuple() {
+        let total = profile_hash_tuple::<rapidhash::fast::RandomState>();
+        assert_ne!(total, 0);
+    }
+
+    #[test]
+    fn test_profile_hash_4kb() {
+        let total = profile_hash_tuple::<rapidhash::fast::RandomState>();
+        assert_ne!(total, 0);
+    }
 }

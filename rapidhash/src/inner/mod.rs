@@ -48,7 +48,8 @@ mod tests {
 
     use std::hash::{BuildHasher, Hash, Hasher};
     use std::collections::BTreeSet;
-    use rand::Rng;
+    use rand::{RngExt, SeedableRng};
+    use rapidrand::RapidRng;
     use crate::inner::mix_np::rapid_mix_np;
     use super::seed::{DEFAULT_RAPID_SECRETS, DEFAULT_SEED};
     use super::rapid_const::{rapidhash_rs, rapidhash_rs_seeded};
@@ -103,10 +104,11 @@ mod tests {
     #[test]
     fn all_sizes() {
         let mut hashes = BTreeSet::new();
+        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for size in 0..=1024 {
             let mut data = std::vec![0; size];
-            rand::rng().fill(data.as_mut_slice());
+            rng.fill(data.as_mut_slice());
 
             let hash1 = rapidhash_rs(&data);
             let mut hasher = RapidHasher::default();
@@ -126,13 +128,12 @@ mod tests {
     /// These tests are not deterministic, but should fail with a very low probability.
     #[test]
     fn flip_bit_trial() {
-        use rand::Rng;
-
         let mut flips = std::vec![];
+        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for len in 1..=512 {
             let mut data = std::vec![0; len];
-            rand::rng().fill(&mut data[..]);
+            rng.fill(&mut data[..]);
 
             let hash = rapidhash_rs(&data);
             for byte in 0..len {
@@ -206,13 +207,12 @@ mod tests {
     /// These tests are not deterministic, but should fail with a very low probability.
     #[test]
     fn flip_bit_trial_streaming() {
-        use rand::Rng;
-
         let mut flips = std::vec![];
+        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for len in 1..=300 {
             let mut data = std::vec![0; len];
-            rand::rng().fill(&mut data[..]);
+            rng.fill(&mut data[..]);
 
             let hash = streaming_hash(&data);
             for byte in 0..len {
@@ -254,12 +254,13 @@ mod tests {
     #[cfg(target_endian = "little")]
     #[test]
     fn compare_to_c() {
-        use rand::Rng;
+        use rand::RngExt;
         use rapidhash_c::rapidhashcc_rs;
+        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for len in 0..=512 {
             let mut data = std::vec![0; len];
-            rand::rng().fill(&mut data[..]);
+            rng.fill(&mut data[..]);
 
             for byte in 0..len {
                 for bit in 0..8 {

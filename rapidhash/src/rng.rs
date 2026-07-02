@@ -1,5 +1,7 @@
 //! Fast random number generation using rapidhash mixing.
 
+#![allow(deprecated)]
+
 #[cfg(feature = "rng")]
 use rand_core::{RngCore, SeedableRng, impls};
 use crate::util::mix::rapid_mix;
@@ -24,6 +26,7 @@ const RAPID_SECRET: [u64; 3] = [0x2d358dccaa6c78a5, 0x8bb84b93962eacc9, 0x4b33a6
 /// is simple a position in a constant sequence. Future work could involve using a wider state to
 /// ensure we can generate many different sequences.
 #[inline]
+#[deprecated(since = "4.5.0", note = "use the `rapidrand` crate instead")]
 pub fn rapidrng_fast(seed: &mut u64) -> u64 {
     *seed = seed.wrapping_add(RAPID_SECRET[0]);
     rapid_mix::<false>(*seed, *seed ^ RAPID_SECRET[1])
@@ -37,6 +40,7 @@ pub fn rapidrng_fast(seed: &mut u64) -> u64 {
 ///
 /// Used in the rapidhash WASM benchmarks.
 #[inline]
+#[deprecated(since = "4.5.0", note = "use the `rapidrand` crate instead")]
 pub fn rapidrng_fast_not_portable(seed: &mut u64) -> u64 {
     *seed = seed.wrapping_add(RAPID_SECRET[0]);
     rapid_mix_np_low_quality(*seed, RAPID_SECRET[1])
@@ -122,6 +126,7 @@ fn rapid_mix_np_low_quality(x: u64, y: u64) -> u64 {
     docsrs
 ))]
 #[inline]
+#[deprecated(since = "4.5.0", note = "use the `rapidrand` crate instead")]
 pub fn rapidrng_time(seed: &mut u64) -> u64 {
     let time = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap();
     // NOTE limited entropy: only a few of the time.as_secs bits will change between calls, and the
@@ -148,6 +153,7 @@ pub fn rapidrng_time(seed: &mut u64) -> u64 {
 /// println!("{}", rng.next());
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Ord, PartialOrd, Hash)]
+#[deprecated(since = "4.5.0", note = "use the `rapidrand` crate instead")]
 pub struct RapidRng {
     seed: u64,
 }

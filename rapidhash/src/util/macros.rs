@@ -3,8 +3,10 @@ macro_rules! compare_to_c {
     ($test:ident, $rust_fn:path, $compact_fn:path, $cc_fn:ident) => {
         #[test]
         fn $test() {
-            use rand::Rng;
             use rapidhash_c::$cc_fn;
+
+            use rand::{Rng, SeedableRng};
+            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
 
             // test zero-length input
             let rust_hash = $rust_fn(&[], &DEFAULT_RAPID_SECRETS);
@@ -16,7 +18,7 @@ macro_rules! compare_to_c {
             // test up to 512 bytes
             for len in 0..=512 {
                 let mut data = std::vec![0; len];
-                rand::rng().fill(&mut data[..]);
+                rng.fill_bytes(&mut data[..]);
 
                 for byte in 0..len {
                     for bit in 0..8 {
@@ -40,13 +42,14 @@ macro_rules! flip_bit_trial {
     ($test:ident, $hash:path) => {
         #[test]
         fn $test() {
-            use rand::Rng;
+            use rand::{Rng, SeedableRng};
+            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
 
             let mut flips = std::vec![];
 
             for len in 1..=256 {
                 let mut data = std::vec![0; len];
-                rand::rng().fill(&mut data[..]);
+                rng.fill_bytes(&mut data[..]);
 
                 let hash = $hash(&data, &DEFAULT_RAPID_SECRETS);
                 for byte in 0..len {
@@ -100,12 +103,13 @@ macro_rules! compare_rapidhash_file {
     ($test:ident, $hash:path, $file:path) => {
         #[test]
         fn $test() {
-            use rand::RngCore;
+            use rand::{Rng, SeedableRng};
+            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
 
             const LENGTH: usize = 1024;
             for len in 1..=LENGTH {
                 let mut data = vec![0u8; len];
-                rand::rng().fill_bytes(&mut data);
+                rng.fill_bytes(&mut data);
 
                 let mut file = tempfile::tempfile().unwrap();
                 file.write_all(&data).unwrap();
@@ -126,14 +130,16 @@ macro_rules! compare_rapid_stream_hasher {
         #[test]
         fn $test() {
             extern crate alloc;
-            use rand::RngCore;
+
+            use rand::{Rng, SeedableRng};
+            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
 
             type H<'a> = $hasher;
 
             // test every length and every chunking size for the stream hasher
             for len in 0..1024 {
                 let mut data = alloc::vec![0u8; len];
-                rand::rng().fill_bytes(&mut data);
+                rng.fill_bytes(&mut data);
 
                 let expected_hash = $hash(&data, &DEFAULT_RAPID_SECRETS);
 

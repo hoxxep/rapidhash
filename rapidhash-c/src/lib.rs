@@ -4,7 +4,7 @@ pub use bindings::*;
 
 #[cfg(test)]
 mod tests {
-    use rand::RngCore;
+    use rand::{Rng, SeedableRng};
     use super::*;
 
     /// This test demonstrates seed-independent hash collisions in rapidhash v3 when using the
@@ -17,7 +17,7 @@ mod tests {
         fn random_slice() -> Vec<u8> {
             // generate a random 32-byte input
             let mut data = vec![0; 32];
-            let rng = &mut rand::rng();
+            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
             rng.fill_bytes(data.as_mut_slice());
 
             // set penultimate 8 bytes to secret[1], XORed with the input length 32

@@ -24,13 +24,14 @@ macro_rules! bindings {
             /// These tests are not deterministic, but should fail with a very low probability.
             #[test]
             fn flip_bit_trial() {
-                use rand::Rng;
+                use rand::{Rng, SeedableRng};
+                let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
 
                 let mut flips = std::vec![];
 
                 for len in 1..=512 {
                     let mut data = std::vec![0; len];
-                    rand::rng().fill(&mut data[..]);
+                    rng.fill_bytes(&mut data[..]);
 
                     let hash = $rust(&data, 0);
                     for byte in 0..len {

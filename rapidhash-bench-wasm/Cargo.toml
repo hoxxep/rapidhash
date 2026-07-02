@@ -18,6 +18,8 @@ getrandom = ["rapidhash/getrandom_04"]  # used by the wasm32-wasip1 behaviour te
 rapidhash = { path = "../rapidhash", default-features = false }
 foldhash = "0.2"
 fxhash = "0.2.1"
+rand = { version = "0.10", default-features = false }
+rapidrand = "0.1"
 
 [dev-dependencies]
 criterion = { version = "0.8.1", default-features = false, features = ["rayon", "cargo_bench_support"] }

@@ -44,6 +44,7 @@ getrandom_03 = { version = "0.3", package = "getrandom", default-features = fals
 
 [dev-dependencies]
 rapidhash-c = { path = "../rapidhash-c" }
-rand = "0.9.0"
+rand = "0.10.0"
+rapidrand = "0.1.0"
 tempfile = "3.14.0" # testing rapidhash_file
 assert_cmd = "2.1.1"
