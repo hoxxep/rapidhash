@@ -16,13 +16,10 @@
 
 ### Fixes
 - `RandomState` no longer produces duplicate seeds across threads whose stacks are recycled by the OS. Each thread's seed counter is now initialized from a global thread counter mixed with the process-wide random seed, instead of relying on the (frequently re-used) stack address alone.
-- The per-map seed on `no_std` targets without atomics now mixes in the stack pointer as intended; previously it compiled to a constant.
-- The seed counters now use wrapping addition, fixing a potential "attempt to add with overflow" panic in debug builds.
-- The global seed and global secrets are now derived from the shared process randomness with domain separation, so recovering one no longer trivially reveals the other. Each secret is also independently re-mixed from the process randomness, so a single leaked secret no longer derives the remaining secrets.
+- Better randomness handling on `no_std` targets and targets without atomics.
 
 ### Changes
-- The `rand` feature is now a deprecated alias for `std` + `getrandom`, and the `rand` crate dependency has been removed. `RandomState` and `GlobalState` seed themselves from getrandom, the standard library's secure RNG, or ASLR-based entropy, in that order of preference. The `rand` feature will be removed in a future major version.
-- Per-map seeds on `no_std` targets with atomics now start from the process-wide random seed, so getrandom/ASLR entropy reaches every seed rather than only the secrets.
+- The `rand` feature is now a deprecated alias for `std` + `getrandom`, and the `rand` crate dependency has been removed. `RandomState` and `GlobalState` seed themselves from getrandom, the standard library's secure RNG, or ASLR-based entropy, in that order of preference depending on enabled features. The `rand` feature will be removed in a future major version.
 - Documented how to achieve true seed randomization on wasm32 and embedded targets in the `RandomState` and `GlobalState` docs, and documented the one remaining gap: `GlobalState` on targets without atomic pointer support cannot be randomized, and `RandomState` with `getrandom` should be preferred there.
 
 ### Testing

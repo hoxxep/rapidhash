@@ -45,10 +45,10 @@ pub(crate) mod seed {
                 let mut seed = cell.get();
                 #[cfg(all(feature = "std", target_has_atomic = "ptr"))] {
                     if seed == 0 {
-                        seed = init_thread_seed();
+                        seed = init_thread_seed(arbitrary);
                     }
                 }
-                seed = seed.wrapping_add(DEFAULT_SECRETS[0] ^ arbitrary);  // simple weyl counter, like rapidrand
+                seed = seed.wrapping_add(DEFAULT_SECRETS[0]);
                 cell.set(seed);
                 seed
             });
@@ -100,10 +100,18 @@ pub(crate) mod seed {
     /// (OS randomness under std) into every per-map seed. One relaxed `fetch_add` plus a mix:
     /// no syscalls, so thread-per-request servers only pay a few cycles per thread.
     #[cfg(all(feature = "std", target_has_atomic = "ptr"))]
-    fn init_thread_seed() -> u64 {
+    #[cold]
+    fn init_thread_seed(arbitrary: u64) -> u64 {
         use core::sync::atomic::{AtomicUsize, Ordering};
         static THREAD_COUNTER: AtomicUsize = AtomicUsize::new(1);
-        let thread_counter = THREAD_COUNTER.fetch_add(1, Ordering::Relaxed) as u64;
+
+        // Lossy add our ASLR offset to the counter. We believe this is less contentious than a
+        // fetch_add. We accept a lossy add because the only reason one thread's value will be lost
+        // is if it's overwritten by another thread, meaning if this thread is cached and reused, it
+        // will read a different thread_counter value on each instantiation.
+        let mut thread_counter = THREAD_COUNTER.load(Ordering::Relaxed) as u64;
+        thread_counter = thread_counter.wrapping_add(arbitrary);
+        THREAD_COUNTER.store(thread_counter as usize, Ordering::Relaxed);
 
         let global_seed = super::secrets::GlobalSecrets::new().get_global_seed();
         rapid_mix_np::<false>(thread_counter ^ DEFAULT_SECRETS[3], global_seed ^ DEFAULT_SECRETS[4])
@@ -344,7 +352,11 @@ pub(crate) mod secrets {
             // the rust standard library doesn't directly expose the secure randomness it feeds its
             // hashers, but we can still indirectly use it by running a single hash.
             use std::hash::{BuildHasher, Hasher};
-            let mut hasher = std::hash::RandomState::new().build_hasher();
+
+            // using the old import path for MSRV 1.71 compatibility
+            use std::collections::hash_map::RandomState as StdRandomState;
+
+            let mut hasher = StdRandomState::new().build_hasher();
             hasher.write(b"");
             return hasher.finish()
         }
