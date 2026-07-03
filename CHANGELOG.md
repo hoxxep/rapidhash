@@ -6,6 +6,12 @@
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
 - Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
 
+## 4.5.1 (20260704)
+
+### Fixes
+- Fixed an edge case where targets with std but no atomics could see the same seed repeatedly on `RandomState` on new threads. (https://github.com/hoxxep/rapidhash/pull/102)
+- Fixed struct size tests for Debian packaging. (https://github.com/hoxxep/rapidhash/issues/90)
+
 ## 4.5.0 (20260703)
 
 ### Deprecations
