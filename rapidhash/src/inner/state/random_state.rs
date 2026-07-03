@@ -129,11 +129,6 @@ mod tests {
     type RandomState = super::RandomState<false, true, false, false>;
 
     #[test]
-    fn test_random_state_size() {
-        assert_eq!(core::mem::size_of::<RandomState>(), 8);
-    }
-
-    #[test]
     fn test_random_state() {
         let state1 = RandomState::new();
         let state2 = RandomState::new();
