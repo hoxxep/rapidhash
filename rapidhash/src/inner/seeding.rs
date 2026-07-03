@@ -43,9 +43,14 @@ pub(crate) mod seed {
 
             seed = RANDOM_SEED.with(|cell| {
                 let mut seed = cell.get();
-                #[cfg(all(feature = "std", target_has_atomic = "ptr"))] {
+                #[cfg(target_has_atomic = "ptr")] {
                     if seed == 0 {
                         seed = init_thread_seed(arbitrary);
+                    }
+                }
+                #[cfg(not(target_has_atomic = "ptr"))] {
+                    if seed == 0 {
+                        seed = super::secrets::generate_random();
                     }
                 }
                 seed = seed.wrapping_add(DEFAULT_SECRETS[0]);
