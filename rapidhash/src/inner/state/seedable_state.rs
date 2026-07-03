@@ -164,14 +164,6 @@ mod tests {
     type SeedableState<'s> = super::SeedableState<'s, false, true, false, false>;
 
     #[test]
-    fn test_seedable_state_size() {
-        #[cfg(target_pointer_width = "64")]
-        assert_eq!(core::mem::size_of::<SeedableState>(), 16);
-        #[cfg(target_pointer_width = "32")]
-        assert!(core::mem::size_of::<SeedableState>() <= 16);
-    }
-
-    #[test]
     fn test_random_init() {
         let state1 = SeedableState::random();
         let state2 = SeedableState::random();

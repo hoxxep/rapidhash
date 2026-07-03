@@ -105,6 +105,45 @@ jobs:
         working-directory: rapidhash-msrv
         run: cargo test --no-fail-fast --all-features
 
+  size-checks:
+    # Cross-check the compile-time struct-size assertions in rapidhash-msrv over a range of targets.
+    # `cargo check` const-evaluates the assertions without linking, running, or even libtest, so no
+    # cross toolchain or emulator is needed — only the target's prebuilt std (where applicable).
+    # Struct size is endianness-independent, so the axes worth covering are pointer width and u128
+    # alignment, plus the wasm (COMPACT) and no-atomics (GlobalSecrets) instantiations:
+    #   - x86_64/aarch64: 64-bit, u128 aligned to 16
+    #   - s390x:          64-bit, u128 aligned to 8 (the case that broke the old exact-size test)
+    #   - i686:           32-bit
+    #   - wasm32:         32-bit, exercises the COMPACT=true type aliases
+    #   - thumbv6m:       32-bit, no_std + no atomics (checks the non-atomic GlobalSecrets is a ZST)
+    # The dependency graph here is tiny (just rapidhash + rustversion), so no build cache is used.
+    name: "Size checks (${{ matrix.target }})"
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            args: --features std
+          - target: aarch64-unknown-linux-gnu
+            args: --features std
+          - target: s390x-unknown-linux-gnu
+            args: --features std
+          - target: i686-unknown-linux-gnu
+            args: --features std
+          - target: wasm32-unknown-unknown
+            args: --features std
+          - target: thumbv6m-none-eabi
+            args: --no-default-features
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Cross-check compile-time struct size assertions
+        working-directory: rapidhash-msrv
+        run: cargo check ${{ matrix.args }} --target ${{ matrix.target }}
+
   test-c:
     name: "Test (C implementations)"
     runs-on: ubuntu-latest

@@ -9,16 +9,16 @@ mod tests {
         #[test]
         fn test_hashmap_size() {
             // only enable when std is available
-            assert_eq!(core::mem::size_of::<rapidhash::RapidHashMap<u32, u32>>(), 40);
-            assert_eq!(core::mem::size_of::<foldhash::HashMap<u32, u32>>(), 40);
+            assert!(core::mem::size_of::<rapidhash::RapidHashMap<u32, u32>>() <= 40);
+            assert!(core::mem::size_of::<foldhash::HashMap<u32, u32>>() <= 40);
         }
 
         #[cfg(feature = "bench")]
         #[test]
         fn test_hasher_size() {
             // only enable when std is available
-            assert_eq!(core::mem::size_of::<rapidhash::fast::RapidHasher>(), 48);
-            assert_eq!(core::mem::size_of::<foldhash::fast::FoldHasher>(), 48);
+            assert!(core::mem::size_of::<rapidhash::fast::RapidHasher>() <= 48);
+            assert!(core::mem::size_of::<foldhash::fast::FoldHasher>() <= 48);
         }
     }
 
