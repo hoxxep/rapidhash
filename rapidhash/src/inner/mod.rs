@@ -48,7 +48,7 @@ mod tests {
 
     use std::hash::{BuildHasher, Hash, Hasher};
     use std::collections::BTreeSet;
-    use rand::{RngExt, SeedableRng};
+    use rand::RngExt;
     use rapidrand::RapidRng;
     use crate::inner::mix_np::rapid_mix_np;
     use super::seed::{DEFAULT_RAPID_SECRETS, DEFAULT_SEED};
@@ -103,8 +103,8 @@ mod tests {
     /// Also check that the hash is unique for different byte streams.
     #[test]
     fn all_sizes() {
+        let mut rng: RapidRng = rand::make_rng();
         let mut hashes = BTreeSet::new();
-        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for size in 0..=1024 {
             let mut data = std::vec![0; size];
@@ -128,8 +128,8 @@ mod tests {
     /// These tests are not deterministic, but should fail with a very low probability.
     #[test]
     fn flip_bit_trial() {
+        let mut rng: RapidRng = rand::make_rng();
         let mut flips = std::vec![];
-        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for len in 1..=512 {
             let mut data = std::vec![0; len];
@@ -207,8 +207,8 @@ mod tests {
     /// These tests are not deterministic, but should fail with a very low probability.
     #[test]
     fn flip_bit_trial_streaming() {
+        let mut rng: RapidRng = rand::make_rng();
         let mut flips = std::vec![];
-        let mut rng = RapidRng::from_rng(&mut rand::rng());
 
         for len in 1..=300 {
             let mut data = std::vec![0; len];
@@ -254,9 +254,8 @@ mod tests {
     #[cfg(target_endian = "little")]
     #[test]
     fn compare_to_c() {
-        use rand::RngExt;
         use rapidhash_c::rapidhashcc_rs;
-        let mut rng = RapidRng::from_rng(&mut rand::rng());
+        let mut rng: RapidRng = rand::make_rng();
 
         for len in 0..=512 {
             let mut data = std::vec![0; len];

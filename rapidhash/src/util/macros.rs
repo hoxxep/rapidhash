@@ -4,9 +4,9 @@ macro_rules! compare_to_c {
         #[test]
         fn $test() {
             use rapidhash_c::$cc_fn;
+            use rand::Rng;
 
-            use rand::{Rng, SeedableRng};
-            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
+            let mut rng: rapidrand::RapidRng = rand::make_rng();
 
             // test zero-length input
             let rust_hash = $rust_fn(&[], &DEFAULT_RAPID_SECRETS);
@@ -42,8 +42,8 @@ macro_rules! flip_bit_trial {
     ($test:ident, $hash:path) => {
         #[test]
         fn $test() {
-            use rand::{Rng, SeedableRng};
-            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
+            use rand::Rng;
+            let mut rng: rapidrand::RapidRng = rand::make_rng();
 
             let mut flips = std::vec![];
 
@@ -103,8 +103,8 @@ macro_rules! compare_rapidhash_file {
     ($test:ident, $hash:path, $file:path) => {
         #[test]
         fn $test() {
-            use rand::{Rng, SeedableRng};
-            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
+            use rand::Rng;
+            let mut rng: rapidrand::RapidRng = rand::make_rng();
 
             const LENGTH: usize = 1024;
             for len in 1..=LENGTH {
@@ -131,8 +131,8 @@ macro_rules! compare_rapid_stream_hasher {
         fn $test() {
             extern crate alloc;
 
-            use rand::{Rng, SeedableRng};
-            let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
+            use rand::Rng;
+            let mut rng: rapidrand::RapidRng = rand::make_rng();
 
             type H<'a> = $hasher;
 
