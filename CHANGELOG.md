@@ -2,11 +2,15 @@
 
 ## Planned for 5.0.0
 - Remove `Copy` from State types (eg. `RandomState`) to match the `std` hasher API.
+- Remove the `rand` and `rng` features.
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
-- Upgrade `rand_core` to v0.10.
 - Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
 
 ## 4.5.0 (Unreleased)
+
+### Deprecations
+- The `rand` feature has been deprecated in favor of `getrandom_04` and `getrandom_03`.
+- The `rng` feature has been deprecated in favor of the [`rapidrand`](https://github.com/hoxxep/rapidrand) crate.
 
 ### Additions
 - **`getrandom_04` feature**: opt-in seeding of the hasher seeds and secrets from OS/platform entropy via the [getrandom](https://docs.rs/getrandom) crate, without requiring `std`. This replaces the `rand` feature and enables true HashDoS resistance on targets with no ambient entropy or ASLR:
@@ -17,15 +21,7 @@
 
 ### Fixes
 - `RandomState` no longer produces duplicate seeds across threads whose stacks are recycled by the OS. Each thread's seed counter is now initialized from a global thread counter mixed with the process-wide random seed, instead of relying on the (frequently re-used) stack address alone.
-- Better randomness handling on `no_std` targets and targets without atomics.
-
-### Changes
-- The `rand` feature is now a deprecated alias for `std` + `getrandom_03`, and the `rand` crate dependency has been removed. `RandomState` and `GlobalState` seed themselves from getrandom, the standard library's secure RNG, or ASLR-based entropy, in that order of preference depending on enabled features. The `rand` feature will be removed in a future major version.
-- Documented how to achieve true seed randomization on wasm32 and embedded targets in the `RandomState` and `GlobalState` docs, and documented the one remaining gap: `GlobalState` on targets without atomic pointer support cannot be randomized, and `RandomState` with `getrandom_04` should be preferred there.
-
-### Testing
-- Added wasm32 behavioural tests, run through wasmtime in CI: without `getrandom` (`wasm32-unknown-unknown`) seeding is asserted to be fully deterministic across instances, and with `getrandom_04` (`wasm32-wasip1` + WASI entropy) seeds and secrets are asserted to differ between instances.
-- Added a 1024-thread seed uniqueness test covering OS thread-stack recycling.
+- Better randomness handling and documentation for wasm targets, `no_std` targets, and targets without atomics.
 
 ## 4.4.2 (20260627)
 
