@@ -16,6 +16,8 @@ Used by Google's [Fuchsia OS](https://fuchsia.googlesource.com/fuchsia/+/master/
 
 **Sponsored by [Upon](https://uponvault.com?utm_source=github&utm_campaign=rapidhash)**, inheritance vaults for your digital life. Ensure your family can access your devices, accounts, and assets when the unexpected happens.
 
+Need randomness too? [rapidrand](https://github.com/hoxxep/rapidrand) has been spun out of rapidhash as the complementary, tiny, incredibly fast PRNG crate with full `rand` compatibility.
+
 ## Usage
 ### In-Memory Hashing
 The in-memory hasher follows rust's `std::hash` traits. The underlying hash function may change between minor versions and is only suitable for in-memory use (e.g. `HashMap`, `HashSet`). Available in `rapidhash::fast` and `rapidhash::quality` flavours.
@@ -94,10 +96,10 @@ echo "example" | rapidhash --v3
 - `std`: Enables the `RapidHashMap` and `RapidHashSet` helper types, and lets `RandomState` and `GlobalState` seed their secrets from the standard library's secure RNG (rather than ASLR alone) and initialize slightly faster via a thread-local seed counter. Disabling it keeps the crate `no_std`, but seeding then falls back to weaker ASLR-based entropy.
 - `getrandom_04`: Seeds the `RandomState` and `GlobalState` secrets from OS/platform entropy via the [getrandom](https://docs.rs/getrandom) crate v0.4, without requiring `std`. This is the only way to get HashDoS resistance on targets with no ambient entropy or ASLR, such as `wasm32-unknown-unknown` in the browser (which additionally requires enabling getrandom's `wasm_js` backend from the top-level binary crate).
 - `getrandom_03`: The same as `getrandom_04`, but using getrandom v0.3.
-- `rand`: **Deprecated.** Now an alias for `std` + `getrandom_03`, and will be removed in a future major version. getrandom v0.3 is chosen to preserve the MSRV 1.71.
-- `rng`: Enables `RapidRng`, a fast, non-cryptographic PRNG based on rapidrng. Includes the `rand_core` crate dependency.
 - `unsafe`: Uses unsafe pointer arithmetic to skip some unnecessary bounds checks for a small 3-4% performance improvement.
 - `nightly`: Enable nightly-only features for even faster hashing, such as overriding `Hasher::write_str` and likely hints.
+- `rand`: **Deprecated.** Now an alias for `std` + `getrandom_03`, and will be removed in a future major version. getrandom v0.3 is chosen to preserve the MSRV 1.71.
+- `rng`: **Deprecated.** `RapidRng` has been spun out into the [rapidrand](https://github.com/hoxxep/rapidrand) crate.
 
 ## Benchmarks
 

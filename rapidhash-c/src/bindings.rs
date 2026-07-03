@@ -24,8 +24,8 @@ macro_rules! bindings {
             /// These tests are not deterministic, but should fail with a very low probability.
             #[test]
             fn flip_bit_trial() {
-                use rand::{Rng, SeedableRng};
-                let mut rng = rapidrand::RapidRng::from_rng(&mut rand::rng());
+                use rand::{Rng};
+                let mut rng: rapidrand::RapidRng = rand::make_rng();
 
                 let mut flips = std::vec![];
 

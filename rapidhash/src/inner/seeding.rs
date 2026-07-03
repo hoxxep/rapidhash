@@ -369,7 +369,7 @@ pub(crate) mod secrets {
 
             let mut hasher = StdRandomState::new().build_hasher();
             hasher.write(b"");
-            return hasher.finish()
+            hasher.finish()
         }
 
         #[cfg(not(feature = "std"))] {
@@ -387,7 +387,7 @@ pub(crate) mod secrets {
             seed = rapid_mix_np::<false>(seed ^ DEFAULT_SECRETS[6], static_ptr ^ DEFAULT_SECRETS[3]);
 
             // final avalanche mix step
-            return rapid_mix_np::<false>(seed ^ DEFAULT_SECRETS[6], DEFAULT_SECRETS[0])
+            rapid_mix_np::<false>(seed ^ DEFAULT_SECRETS[6], DEFAULT_SECRETS[0])
         }
     }
 
