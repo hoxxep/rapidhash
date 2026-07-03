@@ -1,6 +1,6 @@
 [package]
 name = "rapidhash"
-version = "4.4.2"
+version = "4.5.0"
 edition = "2021"
 publish = true
 rust-version = "1.71.0"  # const split_at and read_unaligned are our limitations
@@ -25,7 +25,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 [features]
 default = ["std"]
 std = []  # enable std library for RapidHashMap and RapidHashSet helpers
-rand = ["std", "getrandom_03"]  # deprecated: alias for std + getrandom (the old feature implied std), will be removed in a future major version
+rand = ["std", "getrandom_03"]  # deprecated: alias for std + getrandom (the old feature implied std) and will be removed in a future major version
 getrandom_04 = ["dep:getrandom_04"]  # seed hasher secrets from OS/platform entropy using getrandom v0.4, incl. no_std and wasm (wasm32-unknown-unknown also needs getrandom's wasm_js backend enabled by the top-level binary)
 getrandom_03 = ["dep:getrandom_03"]  # the same as getrandom_04, but using getrandom v0.3
 rng = ["dep:rand_core"]  # enable RapidRng, a rand Rng-compatible fast PRNG using rapidrng
@@ -33,8 +33,9 @@ nightly = []  # enable nightly features, faster str hashing and likely/unlikely 
 unsafe = []  # enable unsafe pointer arithmetic; this is used to check for bounds-check regressions
 
 # dev note: we separate our getrandom feature versions to avoid pinning the rapidhash crate version
-# to a specific getrandom version, otherwise we'd need to perform a major version bump for any
-# getrandom version bumps. It also lets us keep MSRV 1.71 while supporting newer getrandom versions.
+# to a specific getrandom version, otherwise we'd need to perform a major version bump for every
+# getrandom major version bump. It also lets us keep MSRV 1.71 while supporting newer getrandom
+# versions.
 
 [dependencies]
 rustversion = "1.0"
@@ -45,6 +46,6 @@ getrandom_03 = { version = "0.3", package = "getrandom", default-features = fals
 [dev-dependencies]
 rapidhash-c = { path = "../rapidhash-c" }
 rand = "0.10.0"
-rapidrand = "0.1.0"
+rapidrand = "0.1.1"
 tempfile = "3.14.0" # testing rapidhash_file
 assert_cmd = "2.1.1"

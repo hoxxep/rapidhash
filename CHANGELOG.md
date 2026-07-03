@@ -6,14 +6,14 @@
 - Make the `rapidhash_v3_file_inline` buffer size configurable.
 - Replace `premix_seed` in `RapidSecrets::reseed` with `rapidhash_seed`.
 
-## 4.5.0 (Unreleased)
+## 4.5.0 (20260703)
 
 ### Deprecations
 - The `rand` feature has been deprecated in favor of `getrandom_04` and `getrandom_03`.
 - The `rng` feature has been deprecated in favor of the [`rapidrand`](https://github.com/hoxxep/rapidrand) crate.
 
 ### Additions
-- **`getrandom_04` feature**: opt-in seeding of the hasher seeds and secrets from OS/platform entropy via the [getrandom](https://docs.rs/getrandom) crate, without requiring `std`. This replaces the `rand` feature and enables true HashDoS resistance on targets with no ambient entropy or ASLR:
+- **`getrandom_04` feature**: opt-in seeding of the hasher seeds and secrets from OS/platform entropy via the [getrandom](https://docs.rs/getrandom) crate, without requiring `std` nor `rand` crate. This replaces the `rand` feature and enables true HashDoS resistance on targets with no ambient entropy or ASLR:
   - `wasm32-wasip1`/`wasm32-wasip2`: enabling the feature is sufficient; entropy comes from the WASI host.
   - `wasm32-unknown-unknown` (browser/node): additionally requires getrandom's `wasm_js` backend, enabled by the top-level binary. Building without the backend is a compile error rather than a silent fallback to deterministic seeding.
   - Embedded/`no_std` targets with a hardware RNG: register a getrandom [custom backend](https://docs.rs/getrandom/0.3/getrandom/#custom-backend). On targets without atomic pointer support (e.g. `thumbv6m-none-eabi`), each `RandomState` draws a fresh random seed per instance, restoring minimal HashDoS resistance where there previously was none.
