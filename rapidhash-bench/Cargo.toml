@@ -59,7 +59,7 @@ iai-callgrind = "0.16.0"
 rand = "0.9.0"
 rand_core = "0.9.0"
 const-random = "0.1.18"
-itertools = "0.14.0"
+itertools = "0.15.0"
 
 # gxhash simply won't compile on Github Actions, even though I only use it for the benchmarks...
 [target.'cfg(all(any(target_arch = "arm", target_arch = "aarch64"), all(target_feature = "aes", target_feature = "neon")))'.dev-dependencies]
