@@ -51,7 +51,7 @@ farmhash = "1.1.5"
 highway = "1.2.0"
 rustc-hash = "2.0.0"
 foldhash = "0.2.0"
-museair = "0.4.0"
+museair = "0.5.1"
 
 # benchmarking helpers
 criterion = { version = "0.8.1", default-features = false, features = ["rayon", "cargo_bench_support"] }
