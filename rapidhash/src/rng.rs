@@ -273,6 +273,8 @@ impl SeedableRng for RapidRng {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "std")]
+    use assertables::assert_in_delta;
 
     #[cfg(feature = "rng")]
     #[test]
@@ -308,7 +310,7 @@ mod tests {
         }
 
         let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
-        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
+        assert_in_delta!(average, 32.0, 0.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
     }
 
     #[cfg(feature = "std")]
@@ -334,7 +336,7 @@ mod tests {
         }
 
         let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
-        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
+        assert_in_delta!(average, 32.0, 0.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
     }
 
     #[cfg(feature = "std")]
@@ -360,7 +362,7 @@ mod tests {
         }
 
         let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
-        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
+        assert_in_delta!(average, 32.0, 0.05, "Did not flip an average of half the bits. average: {}, expected: 32.0", average);
     }
 
     /// detects a cycle at: 4294967296:1751221902

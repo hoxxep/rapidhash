@@ -49,3 +49,4 @@ rand = "0.10.0"
 rapidrand = "0.1.1"
 tempfile = "3.14.0" # testing rapidhash_file
 assert_cmd = "2.1.1"
+assertables = "10"

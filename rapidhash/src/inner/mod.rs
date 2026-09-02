@@ -50,6 +50,7 @@ mod tests {
     use std::collections::BTreeSet;
     use rand::RngExt;
     use rapidrand::RapidRng;
+    use assertables::assert_in_delta;
     use crate::inner::mix_np::rapid_mix_np;
     use super::seed::{DEFAULT_RAPID_SECRETS, DEFAULT_SEED};
     use super::rapid_const::{rapidhash_rs, rapidhash_rs_seeded};
@@ -152,7 +153,7 @@ mod tests {
         }
 
         let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
-        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
+        assert_in_delta!(average, 32.0, 0.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
     }
 
     /// Helper method for [flip_bit_trial_streaming]. Hashes a byte stream in u8 chunks.
@@ -235,7 +236,7 @@ mod tests {
 
         // check that on average half of the bits were flipped
         let average = flips.iter().sum::<u64>() as f64 / flips.len() as f64;
-        assert!(average > 31.95 && average < 32.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
+        assert_in_delta!(average, 32.0, 0.05, "Did not flip an average of half the bits. average: {average}, expected: 32.0");
     }
 
     /// Compare to the C rapidhash implementation to ensure we match perfectly.
